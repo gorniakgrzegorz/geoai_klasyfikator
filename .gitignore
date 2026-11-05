@@ -1,0 +1,33 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# PyInstaller i Inno Setup: wyniki budowania, nie trzymamy ich w repozytorium.
+# Gotowy program pobiera się z zakładki Actions albo z Releases.
+program_exe/build/
+program_exe/dist/
+program_exe/instalator/
+*.spec.bak
+
+# QGIS
+*.qgs~
+*.qgz~
+
+# systemowe
+.DS_Store
+Thumbs.db
+desktop.ini
+docs/ryciny/logika_artykulu_tekst.svg
+docs/ryciny/logika_artykulu_bez_tytulu_tekst.svg
+docs/ryciny/logika_artykulu_bez_tytulu.svg
+docs/ryciny/logika_artykulu_bez_tytulu.png
+docs/ryciny/logika_artykulu_bez_tytulu.pdf
+docs/ryciny/logika_artykulu_bez_tytulu.dot
+docs/ryciny/logika_artykulu.svg
+docs/ryciny/logika_artykulu.png
+docs/ryciny/logika_artykulu.pdf
+docs/ryciny/logika_artykulu.dot
