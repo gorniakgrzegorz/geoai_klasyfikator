@@ -1,0 +1,44 @@
+# Jednolite końce wierszy, żeby Git nie zgłaszał zmian w plikach,
+# których nikt nie ruszał, i żeby ten sam plik wyglądał tak samo
+# na Windowsie, Linuksie i macOS.
+
+# Domyślnie: w repozytorium trzymamy LF, na dysku Git decyduje sam.
+* text=auto eol=lf
+
+# Pliki, które muszą mieć LF, bo inaczej nie zadziałają.
+*.py        text eol=lf
+*.sh        text eol=lf
+*.yml       text eol=lf
+*.yaml      text eol=lf
+*.md        text eol=lf
+*.txt       text eol=lf
+*.qml       text eol=lf
+*.svg       text eol=lf
+*.html      text eol=lf
+*.css       text eol=lf
+*.js        text eol=lf
+*.json      text eol=lf
+*.spec      text eol=lf
+*.cfg       text eol=lf
+
+# Pliki, które muszą mieć CRLF, bo czyta je Windows.
+*.bat       text eol=crlf
+*.cmd       text eol=crlf
+*.ps1       text eol=crlf
+*.iss       text eol=crlf
+
+# Pliki binarne: Git nie ma nic zamieniać.
+*.png       binary
+*.jpg       binary
+*.jpeg      binary
+*.ico       binary
+*.ttf       binary
+*.otf       binary
+*.pdf       binary
+*.zip       binary
+*.tif       binary
+*.tiff      binary
+*.gpkg      binary
+*.geoai     binary
+*.docx      binary
+*.xlsx      binary

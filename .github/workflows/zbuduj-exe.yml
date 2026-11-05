@@ -41,6 +41,15 @@ jobs:
           python -m pip install -r program_cli/requirements.txt
           python -m pip install "pyinstaller>=6,<7"
 
+      - name: Sprawdz kod przed budowaniem
+        shell: pwsh
+        run: |
+          # Szybkie sprawdzenie skladni calego kodu. Taniej wylapac blad
+          # tutaj niz po kilku minutach pakowania.
+          python -m compileall -q program_exe program_cli geoai_klasyfikator
+          if ($LASTEXITCODE -ne 0) { throw "Blad skladni w kodzie" }
+          python -c "import tkinter; print('tkinter', tkinter.TkVersion)"
+
       - name: Zbuduj plik wykonywalny
         shell: pwsh
         working-directory: program_exe
@@ -63,6 +72,17 @@ jobs:
           $ikona = [System.Drawing.Icon]::ExtractAssociatedIcon($exe.FullName)
           if ($null -eq $ikona) { throw "Plik exe nie ma ikony" }
           Write-Host ("Ikona:   {0} na {1} pikseli" -f $ikona.Width, $ikona.Height)
+          # Nazwa i wersja produktu musza byc wpisane w plik. Wymaga tego
+          # podpisywanie kodu przez SignPath.io, a Windows pokazuje je
+          # we wlasciwosciach pliku.
+          $w = $exe.VersionInfo
+          Write-Host ("Produkt: {0} {1}" -f $w.ProductName, $w.ProductVersion)
+          if ($w.ProductName -ne "GeoAI Klasyfikator") {
+            throw "Brak albo zla nazwa produktu w pliku exe"
+          }
+          if ([string]::IsNullOrWhiteSpace($w.ProductVersion)) {
+            throw "Brak wersji produktu w pliku exe"
+          }
 
       - name: Zainstaluj Inno Setup
         shell: pwsh
@@ -85,15 +105,43 @@ jobs:
         working-directory: program_exe/dist
         run: |
           Compress-Archive -Path "GeoAI Klasyfikator" `
-                           -DestinationPath "GeoAI-Klasyfikator-windows.zip" -Force
+                           -DestinationPath "GeoAI_Klasyfikator_win.zip" -Force
+
+      - name: Policz sumy kontrolne
+        shell: pwsh
+        run: |
+          # Sumy SHA-256 pozwalaja kazdemu sprawdzic, ze pobrany plik jest
+          # dokladnie tym, ktory zbudowala ta maszyna, i nikt go po drodze
+          # nie podmienil. Przegladarka i tak ostrzeze przed nowym plikiem
+          # exe, wiec suma kontrolna jest jedyna rzeczowa odpowiedzia.
+          $pliki = @()
+          $pliki += Get-ChildItem "program_exe/dist/GeoAI_Klasyfikator_win.zip"
+          $pliki += Get-ChildItem "program_exe/instalator" -Filter *.exe -ErrorAction SilentlyContinue
+          $linie = foreach ($p in $pliki) {
+            $h = (Get-FileHash $p.FullName -Algorithm SHA256).Hash.ToLower()
+            Write-Host ("{0}  {1}" -f $h, $p.Name)
+            "{0}  {1}" -f $h, $p.Name
+          }
+          $naglowek = @(
+            "GeoAI Klasyfikator, sumy kontrolne SHA-256",
+            ("zbudowano: " + (Get-Date -Format "yyyy-MM-dd HH:mm") + " UTC"),
+            ("przebieg:  " + $env:GITHUB_SERVER_URL + "/" + $env:GITHUB_REPOSITORY + "/actions/runs/" + $env:GITHUB_RUN_ID),
+            ("commit:    " + $env:GITHUB_SHA),
+            "",
+            "Sprawdzenie w PowerShellu:",
+            "    Get-FileHash .\GeoAI_Klasyfikator_Setup.exe -Algorithm SHA256",
+            ""
+          )
+          ($naglowek + $linie) | Set-Content -Path "program_exe/SUMY-KONTROLNE.txt" -Encoding utf8
 
       - name: Odloz pliki do pobrania
         uses: actions/upload-artifact@v4
         with:
-          name: GeoAI-Klasyfikator-windows
+          name: GeoAI_Klasyfikator_win
           path: |
-            program_exe/dist/GeoAI-Klasyfikator-windows.zip
+            program_exe/dist/GeoAI_Klasyfikator_win.zip
             program_exe/instalator/*.exe
+            program_exe/SUMY-KONTROLNE.txt
           if-no-files-found: error
           retention-days: 90
 
@@ -103,10 +151,35 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          $pliki = @("program_exe/dist/GeoAI-Klasyfikator-windows.zip")
+          $pliki = @("program_exe/dist/GeoAI_Klasyfikator_win.zip",
+                     "program_exe/SUMY-KONTROLNE.txt")
           $inst = Get-ChildItem -Path "program_exe/instalator" -Filter *.exe -ErrorAction SilentlyContinue
           if ($inst) { $pliki += $inst.FullName }
+          # Opis wydania budujemy jako liste linii i zapisujemy do pliku.
+          # Tekstu wielowierszowego nie da sie tu wpisac wprost, bo
+          # skladnia PowerShella klocilaby sie ze skladnia YAML-a.
+          $plot = [char]0x60
+          $ramka = "$plot$plot$plot"
+          $opis = @(
+            "Program dla Windows. Pobierz instalator (plik Setup.exe) albo wersje przenosna (plik .zip).",
+            "",
+            "## Ostrzezenie przegladarki",
+            "",
+            "Plik nie jest podpisany certyfikatem wydawcy, wiec Chrome, Edge i Windows",
+            "SmartScreen pokaza ostrzezenie. Jest to brak reputacji nowego pliku, a nie",
+            "wykryty wirus. Zeby sie upewnic, ze pobrany plik jest dokladnie tym, ktory",
+            "zbudowal GitHub, porownaj sume kontrolna:",
+            "",
+            "    Get-FileHash .\GeoAI_Klasyfikator_Setup.exe -Algorithm SHA256",
+            "",
+            "## Sumy kontrolne",
+            "",
+            $ramka
+          )
+          $opis += (Get-Content "program_exe/SUMY-KONTROLNE.txt")
+          $opis += $ramka
+          $opis | Set-Content -Path opis-wydania.md -Encoding utf8
           gh release create $env:GITHUB_REF_NAME @pliki `
             --title "GeoAI Klasyfikator $env:GITHUB_REF_NAME" `
-            --notes "Program dla Windows. Pobierz instalator (plik Setup.exe) albo wersje przenosna (plik .zip)." `
+            --notes-file opis-wydania.md `
             --repo $env:GITHUB_REPOSITORY

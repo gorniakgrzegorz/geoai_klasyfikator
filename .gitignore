@@ -11,6 +11,10 @@ env/
 program_exe/build/
 program_exe/dist/
 program_exe/instalator/
+# Gotowe pliki programu trafiaja do Releases, nie do repozytorium.
+GeoAI_Klasyfikator_win/*.exe
+GeoAI_Klasyfikator_win/*.zip
+GeoAI_Klasyfikator_win/SUMY-KONTROLNE.txt
 *.spec.bak
 
 # QGIS
@@ -21,13 +25,3 @@ program_exe/instalator/
 .DS_Store
 Thumbs.db
 desktop.ini
-docs/ryciny/logika_artykulu_tekst.svg
-docs/ryciny/logika_artykulu_bez_tytulu_tekst.svg
-docs/ryciny/logika_artykulu_bez_tytulu.svg
-docs/ryciny/logika_artykulu_bez_tytulu.png
-docs/ryciny/logika_artykulu_bez_tytulu.pdf
-docs/ryciny/logika_artykulu_bez_tytulu.dot
-docs/ryciny/logika_artykulu.svg
-docs/ryciny/logika_artykulu.png
-docs/ryciny/logika_artykulu.pdf
-docs/ryciny/logika_artykulu.dot
