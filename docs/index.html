@@ -1,0 +1,765 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GeoAI Klasyfikator — instrukcja</title>
+<meta name="description" content="Obiektowa klasyfikacja pokrycia terenu ze zdjęć z drona. Wtyczka QGIS, program dla Windows i wiersz poleceń. Instrukcja krok po kroku.">
+<style>
+:root{
+  --marka:#00bde7; --marka-ciemna:#009ec2; --marka-jasna:#eafaff;
+  --tekst:#1a2628; --szary:#5d7076; --linia:#d7e3e8; --tlo:#ffffff;
+  --cien:0 1px 3px rgba(16,42,50,.07), 0 8px 24px rgba(16,42,50,.05);
+}
+*{box-sizing:border-box}
+body{margin:0;font:16px/1.65 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+     color:var(--tekst);background:var(--tlo);-webkit-font-smoothing:antialiased}
+a{color:var(--marka-ciemna)}
+.owijka{max-width:980px;margin:0 auto;padding:0 20px}
+
+/* ── pasek nawigacji ─────────────────────────────────────────── */
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.93);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--linia)}
+nav .owijka{display:flex;align-items:center;gap:22px;height:56px}
+nav .znak{display:flex;align-items:center;gap:9px;font-weight:700;
+          text-decoration:none;color:var(--tekst);white-space:nowrap}
+nav .znak svg{width:26px;height:26px;border-radius:6px}
+nav .linki{display:flex;gap:18px;margin-left:auto;flex-wrap:wrap}
+nav .linki a{color:var(--szary);text-decoration:none;font-size:14px;font-weight:500}
+nav .linki a:hover{color:var(--marka-ciemna)}
+
+/* ── nagłówek ─────────────────────────────────────────────────── */
+header{background:linear-gradient(160deg,#00bde7 0%,#0098c4 100%);color:#fff;
+       padding:58px 0 64px;position:relative;overflow:hidden}
+header::after{content:"";position:absolute;inset:auto 0 -1px 0;height:40px;
+  background:var(--tlo);clip-path:polygon(0 100%,100% 0,100% 100%)}
+header h1{margin:0 0 10px;font-size:2.7rem;letter-spacing:-.02em;line-height:1.1}
+header p.lead{margin:0 0 26px;font-size:1.18rem;max-width:620px;color:#e8fbff}
+.odznaki{display:flex;gap:9px;flex-wrap:wrap}
+.odznaka{background:rgba(255,255,255,.17);border:1px solid rgba(255,255,255,.3);
+         padding:4px 11px;border-radius:999px;font-size:13px;font-weight:500}
+
+/* ── sekcje ───────────────────────────────────────────────────── */
+section{padding:46px 0;border-bottom:1px solid var(--linia)}
+section:last-of-type{border-bottom:none}
+h2{font-size:1.75rem;margin:0 0 6px;letter-spacing:-.015em}
+h2 .numer{display:inline-flex;align-items:center;justify-content:center;
+  width:34px;height:34px;border-radius:9px;background:var(--marka);color:#fff;
+  font-size:1rem;margin-right:11px;vertical-align:3px}
+h3{font-size:1.14rem;margin:28px 0 8px}
+.podtytul{color:var(--szary);margin:0 0 22px;font-size:1.02rem}
+p{margin:0 0 14px}
+
+/* ── karty i siatki ───────────────────────────────────────────── */
+.siatka{display:grid;gap:16px;margin:22px 0}
+.siatka.dwa{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.siatka.trzy{grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
+.karta{border:1px solid var(--linia);border-radius:11px;padding:17px 19px;
+       background:#fff;box-shadow:var(--cien)}
+.karta h4{margin:0 0 7px;font-size:1rem}
+.karta p{margin:0;font-size:14.5px;color:var(--szary)}
+.karta .ikona{width:34px;height:34px;margin-bottom:9px}
+
+.ramka{border-left:4px solid var(--marka);background:var(--marka-jasna);
+       padding:14px 18px;border-radius:0 9px 9px 0;margin:20px 0}
+.ramka.uwaga{border-left-color:#e0a030;background:#fff8e9}
+.ramka.wazne{border-left-color:#d1495b;background:#fdeef0}
+.ramka p:last-child{margin-bottom:0}
+.ramka strong{color:var(--tekst)}
+
+table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14.5px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--linia);
+      vertical-align:top}
+th{background:var(--marka-jasna);font-weight:600;font-size:13.5px;
+   letter-spacing:.01em}
+tbody tr:hover{background:#fafdfe}
+code{background:#f1f6f8;padding:1px 6px;border-radius:4px;
+     font:13.5px/1.5 "SF Mono",Consolas,monospace;color:#0a5468}
+pre{background:#102a32;color:#dff4fa;padding:15px 18px;border-radius:9px;
+    overflow-x:auto;font:13.5px/1.6 "SF Mono",Consolas,monospace;margin:14px 0}
+pre code{background:none;color:inherit;padding:0}
+
+.rysunek{margin:26px 0;text-align:center}
+.rysunek svg{max-width:100%;height:auto}
+.rysunek figcaption{color:var(--szary);font-size:13.5px;margin-top:9px}
+
+.kroki{counter-reset:krok;list-style:none;padding:0;margin:20px 0}
+.kroki li{counter-increment:krok;position:relative;padding:0 0 16px 44px;
+          border-left:2px solid var(--linia);margin-left:14px}
+.kroki li:last-child{border-left-color:transparent;padding-bottom:0}
+.kroki li::before{content:counter(krok);position:absolute;left:-15px;top:-2px;
+  width:28px;height:28px;border-radius:50%;background:var(--marka);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+  font-weight:600}
+.kroki li strong{display:block;margin-bottom:3px}
+
+footer{padding:34px 0;color:var(--szary);font-size:14px}
+footer a{color:var(--szary)}
+.wersje{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+        margin:22px 0}
+.wersja{border:2px solid var(--linia);border-radius:11px;padding:18px;
+        transition:border-color .15s}
+.wersja:hover{border-color:var(--marka)}
+.wersja .tytul{font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.wersja .dla{font-size:13px;color:var(--szary);margin-bottom:10px}
+@media(max-width:640px){
+  header h1{font-size:2rem}
+  nav .linki{display:none}
+  h2 .numer{width:28px;height:28px;font-size:.9rem}
+}
+</style>
+</head>
+<body>
+
+<nav><div class="owijka">
+  <a class="znak" href="#">
+    <svg viewBox="0 0 256 256"><rect width="256" height="256" rx="46" fill="#00bde7"/>
+      <g stroke="#fff" stroke-width="7" stroke-linejoin="round">
+      <path d="M44 56 L116 44 L132 96 L96 128 L46 112 Z" fill="#2e9e4f"/>
+      <path d="M132 96 L116 44 L206 54 L212 104 Z" fill="#fff" fill-opacity=".95"/>
+      <path d="M46 112 L96 128 L88 190 L44 178 Z" fill="#fff" fill-opacity=".35"/>
+      <path d="M96 128 L132 96 L212 104 L204 164 L140 176 Z" fill="#e0a030"/>
+      <path d="M88 190 L140 176 L204 164 L212 210 L96 214 Z" fill="#fff" fill-opacity=".6"/>
+      </g></svg>
+    GeoAI Klasyfikator
+  </a>
+  <div class="linki">
+    <a href="#jak">Jak to działa</a>
+    <a href="#wersje">Wersje</a>
+    <a href="#krok1">Krok po kroku</a>
+    <a href="#dokladnosc">Dokładność</a>
+    <a href="#klopoty">Kłopoty</a>
+  </div>
+</div></nav>
+
+<header><div class="owijka">
+  <h1>Mapa pokrycia terenu<br>ze zdjęć z drona</h1>
+  <p class="lead">Program dzieli zdjęcie na obiekty, uczy się Twoich klas
+  z kilkunastu przykładów — i na końcu uczciwie mówi, ile ta mapa jest warta.</p>
+  <div class="odznaki">
+    <span class="odznaka">Wtyczka QGIS</span>
+    <span class="odznaka">Program dla Windows</span>
+    <span class="odznaka">Wiersz poleceń</span>
+    <span class="odznaka">GPL-3.0</span>
+  </div>
+</div></header>
+
+<section id="jak"><div class="owijka">
+  <h2>Dlaczego obiekty, a nie piksele</h2>
+  <p class="podtytul">Na tym stoi cała metoda — warto zrozumieć ją raz.</p>
+
+  <p>Klasyczna klasyfikacja patrzy na każdy piksel osobno. Piksel wie
+  tylko, jaki ma kolor — a to za mało, żeby odróżnić szary dach od
+  szarego asfaltu. Efektem jest mapa zasypana pojedynczymi kropkami.</p>
+
+  <p>Tutaj zdjęcie najpierw tniemy na <strong>obiekty</strong>: grupy
+  sąsiadujących pikseli o podobnym kolorze. Taki obiekt to kawałek
+  pola, fragment dachu, korona drzewa. I on wie o sobie znacznie
+  więcej: jaki ma kolor, jaką fakturę, jaki kształt, jak wysoko leży
+  i co go otacza.</p>
+
+  <figure class="rysunek">
+  <svg viewBox="0 0 760 210" xmlns="http://www.w3.org/2000/svg" role="img"
+       aria-label="Trzy etapy: piksele, podział na obiekty, gotowa mapa">
+    <defs>
+      <pattern id="szum" width="10" height="10" patternUnits="userSpaceOnUse">
+        <rect width="10" height="10" fill="#7d9a4e"/>
+        <rect width="5" height="5" fill="#8aa557"/>
+        <rect x="5" y="5" width="5" height="5" fill="#melon"/>
+      </pattern>
+    </defs>
+
+    <!-- 1: piksele -->
+    <text x="100" y="18" text-anchor="middle" font-size="13" font-weight="600"
+          fill="#1a2628">1 · Zdjęcie</text>
+    <g>
+      <rect x="20" y="30" width="160" height="150" fill="#8aa557"/>
+      <g opacity=".55">
+        <rect x="20"  y="30" width="160" height="40" fill="#b79b6b"/>
+        <rect x="20"  y="140" width="160" height="40" fill="#9d9d9f"/>
+        <rect x="52"  y="70" width="30" height="70" fill="#6f9440"/>
+        <rect x="104" y="70" width="30" height="70" fill="#6f9440"/>
+      </g>
+      <g stroke="#fff" stroke-width=".5" opacity=".35">
+        <path d="M40 30v150M60 30v150M80 30v150M100 30v150M120 30v150M140 30v150M160 30v150
+                 M20 50h160M20 70h160M20 90h160M20 110h160M20 130h160M20 150h160M20 170h160"/>
+      </g>
+      <rect x="20" y="30" width="160" height="150" fill="none" stroke="#5d7076"/>
+    </g>
+    <text x="100" y="198" text-anchor="middle" font-size="11.5" fill="#5d7076">
+      piksel zna tylko swój kolor</text>
+
+    <!-- strzałka -->
+    <path d="M196 105h34" stroke="#00bde7" stroke-width="2.5" marker-end="url(#grot)"/>
+    <defs><marker id="grot" markerWidth="8" markerHeight="8" refX="7" refY="4"
+      orient="auto"><path d="M0 0l8 4-8 4z" fill="#00bde7"/></marker></defs>
+
+    <!-- 2: obiekty -->
+    <text x="330" y="18" text-anchor="middle" font-size="13" font-weight="600"
+          fill="#1a2628">2 · Obiekty</text>
+    <g>
+      <rect x="250" y="30" width="160" height="150" fill="#8aa557"/>
+      <rect x="250" y="30" width="160" height="40" fill="#b79b6b"/>
+      <rect x="250" y="140" width="160" height="40" fill="#9d9d9f"/>
+      <rect x="282" y="70" width="30" height="70" fill="#6f9440"/>
+      <rect x="334" y="70" width="30" height="70" fill="#6f9440"/>
+      <g fill="none" stroke="#ffe14d" stroke-width="1.6">
+        <path d="M250 70h160M250 140h160"/>
+        <path d="M282 70v70M312 70v70M334 70v70M364 70v70"/>
+        <path d="M250 48h160M282 48v-18M334 48v-18M250 160h160M300 160v20M360 160v20"/>
+        <path d="M250 105h32M364 105h46M312 105h22"/>
+      </g>
+      <rect x="250" y="30" width="160" height="150" fill="none" stroke="#5d7076"/>
+    </g>
+    <text x="330" y="198" text-anchor="middle" font-size="11.5" fill="#5d7076">
+      kolor + faktura + kształt + wysokość</text>
+
+    <path d="M426 105h34" stroke="#00bde7" stroke-width="2.5" marker-end="url(#grot)"/>
+
+    <!-- 3: mapa -->
+    <text x="560" y="18" text-anchor="middle" font-size="13" font-weight="600"
+          fill="#1a2628">3 · Mapa</text>
+    <g>
+      <rect x="480" y="30" width="160" height="150" fill="#c9d84a"/>
+      <rect x="480" y="30" width="160" height="40" fill="#8c6d4f"/>
+      <rect x="480" y="140" width="160" height="40" fill="#9e9e9e"/>
+      <rect x="282" y="70" width="0" height="0"/>
+      <rect x="512" y="70" width="30" height="70" fill="#2f8f3e"/>
+      <rect x="564" y="70" width="30" height="70" fill="#2f8f3e"/>
+      <rect x="480" y="30" width="160" height="150" fill="none" stroke="#5d7076"/>
+    </g>
+    <g font-size="10.5" fill="#1a2628">
+      <rect x="664" y="38" width="12" height="12" fill="#8c6d4f"/>
+      <text x="682" y="48">grunt</text>
+      <rect x="664" y="60" width="12" height="12" fill="#2f8f3e"/>
+      <text x="682" y="70">uprawa</text>
+      <rect x="664" y="82" width="12" height="12" fill="#c9d84a"/>
+      <text x="682" y="92">trawa</text>
+      <rect x="664" y="104" width="12" height="12" fill="#9e9e9e"/>
+      <text x="682" y="114">droga</text>
+    </g>
+    <text x="560" y="198" text-anchor="middle" font-size="11.5" fill="#5d7076">
+      bez pojedynczych kropek</text>
+  </svg>
+  <figcaption>Od zdjęcia do mapy. Klasyfikujemy obiekty, nie piksele —
+  dlatego mapa nie jest „zaśmiecona”.</figcaption>
+  </figure>
+
+  <h3>Co program mierzy dla każdego obiektu</h3>
+  <p>Dziewiętnaście liczb z samego zdjęcia, dwadzieścia cztery, jeśli
+  dołożysz model wysokości. To <em>one</em>, a nie obrazek, trafiają
+  do klasyfikatora.</p>
+
+  <div class="siatka trzy">
+    <div class="karta">
+      <svg class="ikona" viewBox="0 0 40 40"><circle cx="15" cy="16" r="10" fill="#d1495b" opacity=".8"/><circle cx="25" cy="16" r="10" fill="#2f8f3e" opacity=".8"/><circle cx="20" cy="25" r="10" fill="#2f7fd1" opacity=".8"/></svg>
+      <h4>Kolor — 7 liczb</h4>
+      <p>Średnia i zmienność czerwieni, zieleni i niebieskiego oraz
+      jasność. Poszarpana korona ma inną zmienność niż gładki dach.</p>
+    </div>
+    <div class="karta">
+      <svg class="ikona" viewBox="0 0 40 40"><path d="M6 30c4-14 10-14 14 0s10 14 14 0" stroke="#2f8f3e" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M6 20h28" stroke="#c9d84a" stroke-width="2.5" stroke-dasharray="4 3"/></svg>
+      <h4>Zieleń — 3 liczby</h4>
+      <p>ExG, VARI, NGRDI. Liczone na udziałach barw, więc liść
+      w cieniu i w słońcu wypadają podobnie. Zastępują NDVI, którego
+      kamery dronowe nie dają.</p>
+    </div>
+    <div class="karta">
+      <svg class="ikona" viewBox="0 0 40 40"><g fill="#5d7076"><rect x="6" y="6" width="5" height="5"/><rect x="16" y="11" width="5" height="5"/><rect x="26" y="6" width="5" height="5"/><rect x="11" y="21" width="5" height="5"/><rect x="21" y="26" width="5" height="5"/><rect x="6" y="31" width="5" height="5"/><rect x="29" y="22" width="5" height="5"/></g></svg>
+      <h4>Faktura — 4 liczby</h4>
+      <p>Jak bardzo sąsiednie piksele różnią się od siebie. Tym
+      odróżnisz koronę drzewa od blachy dachowej w tym samym kolorze.</p>
+    </div>
+    <div class="karta">
+      <svg class="ikona" viewBox="0 0 40 40"><path d="M8 28 L14 10 L30 14 L26 32 Z" fill="none" stroke="#00bde7" stroke-width="2.5" stroke-linejoin="round"/></svg>
+      <h4>Kształt — 4 liczby</h4>
+      <p>Powierzchnia, obwód, okrągłość i wypukłość. Długa, wąska
+      działka to co innego niż zwarty kwadrat.</p>
+    </div>
+    <div class="karta">
+      <svg class="ikona" viewBox="0 0 40 40"><rect x="6" y="20" width="28" height="4" fill="#b0bec5"/><rect x="14" y="20" width="12" height="4" fill="#102a32"/><path d="M20 20V8" stroke="#00bde7" stroke-width="2.5"/><circle cx="20" cy="8" r="3" fill="#00bde7"/></svg>
+      <h4>Otoczenie — 1 liczba</h4>
+      <p>Jasność obiektu na tle tych, które go dotykają. Rów albo luka
+      w drzewostanie wychodzą ciemniejsze niż wszystko dokoła.</p>
+    </div>
+    <div class="karta">
+      <svg class="ikona" viewBox="0 0 40 40"><path d="M4 32h32" stroke="#8c6d4f" stroke-width="3"/><path d="M10 32V20l7-6 7 6v12" fill="none" stroke="#d1495b" stroke-width="2.5" stroke-linejoin="round"/><path d="M28 32V24" stroke="#2f8f3e" stroke-width="2.5"/><circle cx="28" cy="20" r="5" fill="#2f8f3e"/></svg>
+      <h4>Wysokość — 5 liczb</h4>
+      <p>Z modelu NMPT: wysokość, jej zmienność, nachylenie i — to
+      najważniejsze — <strong>wysokość nad gruntem</strong>. Dach kontra
+      asfalt, drzewo kontra trawnik.</p>
+    </div>
+  </div>
+
+  <div class="ramka">
+    <p><strong>Dlaczego nie ma NDVI.</strong> Zwykłe kamery dronowe
+    rejestrują tylko czerwień, zieleń i błękit — podczerwieni nie widzą
+    wcale. Dlatego pracujemy wskaźnikami z zakresu widzialnego,
+    fakturą, kształtem i wysokością. W praktyce wystarczają.</p>
+  </div>
+</div></section>
+
+<section id="wersje"><div class="owijka">
+  <h2>Trzy wersje, jeden silnik</h2>
+  <p class="podtytul">Każda liczy dokładnie to samo. Wybierz tę, która
+  pasuje do Twojej pracy.</p>
+
+  <div class="wersje">
+    <div class="wersja">
+      <div class="tytul">🗺️ Wtyczka QGIS</div>
+      <div class="dla">gdy chcesz widzieć, co się dzieje</div>
+      <p style="font-size:14.5px;margin:0">Przykłady wskazujesz klikając
+      po mapie. <strong>Tylko tutaj</strong> jest ocena dokładności:
+      losowanie punktów, macierz błędów i powierzchnie z przedziałami
+      ufności.</p>
+    </div>
+    <div class="wersja">
+      <div class="tytul">🪟 Program dla Windows</div>
+      <div class="dla">gdy nie chcesz instalować QGIS</div>
+      <p style="font-size:14.5px;margin:0">Okno z dwiema zakładkami:
+      nauka i klasyfikacja całego folderu. Instalator nie wymaga praw
+      administratora.</p>
+    </div>
+    <div class="wersja">
+      <div class="tytul">⌨️ Wiersz poleceń</div>
+      <div class="dla">gdy zdjęć są setki</div>
+      <p style="font-size:14.5px;margin:0">Uczysz model raz, puszczasz
+      go na folder. Daje się wpiąć w skrypt i wznowić po przerwaniu.</p>
+    </div>
+  </div>
+
+  <h3>Co jest potrzebne</h3>
+  <table>
+    <thead><tr><th>Rzecz</th><th>Konieczna?</th><th>Po co</th></tr></thead>
+    <tbody>
+    <tr><td><strong>Zdjęcie RGB</strong></td><td>tak</td>
+      <td>Ortomozaika z drona, zdjęcie lotnicze albo scena satelitarna.
+      Trzy kanały wystarczą.</td></tr>
+    <tr><td><strong>Przykłady</strong></td><td>tak</td>
+      <td>Kilkanaście miejsc na klasę, które rozpoznajesz na pewno.</td></tr>
+    <tr><td><strong>Model wysokości (NMPT)</strong></td><td>nie, ale…</td>
+      <td>Bez niego 19 cech, z nim 24. To on odróżnia dach od asfaltu
+      i drzewo od trawnika. Jeśli masz — użyj.</td></tr>
+    </tbody>
+  </table>
+</div></section>
+
+<section id="krok1"><div class="owijka">
+  <h2><span class="numer">1</span>Podział na obiekty</h2>
+  <p class="podtytul">Jedno ustawienie decyduje o wszystkim.</p>
+
+  <p><strong>Wielkość obiektu</strong> to najważniejsza decyzja w całej
+  pracy. Zasada jest jedna i prosta:</p>
+
+  <div class="ramka">
+    <p><strong>Obiekt musi być mniejszy niż najwęższa rzecz, którą
+    chcesz pokazać na mapie.</strong></p>
+  </div>
+
+  <p>Za duży obiekt zlewa dwa rodzaje terenu w jeden — i tego nie
+  naprawi już żaden klasyfikator. Za mały daje więcej klikania bez
+  zysku i dłuższe liczenie.</p>
+
+  <figure class="rysunek">
+  <svg viewBox="0 0 700 180" xmlns="http://www.w3.org/2000/svg" role="img"
+       aria-label="Trzy wielkości obiektu: za duży, dobry, za mały">
+    <g>
+      <text x="100" y="16" text-anchor="middle" font-size="12.5"
+            font-weight="600" fill="#d1495b">za duży</text>
+      <rect x="20" y="26" width="160" height="110" fill="#b79b6b"/>
+      <rect x="20" y="26" width="160" height="40" fill="#8aa557"/>
+      <g stroke="#ffe14d" stroke-width="1.8" fill="none">
+        <path d="M20 81h160M100 26v110"/></g>
+      <rect x="20" y="26" width="160" height="110" fill="none" stroke="#5d7076"/>
+      <text x="100" y="152" text-anchor="middle" font-size="11" fill="#5d7076">
+        obiekt leży na dwóch</text>
+      <text x="100" y="166" text-anchor="middle" font-size="11" fill="#5d7076">
+        rodzajach terenu naraz</text>
+    </g>
+    <g>
+      <text x="350" y="16" text-anchor="middle" font-size="12.5"
+            font-weight="600" fill="#2e9e4f">w sam raz</text>
+      <rect x="270" y="26" width="160" height="110" fill="#b79b6b"/>
+      <rect x="270" y="26" width="160" height="40" fill="#8aa557"/>
+      <g stroke="#ffe14d" stroke-width="1.5" fill="none">
+        <path d="M270 66h160M270 101h160M310 26v110M350 26v110M390 26v110"/></g>
+      <rect x="270" y="26" width="160" height="110" fill="none" stroke="#5d7076"/>
+      <text x="350" y="152" text-anchor="middle" font-size="11" fill="#5d7076">
+        granice obiektów pokrywają się</text>
+      <text x="350" y="166" text-anchor="middle" font-size="11" fill="#5d7076">
+        z granicami w terenie</text>
+    </g>
+    <g>
+      <text x="600" y="16" text-anchor="middle" font-size="12.5"
+            font-weight="600" fill="#e0a030">za mały</text>
+      <rect x="520" y="26" width="160" height="110" fill="#b79b6b"/>
+      <rect x="520" y="26" width="160" height="40" fill="#8aa557"/>
+      <g stroke="#ffe14d" stroke-width="1" fill="none" opacity=".9">
+        <path d="M520 46h160M520 66h160M520 86h160M520 106h160
+                 M540 26v110M560 26v110M580 26v110M600 26v110M620 26v110
+                 M640 26v110M660 26v110"/></g>
+      <rect x="520" y="26" width="160" height="110" fill="none" stroke="#5d7076"/>
+      <text x="600" y="152" text-anchor="middle" font-size="11" fill="#5d7076">
+        działa, ale dłużej liczy</text>
+      <text x="600" y="166" text-anchor="middle" font-size="11" fill="#5d7076">
+        i więcej klikania</text>
+    </g>
+  </svg>
+  <figcaption>Żółte linie to granice obiektów. Po lewej problem,
+  pośrodku cel, po prawej tylko strata czasu.</figcaption>
+  </figure>
+
+  <h3>Od czego zacząć</h3>
+  <table>
+    <thead><tr><th>Co kartujesz</th><th>Rozdzielczość robocza</th>
+      <th>Wielkość obiektu</th></tr></thead>
+    <tbody>
+      <tr><td>Pola, zagony, dachy</td><td>5–10 cm</td><td>5–20 m²</td></tr>
+      <tr><td>Pojedyncze drzewa, krzewy</td><td>3–5 cm</td><td>2–5 m²</td></tr>
+      <tr><td>Luki w drzewostanie, korony</td><td>10–25 cm</td><td>10–30 m²</td></tr>
+      <tr><td>Duże naloty, setki hektarów</td><td>20–25 cm</td><td>20–50 m²</td></tr>
+    </tbody>
+  </table>
+
+  <div class="ramka uwaga">
+    <p><strong>Zanim policzysz wszystko:</strong> we wtyczce zaznacz
+    „Policz tylko to, co widać na ekranie”, przybliż się do
+    charakterystycznego fragmentu i dobierz wielkość obiektu na nim.
+    Oszczędzi Ci to kwadransów czekania.</p>
+  </div>
+
+  <p>Po podziale obejrzyj wynik i sprawdź dwie rzeczy: czy żaden obiekt
+  nie leży jednocześnie na dwóch różnych rodzajach terenu (to problem —
+  zmniejsz obiekty) i czy jednolita łąka nie rozsypała się na setki
+  drobin (to już tylko niewygoda, można z tym żyć).</p>
+</div></section>
+
+<section id="krok2"><div class="owijka">
+  <h2><span class="numer">2</span>Przykłady</h2>
+  <p class="podtytul">Tu rozstrzyga się jakość mapy — nie w ustawieniach.</p>
+
+  <p>Dodajesz klasy i pokazujesz programowi, co jest czym. We wtyczce
+  klikasz obiekty na mapie, w pozostałych wersjach rysujesz poligony
+  w QGIS i zapisujesz je do pliku z kolumną <code>klasa</code>.</p>
+
+  <div class="siatka trzy">
+    <div class="karta">
+      <h4>Rozrzuć po całym zdjęciu</h4>
+      <p>Nie w jednym rogu. Światło, cień i wilgotność gleby zmieniają
+      się z miejsca na miejsce, a model uczy się tego, co mu
+      pokażesz.</p>
+    </div>
+    <div class="karta">
+      <h4>Pokaż każdą odmianę</h4>
+      <p>„Grunt odkryty” to i świeżo zaorana ziemia, i udeptana
+      ścieżka, i sucha skarpa. Jeśli pokażesz tylko jedną, resztę
+      program weźmie za coś innego.</p>
+    </div>
+    <div class="karta">
+      <h4>Tylko to, co pewne</h4>
+      <p>Jeden błędny przykład uczy błędnej reguły. Obiekt na granicy
+      dwóch klas lepiej pominąć — program zresztą sam go odrzuci
+      i powie o tym.</p>
+    </div>
+  </div>
+
+  <div class="ramka">
+    <p><strong>Ile przykładów?</strong> Na start kilkanaście na klasę.
+    Potem i tak będziesz dokładał — i to jest normalny tok pracy,
+    a nie oznaka, że coś poszło źle.</p>
+    <p>Ile klas? Na początek <strong>cztery do sześciu</strong>. Każda
+    dodana klasa to nowa para do rozróżnienia, a par przybywa szybciej
+    niż klas: przy sześciu klasach jest ich już piętnaście. Lepsze
+    cztery klasy dobrze rozdzielone niż dziesięć pomieszanych.</p>
+  </div>
+</div></section>
+
+<section id="krok3"><div class="owijka">
+  <h2><span class="numer">3</span>Nauka i poprawianie</h2>
+  <p class="podtytul">Pierwsza mapa nigdy nie jest dobra. To nie błąd — to metoda.</p>
+
+  <h3>Najpierw sprawdź, czy klasy da się rozróżnić</h3>
+  <p>Zanim zainwestujesz w klikanie, program policzy, jak bardzo różnią
+  się Twoje przykłady — parami. Skala od 0 do 2:</p>
+
+  <table>
+    <thead><tr><th>Wynik</th><th>Co oznacza</th><th>Co zrobić</th></tr></thead>
+    <tbody>
+      <tr><td><strong>powyżej 1,9</strong></td><td>klasy wyraźnie inne</td>
+        <td>nic, jedź dalej</td></tr>
+      <tr><td><strong>1,7 – 1,9</strong></td><td>znośnie, będą pomyłki</td>
+        <td>dołóż przykładów tej parze</td></tr>
+      <tr><td><strong>poniżej 1,7</strong></td><td>te klasy się zleją</td>
+        <td>dołóż przykładów albo połącz je w jedną</td></tr>
+    </tbody>
+  </table>
+
+  <p>Program pokaże też, <em>która cecha</em> dzieli każdą parę
+  najmocniej. Jeśli „trawa” i „grunt odkryty” rozchodzą się głównie na
+  zieloności — to dobry znak. Jeśli na powierzchni obiektu — to
+  przypadek, nie prawidłowość.</p>
+
+  <h3>Pętla poprawiania</h3>
+  <ol class="kroki">
+    <li><strong>Zrób mapę</strong>
+      Pierwsza wersja z kilkunastoma przykładami na klasę.</li>
+    <li><strong>Przejrzyj ją całą</strong>
+      Nie tylko najbardziej rzucającą się w oczy plamę. Przewiń całe
+      zdjęcie.</li>
+    <li><strong>Wypisz sobie rodzaje pomyłek</strong>
+      Nie pojedyncze miejsca, tylko <em>rodzaje</em>: „sucha trawa
+      brana za grunt”, „cień pod drzewem brany za wodę”.</li>
+    <li><strong>Dodaj po kilka przykładów każdego rodzaju</strong>
+      W różnych miejscach zdjęcia, nie obok siebie.</li>
+    <li><strong>Naucz i zrób mapę jeszcze raz</strong>
+      Dwie, trzy rundy poprawiają najwięcej. Potem każda daje coraz
+      mniej.</li>
+  </ol>
+
+  <div class="ramka">
+    <p><strong>Podpowiedź programu:</strong> po każdej mapie dostaniesz
+    informację, ile obiektów dostało mniej niż połowę głosów drzew.
+    To właśnie tam program się waha — i tam Twoje przykłady zrobią
+    największą różnicę.</p>
+  </div>
+
+  <h3>Dwie poprawki na koniec</h3>
+  <div class="siatka dwa">
+    <div class="karta">
+      <h4>Dociąganie po zieloności</h4>
+      <p>Pas trawy między zagonami bywa węższy niż obiekt i ginie.
+      Ta opcja oddaje decyzję pojedynczym pikselom — ale tylko dla
+      dwóch wskazanych klas, reszta mapy zostaje obiektowa.</p>
+      <p style="margin-top:8px"><em>Uwaga:</em> odzyskane pasy wychodzą
+      nieco szersze niż w naturze, więc ostrożnie z podawaniem ich
+      powierzchni.</p>
+    </div>
+    <div class="karta">
+      <h4>Najmniejszy płat</h4>
+      <p>Usuwa pojedyncze drobiny, wchłaniając je w otoczenie. Ustaw to
+      pod zastosowanie mapy, a <strong>nie</strong> po to, żeby podbić
+      wynik dokładności — sito dobrane pod punkty kontrolne przestaje
+      być niezależnym sprawdzianem.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="dokladnosc"><div class="owijka">
+  <h2><span class="numer">4</span>Ile ta mapa jest warta</h2>
+  <p class="podtytul">Część, której w QGIS brakuje — i ta, która
+  decyduje, czy wynik da się opublikować.</p>
+
+  <p>Mapa jest tyle warta, ile wiesz o jej błędach. Ocena „na oko”
+  nie wystarczy: trzeba wylosować punkty, opisać je niezależnie
+  i policzyć, ile razy mapa trafiła.</p>
+
+  <ol class="kroki">
+    <li><strong>Program losuje punkty kontrolne</strong>
+      Nigdy na obiektach, które posłużyły do nauki — inaczej
+      sprawdzałbyś model na jego własnej ściądze.</li>
+    <li><strong>Ty opisujesz je patrząc na samo zdjęcie</strong>
+      Z <em>wyłączoną</em> warstwą klasyfikacji. Program sam o tym
+      przypomni i wskaże, co wyłączyć.</li>
+    <li><strong>Dostajesz macierz błędów i liczby do cytowania</strong>
+      Trafność i kompletność każdej klasy, dokładność ogólną oraz
+      powierzchnie z przedziałami ufności.</li>
+  </ol>
+
+  <div class="ramka wazne">
+    <p><strong>Dlaczego na ślepo.</strong> Jeśli przy opisywaniu
+    punktów widzisz odpowiedź programu, podświadomie się z nią
+    zgodzisz. Wynik wyjdzie zawyżony o kilka–kilkanaście punktów
+    procentowych i recenzent to wychwyci.</p>
+  </div>
+
+  <h3>Jak czytać wynik</h3>
+  <figure class="rysunek">
+  <svg viewBox="0 0 640 250" xmlns="http://www.w3.org/2000/svg" role="img"
+       aria-label="Macierz błędów z zaznaczoną przekątną">
+    <text x="320" y="16" text-anchor="middle" font-size="12.5"
+          font-weight="600" fill="#1a2628">
+      w wierszach: co mówi mapa &nbsp;·&nbsp; w kolumnach: co widać na zdjęciu</text>
+
+    <g font-size="12">
+      <text x="150" y="46" text-anchor="end" fill="#5d7076">mapa \ zdjęcie</text>
+      <text x="200" y="46" text-anchor="middle" font-weight="600">trawa</text>
+      <text x="280" y="46" text-anchor="middle" font-weight="600">grunt</text>
+      <text x="360" y="46" text-anchor="middle" font-weight="600">droga</text>
+      <text x="452" y="46" text-anchor="middle" fill="#5d7076">razem</text>
+      <text x="548" y="46" text-anchor="middle" fill="#00799a"
+            font-weight="600">trafność</text>
+    </g>
+
+    <g font-size="13">
+      <!-- wiersz trawa -->
+      <text x="150" y="74" text-anchor="end" font-weight="600">trawa</text>
+      <rect x="170" y="60" width="60" height="22" fill="#d6f3fb"/>
+      <text x="200" y="76" text-anchor="middle" font-weight="700">46</text>
+      <text x="280" y="76" text-anchor="middle">3</text>
+      <text x="360" y="76" text-anchor="middle">1</text>
+      <text x="452" y="76" text-anchor="middle" fill="#5d7076">50</text>
+      <text x="548" y="76" text-anchor="middle" fill="#00799a">92%</text>
+      <!-- wiersz grunt -->
+      <text x="150" y="104" text-anchor="end" font-weight="600">grunt</text>
+      <text x="200" y="106" text-anchor="middle">5</text>
+      <rect x="250" y="90" width="60" height="22" fill="#d6f3fb"/>
+      <text x="280" y="106" text-anchor="middle" font-weight="700">43</text>
+      <text x="360" y="106" text-anchor="middle">2</text>
+      <text x="452" y="106" text-anchor="middle" fill="#5d7076">50</text>
+      <text x="548" y="106" text-anchor="middle" fill="#00799a">86%</text>
+      <!-- wiersz droga -->
+      <text x="150" y="134" text-anchor="end" font-weight="600">droga</text>
+      <text x="200" y="136" text-anchor="middle">0</text>
+      <text x="280" y="136" text-anchor="middle">2</text>
+      <rect x="330" y="120" width="60" height="22" fill="#d6f3fb"/>
+      <text x="360" y="136" text-anchor="middle" font-weight="700">48</text>
+      <text x="452" y="136" text-anchor="middle" fill="#5d7076">50</text>
+      <text x="548" y="136" text-anchor="middle" fill="#00799a">96%</text>
+      <!-- kompletność -->
+      <text x="150" y="166" text-anchor="end" fill="#2e9e4f"
+            font-weight="600">kompletność</text>
+      <text x="200" y="166" text-anchor="middle" fill="#2e9e4f">90%</text>
+      <text x="280" y="166" text-anchor="middle" fill="#2e9e4f">90%</text>
+      <text x="360" y="166" text-anchor="middle" fill="#2e9e4f">94%</text>
+    </g>
+    <path d="M160 52h420M160 148h420" stroke="#d7e3e8"/>
+    <path d="M414 36v126M500 36v126" stroke="#d7e3e8"/>
+
+    <g font-size="12">
+      <rect x="20" y="190" width="14" height="14" fill="#d6f3fb"/>
+      <text x="42" y="202" fill="#5d7076">na przekątnej: mapa i zdjęcie
+        mówią to samo</text>
+      <text x="20" y="226" fill="#00799a" font-weight="600">Trafność:</text>
+      <text x="90" y="226" fill="#5d7076">gdy mapa mówi „trawa”, jak
+        często to naprawdę trawa</text>
+      <text x="20" y="244" fill="#2e9e4f" font-weight="600">Kompletność:</text>
+      <text x="113" y="244" fill="#5d7076">ile z rzeczywistej trawy
+        mapa znalazła</text>
+    </g>
+  </svg>
+  <figcaption>Dwie liczby mówią o czym innym i obie są potrzebne.
+  W literaturze noszą nazwy „dokładność użytkownika” i „dokładność
+  producenta”.</figcaption>
+  </figure>
+
+  <h3>Dlaczego powierzchnia z mapy to nie to samo co powierzchnia prawdziwa</h3>
+  <p>Przy losowaniu warstwowym mała klasa dostaje proporcjonalnie dużo
+  punktów — żeby dało się o niej cokolwiek powiedzieć. Przez to udział
+  punktów <strong>nie jest</strong> udziałem powierzchni, a zwykła
+  średnia z punktów zakłamuje wynik.</p>
+
+  <p>Dlatego program liczy wszystko <strong>ważąc każdą klasę jej
+  powierzchnią</strong> i podaje osobno:</p>
+
+  <table>
+    <thead><tr><th>Liczba</th><th>Co to jest</th><th>Cytować?</th></tr></thead>
+    <tbody>
+      <tr><td>Powierzchnia z mapy</td>
+        <td>ile pikseli program przypisał tej klasie</td>
+        <td>nie — zawiera błędy klasyfikacji</td></tr>
+      <tr><td><strong>Powierzchnia szacowana</strong></td>
+        <td>poprawiona o błędy, które wykryła próba</td>
+        <td><strong>tak, razem z przedziałem</strong></td></tr>
+      <tr><td>Przedział ufności 95%</td>
+        <td>na ile dokładnie udało się ją oszacować</td>
+        <td>tak, zawsze obok powierzchni</td></tr>
+    </tbody>
+  </table>
+
+  <div class="ramka">
+    <p>Postępowanie jest zgodne z <strong>Olofsson i in. (2014)</strong>
+    oraz <strong>Stehman (2014)</strong> — tym, czego dziś wymagają
+    recenzenci w czasopismach z teledetekcji. Współczynnika kappa
+    świadomie nie liczymy: obecne zalecenia go odradzają.</p>
+    <p style="margin-top:8px"><strong>Jedna uczciwa uwaga:</strong>
+    punkty opisane z lotu ptaka to dane referencyjne wysokiej jakości,
+    ale <em>nie</em> to samo, co pomiar w terenie. Tak też należy je
+    opisać w publikacji.</p>
+  </div>
+</div></section>
+
+<section id="klopoty"><div class="owijka">
+  <h2>Gdy coś nie wychodzi</h2>
+  <p class="podtytul">Najczęstsze kłopoty i co z nimi zrobić.</p>
+
+  <table>
+    <thead><tr><th>Objaw</th><th>Przyczyna</th><th>Co zrobić</th></tr></thead>
+    <tbody>
+      <tr><td>Mapa jest „zaszumiona”, pełna drobin</td>
+        <td>obiekty za małe albo za mało przykładów</td>
+        <td>zwiększ wielkość obiektu; ustaw najmniejszy płat;
+            dołóż przykładów</td></tr>
+      <tr><td>Dwie klasy ciągle się mylą</td>
+        <td>są do siebie za podobne w mierzonych cechach</td>
+        <td>sprawdź rozróżnialność — jeśli poniżej 1,7, połącz je
+            albo dołóż model wysokości</td></tr>
+      <tr><td>Cienkie pasy trawy giną</td>
+        <td>są węższe niż obiekt</td>
+        <td>włącz dociąganie po zieloności albo zmniejsz obiekty</td></tr>
+      <tr><td>Dachy mają zerową wysokość nad gruntem</td>
+        <td>liczysz na małym wycinku, węższym niż 40 m</td>
+        <td>policz całe zdjęcie — grunt szacuje się z szerokiego
+            otoczenia</td></tr>
+      <tr><td><code>Nie zmieści się w pamięci</code></td>
+        <td>siatka robocza za gęsta</td>
+        <td>podaj grubszą rozdzielczość (0,10 zamiast 0,05) albo
+            policz tylko widoczny fragment</td></tr>
+      <tr><td>Klasa wyszła bez ani jednego obiektu uczącego</td>
+        <td>poligony mniejsze niż obiekty</td>
+        <td>narysuj większe poligony albo zmniejsz wielkość obiektu</td></tr>
+      <tr><td>Liczy się bardzo długo</td>
+        <td>brak bibliotek przyspieszających</td>
+        <td><code>pip install scikit-image scikit-learn</code> —
+            wyniki te same, czas kilkukrotnie krótszy</td></tr>
+      <tr><td>Dokładność podejrzanie wysoka (powyżej 97%)</td>
+        <td>warstwa klasyfikacji była widoczna przy opisywaniu punktów</td>
+        <td>wyłącz ją i opisz punkty jeszcze raz — inaczej wynik jest
+            bezwartościowy</td></tr>
+    </tbody>
+  </table>
+</div></section>
+
+<section id="metoda"><div class="owijka">
+  <h2>Skąd ta metoda</h2>
+  <p class="podtytul">Wszystko, co program robi, ma źródło w literaturze.</p>
+
+  <table>
+    <thead><tr><th>Element</th><th>Źródło</th></tr></thead>
+    <tbody>
+      <tr><td>Podział na obiekty metodą SLIC</td>
+        <td>Achanta i in. (2012), <em>IEEE TPAMI</em> 34(11)</td></tr>
+      <tr><td>Faktura z macierzy współwystąpień (GLCM)</td>
+        <td>Haralick, Shanmugam i Dinstein (1973), <em>IEEE SMC</em> 3(6)</td></tr>
+      <tr><td>Wskaźnik zieloności ExG</td>
+        <td>Woebbecke i in. (1995), <em>Trans. ASAE</em> 38(1)</td></tr>
+      <tr><td>Las losowy</td>
+        <td>Breiman (2001); przegląd zastosowań: Belgiu i Drăguţ (2016)</td></tr>
+      <tr><td>Analiza obiektowa obrazu</td>
+        <td>Blaschke (2010), <em>ISPRS J. Photogramm.</em> 65(1)</td></tr>
+      <tr><td>Ocena dokładności i powierzchni</td>
+        <td>Olofsson i in. (2014), <em>Remote Sens. Environ.</em> 148;
+            Stehman (2014), <em>Int. J. Remote Sens.</em> 35(13);
+            Congalton i Green (2019)</td></tr>
+    </tbody>
+  </table>
+
+  <div class="ramka">
+    <p><strong>Piszesz artykuł?</strong> Pełny opis metody — wzory,
+    wszystkie stałe, reguły decyzyjne, ograniczenia i gotowy szkielet
+    sekcji <em>Materials and Methods</em> — znajdziesz w pliku
+    <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/blob/main/UWARUNKOWANIA_NAUKOWE.md"><code>UWARUNKOWANIA_NAUKOWE.md</code></a>.</p>
+  </div>
+
+</div></section>
+
+<footer><div class="owijka">
+  <p><strong>GeoAI Klasyfikator</strong> · wersja 1.0.0 ·
+  licencja GPL-3.0-or-later</p>
+  <p>© Grzegorz Górniak ·
+  <a href="mailto:gorniakgrzegorz@gmail.com">gorniakgrzegorz@gmail.com</a> ·
+  <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator">kod źródłowy
+  na GitHubie</a></p>
+</div></footer>
+
+</body>
+</html>
