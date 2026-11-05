@@ -75,7 +75,7 @@ def podziel_i_zmierz(siatka, sciezka_nmpt=None, rozdzielczosc=0.0,
     rozmiary = np.bincount(etykiety.ravel())[1:]
     rozmiary = rozmiary[rozmiary > 0] * (siatka.piksel ** 2)
     mediana = float(np.median(rozmiary)) if rozmiary.size else 0.0
-    mowi("    powstało {0} obiektów, mediana powierzchni {1:.2f} m2"
+    mowi("    powstało {0} obiektów, mediana powierzchni {1:.2f} m²"
          .format(powstalo, mediana))
 
     mowi("    mierzę cechy obiektów...")

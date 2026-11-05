@@ -673,6 +673,34 @@ Instaluje się do katalogu użytkownika.
 
 ### Jak wygląda okno
 
+### Przeglądarka ostrzega przed pobranym plikiem
+
+Chrome, Edge i Windows SmartScreen pokażą ostrzeżenie, bo plik nie jest
+podpisany certyfikatem wydawcy. Nie jest to wykryty wirus, tylko brak
+reputacji nowego pliku: każdy świeżo zbudowany instalator zaczyna od zera.
+
+Co z tym zrobić:
+
+- W Chrome kliknij strzałkę przy wpisie na liście pobierania, a potem
+  **Zachowaj**. W razie potrzeby **Pokaż więcej**, potem **Zachowaj mimo to**.
+- Po uruchomieniu SmartScreen pokaże niebieskie okno. Kliknij
+  **Więcej informacji**, potem **Uruchom mimo to**.
+- Chcesz się upewnić, że pobrałeś dokładnie to, co zbudował GitHub?
+  Porównaj sumę kontrolną z pliku `SUMY-KONTROLNE.txt`, dołączonego do
+  każdego wydania:
+
+```powershell
+Get-FileHash .\GeoAI_Klasyfikator_Setup.exe -Algorithm SHA256
+```
+
+- Wersja przenośna w pliku ZIP bywa przepuszczana bez ostrzeżenia,
+  bo przeglądarka ocenia archiwum łagodniej niż plik `.exe`.
+
+Ostrzeżenie zniknie dopiero po podpisaniu programu certyfikatem wydawcy,
+co jest usługą płatną. Do czasu testów nie ma to sensu.
+
+### Jak wygląda okno
+
 Na górze niebieski pasek z nazwą i przyciskiem **Instrukcja**. Pod nim
 dwie zakładki. Na dole **dziennik**, czarne okienko, w którym widać
 postęp i komunikaty.

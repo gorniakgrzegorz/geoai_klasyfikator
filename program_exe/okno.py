@@ -22,6 +22,36 @@ import webbrowser
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
+
+def _ostry_tekst() -> float:
+    """Włącza świadomość gęstości pikseli i zwraca mnożnik skali.
+
+    Bez tego Windows rysuje okno w 96 punktach na cal i rozciąga obraz,
+    przez co tekst robi się rozmyty na ekranach 4K i na laptopach
+    z powiększeniem 125 albo 150 procent. Po włączeniu świadomości
+    system rysuje czcionki od razu w docelowym rozmiarze, więc są
+    ostre. Zwracany mnożnik służy do przeskalowania rozmiarów okna.
+    """
+    if not sys.platform.startswith("win"):
+        return 1.0
+    import ctypes
+    try:
+        # 2 oznacza świadomość na każdym monitorze osobno
+        ctypes.windll.shcore.SetProcessDpiAwareness(2)
+    except Exception:
+        try:
+            ctypes.windll.user32.SetProcessDPIAware()
+        except Exception:
+            return 1.0
+    try:
+        uchwyt = ctypes.windll.user32.GetDC(0)
+        # 88 to LOGPIXELSX, czyli liczba pikseli na cal w poziomie
+        pikseli = ctypes.windll.gdi32.GetDeviceCaps(uchwyt, 88)
+        ctypes.windll.user32.ReleaseDC(0, uchwyt)
+        return max(1.0, pikseli / 96.0)
+    except Exception:
+        return 1.0
+
 NAZWA = "GeoAI Klasyfikator"
 WERSJA = "1.0.0"
 AUTOR = "Grzegorz Górniak"
@@ -80,13 +110,43 @@ class Przekierowanie:
         self.kolejka.put("=" * len(tekst))
 
 
+def _dymek(widget, tekst: str) -> None:
+    """Mała chmurka z podpowiedzią po najechaniu myszą."""
+    stan = {"okno": None}
+
+    def pokaz(_zdarzenie=None):
+        if stan["okno"] is not None:
+            return
+        x = widget.winfo_rootx()
+        y = widget.winfo_rooty() - 26
+        okno = tk.Toplevel(widget)
+        okno.wm_overrideredirect(True)
+        okno.wm_geometry("+{0}+{1}".format(x, y))
+        tk.Label(okno, text=tekst, bg="#263238", fg="#ffffff",
+                 font=("Segoe UI", 8), padx=6, pady=3).pack()
+        stan["okno"] = okno
+
+    def ukryj(_zdarzenie=None):
+        if stan["okno"] is not None:
+            stan["okno"].destroy()
+            stan["okno"] = None
+
+    widget.bind("<Enter>", pokaz, add="+")
+    widget.bind("<Leave>", ukryj, add="+")
+
+
 class Aplikacja(tk.Tk):
 
-    def __init__(self):
+    def __init__(self, skala: float = 1.0):
         super().__init__()
+        self.skala = skala
         self.title("{0} {1}".format(NAZWA, WERSJA))
-        self.geometry("860x680")
-        self.minsize(760, 600)
+        # Tk liczy rozmiary w pikselach, więc przy powiększonym ekranie
+        # okno trzeba powiększyć w tej samej proporcji, inaczej wyjdzie
+        # malutkie i etykiety zaczną się nachodzić.
+        self.tk.call("tk", "scaling", skala * 1.3333)
+        self.geometry("{0}x{1}".format(int(940 * skala), int(720 * skala)))
+        self.minsize(int(820 * skala), int(620 * skala))
         self.configure(bg=TLO)
 
         self.kolejka = queue.Queue()
@@ -98,6 +158,16 @@ class Aplikacja(tk.Tk):
     # ── wygląd ───────────────────────────────────────────────────────
 
     def _ustaw_style(self):
+        # Rozmiary czcionek podajemy w punktach ze znakiem minus, czyli
+        # w pikselach, żeby Tk nie skalował ich drugi raz.
+        import tkinter.font as tkfont
+        for nazwa, rozmiar in (("TkDefaultFont", 10), ("TkTextFont", 10),
+                               ("TkMenuFont", 10), ("TkHeadingFont", 10)):
+            try:
+                tkfont.nametofont(nazwa).configure(family="Segoe UI",
+                                                   size=rozmiar)
+            except Exception:
+                pass
         styl = ttk.Style(self)
         try:
             styl.theme_use("clam")
@@ -156,12 +226,17 @@ class Aplikacja(tk.Tk):
         self.dziennik.pack(side="left", fill="both", expand=True)
         suwak.pack(side="right", fill="y")
 
-        stopka = tk.Label(self, text="© {0}  ·  {1}".format(AUTOR, POCZTA),
-                          bg=TLO, fg="#000000", font=("Segoe UI", 8),
+        # Maleńki podpis w prawym dolnym rogu. Kliknięcie otwiera
+        # program pocztowy z adresem autora.
+        stopka = tk.Label(self, text="©{0}".format(AUTOR),
+                          bg=TLO, fg="#90a4ae", font=("Segoe UI", 7),
                           cursor="hand2")
-        stopka.pack(anchor="e", padx=12, pady=(0, 6))
+        stopka.pack(anchor="e", padx=10, pady=(0, 4))
         stopka.bind("<Button-1>",
                     lambda _e: webbrowser.open("mailto:" + POCZTA))
+        stopka.bind("<Enter>", lambda _e: stopka.configure(fg=BARWA_CIEMNA))
+        stopka.bind("<Leave>", lambda _e: stopka.configure(fg="#90a4ae"))
+        _dymek(stopka, "Napisz do autora: " + POCZTA)
 
     # ── zakładka nauki ───────────────────────────────────────────────
 
@@ -249,6 +324,7 @@ class Aplikacja(tk.Tk):
             "Usuwa pojedyncze drobiny z mapy. Zero wyłącza "
             "czyszczenie.")
         self.k_podfoldery = tk.BooleanVar(value=False)
+        ttk.Label(opcje, text="").pack(pady=(2, 0))
         ttk.Checkbutton(opcje, text="Szukaj zdjęć także w podfolderach",
                         variable=self.k_podfoldery).pack(anchor="w")
         self.k_nadpisuj = tk.BooleanVar(value=False)
@@ -265,11 +341,16 @@ class Aplikacja(tk.Tk):
 
     # ── drobne elementy formularza ───────────────────────────────────
 
+    # Szerokość kolumny z etykietami, w znakach. Musi pomieścić
+    # najdłuższą etykietę w całym oknie, czyli "Policz ponownie także
+    # te, które już mają wynik", inaczej napisy zachodzą na pola.
+    SZEROKOSC_ETYKIETY = 34
+
     def _wiersz_pliku(self, rodzic, etykieta, rodzaj, filtry=None,
                       domyslna=""):
         wiersz = ttk.Frame(rodzic)
-        wiersz.pack(fill="x", pady=2)
-        ttk.Label(wiersz, text=etykieta, width=28,
+        wiersz.pack(fill="x", pady=3)
+        ttk.Label(wiersz, text=etykieta, width=self.SZEROKOSC_ETYKIETY,
                   anchor="w").pack(side="left")
         zmienna = tk.StringVar(value=domyslna)
         pole = ttk.Entry(wiersz, textvariable=zmienna)
@@ -294,8 +375,8 @@ class Aplikacja(tk.Tk):
 
     def _wiersz_tekstu(self, rodzic, etykieta, domyslna=""):
         wiersz = ttk.Frame(rodzic)
-        wiersz.pack(fill="x", pady=2)
-        ttk.Label(wiersz, text=etykieta, width=28,
+        wiersz.pack(fill="x", pady=3)
+        ttk.Label(wiersz, text=etykieta, width=self.SZEROKOSC_ETYKIETY,
                   anchor="w").pack(side="left")
         zmienna = tk.StringVar(value=domyslna)
         ttk.Entry(wiersz, textvariable=zmienna,
@@ -303,15 +384,20 @@ class Aplikacja(tk.Tk):
         return zmienna
 
     def _wiersz_liczby(self, rodzic, etykieta, domyslna, podpowiedz=""):
-        wiersz = ttk.Frame(rodzic)
-        wiersz.pack(fill="x", pady=2)
-        ttk.Label(wiersz, text=etykieta, width=30,
+        blok = ttk.Frame(rodzic)
+        blok.pack(fill="x", pady=(3, 0))
+        wiersz = ttk.Frame(blok)
+        wiersz.pack(fill="x")
+        ttk.Label(wiersz, text=etykieta, width=self.SZEROKOSC_ETYKIETY,
                   anchor="w").pack(side="left")
         zmienna = tk.StringVar(value=domyslna)
         ttk.Entry(wiersz, textvariable=zmienna, width=12).pack(side="left")
         if podpowiedz:
-            ttk.Label(wiersz, text=podpowiedz, style="Podpowiedz.TLabel",
-                      wraplength=420).pack(side="left", padx=(8, 0))
+            # Podpowiedź idzie pod pole, a nie obok niego. Obok nakładała
+            # się na sąsiednie elementy przy węższym oknie.
+            ttk.Label(blok, text=podpowiedz, style="Podpowiedz.TLabel",
+                      wraplength=640, justify="left").pack(
+                          anchor="w", padx=(4, 0), pady=(1, 4))
         return zmienna
 
     # ── obsługa dziennika i wątku roboczego ──────────────────────────
@@ -496,6 +582,9 @@ class Aplikacja(tk.Tk):
             tekst.insert("end", linia + "\n", znacznik)
         tekst.configure(state="disabled")
 
+        tk.Label(okno, text="© {0}  ·  {1}".format(AUTOR, POCZTA),
+                 bg=TLO, fg=SZARY, font=("Segoe UI", 8)).pack(
+                     anchor="e", padx=14)
         ttk.Button(okno, text="Zamknij",
                    command=okno.destroy).pack(pady=(0, 10))
 
@@ -517,8 +606,8 @@ INSTRUKCJA = [
     ("", "Wskaż jedno reprezentatywne zdjęcie i plik z przykładami. "
          "Najważniejsze ustawienie to wielkość obiektu: obiekt musi "
          "być mniejszy niż najwęższa rzecz, którą chcesz pokazać na "
-         "mapie. Dla pól i dachów zwykle 5-20 m2, dla pojedynczych "
-         "drzew 2-5 m2."),
+         "mapie. Dla pól i dachów zwykle 5-20 m², dla pojedynczych "
+         "drzew 2-5 m²."),
     ("", "Trzy rzeczy decydują o jakości wyniku:"),
     ("", "   1. Rozrzuć przykłady po całym zdjęciu, nie w jednym rogu."),
     ("", "   2. Pokaż każdą odmianę klasy — i bujną trawę, i tę "
@@ -549,6 +638,13 @@ INSTRUKCJA = [
          "opisywać punkty klikając po mapie, czego w tym oknie zrobić "
          "się nie da. Wczytaj gotową mapę do QGIS i przejdź do kroku 4 "
          "wtyczki."),
+    ("podtytul", "Kontakt"),
+    ("", "Autor: Grzegorz Górniak, gorniakgrzegorz@gmail.com"),
+    ("", "Masz pytanie, znalazłeś błąd albo chcesz zgłosić pomysł? Napisz "
+         "na ten adres albo załóż zgłoszenie na stronie projektu: "
+         "https://github.com/gorniakgrzegorz/geoai_klasyfikator/issues"),
+    ("", "Przy zgłoszeniu błędu dołącz treść komunikatu z dziennika "
+         "u dołu okna, rozmiar zdjęcia i to, co robiłeś przed błędem."),
     ("podtytul", "Skąd ta metoda"),
     ("", "Segmentacja SLIC (Achanta i in., 2012), faktura GLCM "
          "(Haralick i in., 1973), zieloność ExG (Woebbecke i in., "
@@ -558,8 +654,10 @@ INSTRUKCJA = [
 
 
 def main():
+    # Świadomość gęstości pikseli trzeba włączyć, zanim powstanie okno.
+    skala = _ostry_tekst()
     try:
-        aplikacja = Aplikacja()
+        aplikacja = Aplikacja(skala)
     except tk.TclError as blad:
         print("Nie udało się otworzyć okna: {0}".format(blad))
         return 1

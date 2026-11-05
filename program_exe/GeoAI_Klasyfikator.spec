@@ -67,6 +67,11 @@ program = EXE(
     console=False,                 # okno bez czarnej konsoli w tle
     icon=os.path.join(TU, "ikona.ico") if os.path.isfile(
         os.path.join(TU, "ikona.ico")) else None,
+    # nazwa produktu i wersja wpisane w plik .exe; Windows pokazuje je
+    # we właściwościach pliku, a podpisywanie kodu przez SignPath.io
+    # wymaga, żeby te pola były ustawione i niezmienne
+    version=os.path.join(TU, "wersja.txt") if os.path.isfile(
+        os.path.join(TU, "wersja.txt")) else None,
 )
 
 calosc = COLLECT(

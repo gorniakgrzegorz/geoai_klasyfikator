@@ -88,6 +88,36 @@ można go na dwa sposoby:
   przenośną w pliku ZIP, którą wystarczy rozpakować i uruchomić
   `GeoAI Klasyfikator.exe`.
 
+### Przeglądarka ostrzega przed pobranym plikiem
+
+Chrome, Edge i Windows SmartScreen pokażą ostrzeżenie, bo plik nie jest
+podpisany certyfikatem wydawcy. Nie jest to wykryty wirus, tylko brak
+reputacji nowego pliku: każdy świeżo zbudowany instalator zaczyna od zera.
+
+Co z tym zrobić:
+
+- W Chrome kliknij strzałkę przy wpisie na liście pobierania, a potem
+  **Zachowaj**. W razie potrzeby **Pokaż więcej**, potem **Zachowaj mimo to**.
+- Po uruchomieniu SmartScreen pokaże niebieskie okno. Kliknij
+  **Więcej informacji**, potem **Uruchom mimo to**.
+- Chcesz się upewnić, że pobrałeś dokładnie to, co zbudował GitHub?
+  Porównaj sumę kontrolną z pliku `SUMY-KONTROLNE.txt`, dołączonego do
+  każdego wydania:
+
+```powershell
+Get-FileHash .\GeoAI_Klasyfikator_Setup.exe -Algorithm SHA256
+```
+
+- Wersja przenośna w pliku ZIP bywa przepuszczana bez ostrzeżenia,
+  bo przeglądarka ocenia archiwum łagodniej niż plik `.exe`.
+
+Ostrzeżenie zniknie dopiero po podpisaniu programu certyfikatem
+wydawcy. Zasady, na jakich to się odbywa, opisuje
+[Code signing policy](CODE_SIGNING_POLICY.md).
+
+Opis samej paczki instalacyjnej, krok po kroku, jest w folderze
+[`GeoAI_Klasyfikator_win/`](GeoAI_Klasyfikator_win/).
+
 Samodzielne zbudowanie na własnym komputerze opisuje
 [`program_exe/README.md`](program_exe/README.md).
 
@@ -138,6 +168,7 @@ z nimi liczy kilkakrotnie szybciej.
 | [UWARUNKOWANIA_NAUKOWE.md](UWARUNKOWANIA_NAUKOWE.md) | **do artykułu**, wzory, stałe, reguły decyzyjne, ograniczenia, co cytować |
 | [SZKIC_MANUSKRYPTU.md](SZKIC_MANUSKRYPTU.md) | szkielet artykułu: metoda napisana, wyniki do wypełnienia po badaniu |
 | [RAPORT_ZGODNOSCI.md](RAPORT_ZGODNOSCI.md) | dowód, że wtyczka i program liczą to samo, co do piksela |
+| [CODE_SIGNING_POLICY.md](CODE_SIGNING_POLICY.md) | **Code signing policy**: kto podpisuje pliki, role w zespole, polityka prywatności |
 | [NOTICE.md](NOTICE.md) | pochodzenie i licencja |
 
 ## Struktura repozytorium
@@ -148,6 +179,7 @@ geoai_klasyfikator/        wtyczka QGIS (ten folder instalujesz w QGIS)
   dialogs/                 panel wtyczki i narzędzia na mapie
 program_cli/               wersja dla wiersza poleceń
 program_exe/               zestaw do zbudowania programu .exe dla Windows
+GeoAI_Klasyfikator_win/    zestaw instalacyjny dla Windows: skad pobrac i jak zainstalowac
 docs/                      instrukcja publikowana na GitHub Pages
   ryciny/                  schemat logiki artykułu, cztery formaty
 .github/workflows/         budowanie programu Windows w chmurze

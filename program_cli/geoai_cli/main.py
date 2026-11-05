@@ -427,7 +427,7 @@ def polecenie_klasyfikuj(args, mowi):
 
             if mmu_pikseli == -1:
                 mmu_pikseli = int(round(args.mmu / (siatka.piksel ** 2)))
-                mowi("    najmniejszy płat: {0} m2 = {1} pikseli"
+                mowi("    najmniejszy płat: {0} m² = {1} pikseli"
                      .format(args.mmu, mmu_pikseli))
 
             mapa, _, pewnosc = przebieg.zrob_mape(

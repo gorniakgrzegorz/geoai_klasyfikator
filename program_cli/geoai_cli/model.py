@@ -120,7 +120,7 @@ def opis_tekstowy(opis: dict) -> str:
     ]
     etykiety = {
         "rozdzielczosc": "rozdzielczość robocza",
-        "wielkosc_obiektu": "wielkość obiektu (m2)",
+        "wielkosc_obiektu": "wielkość obiektu (m²)",
         "zwartosc": "zwartość obiektów",
         "wygladzenie": "wygładzenie",
         "przykladow": "przykładów uczących",
