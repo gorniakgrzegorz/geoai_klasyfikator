@@ -141,6 +141,12 @@ a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var
 html{scroll-behavior:smooth}
 @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.do-gory{transition:none}}
 section{scroll-margin-top:60px}
+a.cyt{text-decoration:none;font-weight:600}
+a.cyt:hover{text-decoration:underline}
+.bibliografia{padding-left:2.6em;font-size:14.5px;line-height:1.55}
+.bibliografia li{margin:0 0 10px;padding-left:4px;scroll-margin-top:70px;overflow-wrap:anywhere}
+.bibliografia li::marker{font-weight:600;color:var(--marka-ciemna)}
+.bibliografia li:target{background:var(--marka-jasna);border-radius:6px}
 .anim{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:20px;
       margin:22px 0 8px;align-items:start}
 .anim-ekran canvas{width:100%;height:auto;display:block;border-radius:10px;
@@ -223,6 +229,7 @@ section{scroll-margin-top:60px}
       <a href="#dokladnosc">Dokładność</a>
       <a href="#klopoty">Kłopoty</a>
       <a href="#metoda">Metodyka</a>
+      <a href="#bibliografia">Bibliografia</a>
     </div>
   </details>
 </div></nav>
@@ -316,7 +323,7 @@ section{scroll-margin-top:60px}
   <p class="podtytul">Bez drona też się da: 10 metrów, cała Ziemia,
   za darmo.</p>
 
-  <p>Sentinel-2 to satelity Europejskiej Agencji Kosmicznej. Fotografują
+  <p>Sentinel-2 to satelity Europejskiej Agencji Kosmicznej [<a class="cyt" href="#ref-drusch">1</a>]. Fotografują
   to samo miejsce co kilka dni, a archiwum sięga 2015 roku. Piksel ma
   10 metrów, więc jeden piksel to kawałek terenu o powierzchni 100 m².
   To za mało na pojedyncze drzewo, ale w sam raz na pola, lasy, wody
@@ -500,7 +507,7 @@ section{scroll-margin-top:60px}
     <div class="karta">
       <svg class="ikona" aria-hidden="true" viewBox="0 0 40 40"><path d="M6 30c4-14 10-14 14 0s10 14 14 0" stroke="#2f8f3e" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M6 20h28" stroke="#c9d84a" stroke-width="2.5" stroke-dasharray="4 3"/></svg>
       <h4>Zieleń: 3 liczby</h4>
-      <p>ExG, VARI, NGRDI. Liczone na udziałach barw, więc liść
+      <p>ExG [<a class="cyt" href="#ref-woebbecke">2</a>], VARI [<a class="cyt" href="#ref-gitelson">3</a>], NGRDI [<a class="cyt" href="#ref-hunt">4</a>]. Liczone na udziałach barw, więc liść
       w cieniu i w słońcu wypadają podobnie. Zastępują NDVI, którego
       kamery dronowe nie dają.</p>
     </div>
@@ -575,7 +582,7 @@ section{scroll-margin-top:60px}
       i błękit i przelicza jasności na zakres od 0 do 1. Przed podziałem
       wygładza obraz filtrem Gaussa (σ = 2,5), żeby szum matrycy i drobna
       faktura nie tworzyły sztucznych obiektów.</li>
-    <li><strong>Podział na obiekty metodą SLIC</strong>
+    <li><strong>Podział na obiekty metodą SLIC [<a class="cyt" href="#ref-achanta">5</a>]</strong>
       Na zdjęciu rozmieszcza się regularną siatkę zarodków. Każdy piksel
       trafia do najbliższego zarodka, przy czym odległość łączy różnicę
       barwy w przestrzeni CIELAB z odległością w terenie. Zarodki
@@ -584,8 +591,9 @@ section{scroll-margin-top:60px}
       barwą, czy za regularną siatką. Na koniec drobne resztki są
       dołączane do sąsiadów, tak żeby każdy obiekt był jednym płatem.</li>
     <li><strong>Pomiar cech</strong>
-      Każdy obiekt dostaje wektor liczb: 19 cech barwy, zieloności,
-      faktury, kształtu i otoczenia, a z modelem wysokości 24. Od tej
+      Każdy obiekt dostaje wektor liczb: 19 cech barwy, zieloności
+      [<a class="cyt" href="#ref-woebbecke">2</a>], [<a class="cyt" href="#ref-gitelson">3</a>], [<a class="cyt" href="#ref-hunt">4</a>], faktury z macierzy współwystąpień poziomów
+      szarości [<a class="cyt" href="#ref-haralick">6</a>], kształtu i otoczenia, a z modelem wysokości 24. Od tej
       chwili klasyfikator nie patrzy już na zdjęcie, tylko na te liczby.
       Cech nikt nie skaluje, bo las losowy dzieli po progach, a nie po
       odległościach.</li>
@@ -596,12 +604,12 @@ section{scroll-margin-top:60px}
       z walidacją krzyżową na pięciu częściach, i pokazuje, które cechy
       najbardziej je różnią. Ostrzega też, gdy najliczniejsza klasa ma
       ponad pięć razy więcej przykładów niż najrzadsza.</li>
-    <li><strong>Uczenie lasu losowego</strong>
+    <li><strong>Uczenie lasu losowego [<a class="cyt" href="#ref-breiman">7</a>], [<a class="cyt" href="#ref-belgiu">8</a>]</strong>
       Powstaje 100 drzew decyzyjnych. Każde uczy się na losowej próbie
       przykładów, losowanej ze zwracaniem, a w każdym węźle wybiera
       najlepsze pytanie „czy cecha X jest mniejsza od progu?” spośród
       losowo wybranych √p cech (4 z 19, 5 z 24). Progi dobiera algorytm
-      według kryterium Giniego, nie człowiek. Ziarno losowe jest stałe
+      według kryterium Giniego [<a class="cyt" href="#ref-cart">9</a>], nie człowiek. Ziarno losowe jest stałe
       (42), więc te same dane dają zawsze ten sam model.</li>
     <li><strong>Głosowanie i pewność</strong>
       Każde drzewo prowadzi obiekt przez swoje pytania i zwraca rozkład
@@ -1494,10 +1502,10 @@ section{scroll-margin-top:60px}
   </table></div>
 
   <div class="ramka">
-    <p>Postępowanie jest zgodne z <strong>Olofsson i in. (2014)</strong>
-    oraz <strong>Stehman (2014)</strong>, czyli z tym, czego dziś wymagają
+    <p>Postępowanie jest zgodne z zaleceniami Olofssona i in. [<a class="cyt" href="#ref-olofsson">10</a>]
+    oraz Stehmana [<a class="cyt" href="#ref-stehman">11</a>], czyli z tym, czego dziś wymagają
     recenzenci w czasopismach z teledetekcji. Współczynnika kappa
-    świadomie nie liczymy: obecne zalecenia go odradzają.</p>
+    świadomie nie liczymy: obecne zalecenia go odradzają [<a class="cyt" href="#ref-pontius">12</a>].</p>
     <p style="margin-top:8px"><strong>Jedna uczciwa uwaga:</strong>
     punkty opisane z lotu ptaka to dane referencyjne wysokiej jakości,
     ale <em>nie</em> to samo, co pomiar w terenie. Tak też należy je
@@ -1547,29 +1555,219 @@ section{scroll-margin-top:60px}
 </div></section>
 
 <section id="metoda"><div class="owijka">
-  <h2>Skąd ta metoda</h2>
-  <p class="podtytul">Wszystko, co program robi, ma źródło w literaturze.</p>
+  <h2>Metodyka</h2>
+  <p class="podtytul">Wszystko, co program robi, ma źródło w literaturze
+  albo w dokumentacji użytych bibliotek.</p>
 
+  <h3>Jednostka analizy</h3>
+  <p>Program realizuje klasyfikację obiektową (GEOBIA) [<a class="cyt" href="#ref-blaschke">13</a>]:
+  jednostką decyzji nie jest piksel, lecz obiekt, czyli spójna grupa
+  sąsiadujących pikseli o zbliżonej barwie. Obiekt niesie informację
+  niedostępną dla pojedynczego piksela, taką jak zmienność wewnętrzna,
+  faktura, kształt i relacja do otoczenia. Mapa wynikowa nie zawiera
+  izolowanych, błędnie sklasyfikowanych pikseli. Jej rozdzielczość
+  tematyczna jest jednak ograniczona wielkością obiektu: element węższy
+  niż obiekt nie zostanie wykartowany.</p>
+
+  <h3>Dane wejściowe</h3>
+  <p>Program interpretuje trzy pierwsze kanały zdjęcia jako czerwony,
+  zielony i niebieski i wymaga metrycznego układu współrzędnych.
+  Jasności są skalowane do przedziału 0–1 według typu danych pliku
+  (dane 8-bitowe dzielone przez 255, 16-bitowe przez 65 535), a nie
+  według rozstępu wartości w zdjęciu; zdjęcia zapisane w tym samym
+  formacie pozostają więc porównywalne. Zdjęcie jest przeliczane na
+  siatkę roboczą o rozdzielczości wybranej przez użytkownika, przy czym
+  przy zgrubianiu wartości pikseli są uśredniane. Siatka robocza
+  większa niż 15 milionów pikseli jest odrzucana z komunikatem.
+  Opcjonalny numeryczny model pokrycia terenu (NMPT) musi mieć ten sam
+  układ współrzędnych co zdjęcie. W przypadku scen Sentinel-2
+  [<a class="cyt" href="#ref-drusch">1</a>] wymagana jest gotowa kompozycja RGB, ponieważ
+  w surowym produkcie wielokanałowym trzy pierwsze kanały nie
+  odpowiadają barwom czerwonej, zielonej i niebieskiej.</p>
+
+  <h3>Segmentacja</h3>
+  <p>Podział na obiekty wykonuje algorytm SLIC [<a class="cyt" href="#ref-achanta">5</a>], czyli
+  lokalne grupowanie metodą k-średnich w pięciowymiarowej przestrzeni
+  złożonej z trzech składowych barwy w przestrzeni CIELAB i dwóch
+  współrzędnych piksela. Odległość piksela od środka skupienia łączy
+  różnicę barwy <em>d</em><sub>c</sub> z odległością przestrzenną
+  <em>d</em><sub>s</sub> unormowaną odstępem siatki zarodków
+  <em>S</em> i ważoną zwartością <em>m</em>:
+  <em>D</em> = √(<em>d</em><sub>c</sub>² + (<em>d</em><sub>s</sub>/<em>S</em>)²·<em>m</em>²).
+  Domyślna zwartość wynosi 0,15. Przed podziałem obraz jest wygładzany
+  filtrem Gaussa (σ = 2,5), a grupowanie obejmuje 10 iteracji. Obiekty
+  mniejsze niż połowa ilorazu powierzchni zdjęcia i liczby obiektów są
+  dołączane do sąsiada, dzięki czemu każdy obiekt tworzy jeden spójny
+  płat. Gdy dostępna jest biblioteka scikit-image [<a class="cyt" href="#ref-skimage">14</a>],
+  program wywołuje jej implementację SLIC z tymi samymi parametrami;
+  w przeciwnym razie działa implementacja własna tego samego
+  algorytmu. Przy niskiej zwartości zrealizowana liczba obiektów bywa
+  dwu- do trzykrotnie mniejsza od zamówionej. Program raportuje więc
+  rzeczywistą liczbę obiektów oraz medianę i maksimum ich powierzchni.</p>
+
+  <h3>Przestrzeń cech</h3>
+  <p>Każdy obiekt opisuje wektor 19 cech, a przy dostępnym NMPT
+  24 cech. Grupa barwy obejmuje średnie i odchylenia standardowe trzech
+  kanałów oraz średnią jasność (7 cech). Wskaźniki roślinności
+  z zakresu widzialnego, ExG [<a class="cyt" href="#ref-woebbecke">2</a>], VARI [<a class="cyt" href="#ref-gitelson">3</a>]
+  i NGRDI [<a class="cyt" href="#ref-hunt">4</a>], są liczone na współrzędnych chromatycznych
+  (<em>r</em> = <em>R</em>/(<em>R</em>+<em>G</em>+<em>B</em>), analogicznie
+  <em>g</em> i <em>b</em>), co usuwa składową jasności i ogranicza wpływ
+  zmiennego oświetlenia (3 cechy). Fakturę opisują cztery miary
+  z macierzy współwystąpień poziomów szarości [<a class="cyt" href="#ref-haralick">6</a>]:
+  kontrast, jednorodność, energia i entropia. Wyznacza się je dla
+  luminancji skwantowanej globalnie do 15 poziomów, przy odległości
+  1 piksela i czterech kierunkach (0°, 45°, 90°, 135°); obiekty mniejsze
+  niż 16 pikseli otrzymują wartości neutralne. Kształt opisują pole,
+  obwód estymowany metodą Croftona, okrągłość 4π<em>A</em>/<em>P</em>²
+  i wypukłość względem otoczki wypukłej (4 cechy). Kontekst opisuje
+  różnica między jasnością obiektu a średnią jasnością obiektów
+  przyległych w grafie sąsiedztwa czterospójnego (1 cecha). Z NMPT
+  program wyznacza średnią i odchylenie wysokości, średnie nachylenie,
+  wysokość względem sąsiadów oraz wysokość nad gruntem (5 cech).
+  Powierzchnię gruntu estymuje z samego NMPT: minimum w blokach
+  około 1 m, otwarcie morfologiczne oknem 40 m i wygładzenie średnią
+  ruchomą. Cechy nie są standaryzowane, ponieważ las losowy dzieli
+  przestrzeń cech progami i jest niewrażliwy na monotoniczne
+  przekształcenia pojedynczej cechy.</p>
+
+  <h3>Klasyfikacja</h3>
+  <p>Regułę decyzyjną stanowi las losowy [<a class="cyt" href="#ref-breiman">7</a>], klasyfikator
+  szeroko stosowany w teledetekcji [<a class="cyt" href="#ref-belgiu">8</a>]. Las składa się
+  ze 100 drzew. Każde drzewo uczy się na próbie bootstrapowej, a w każdym
+  węźle wybiera podział spośród √<em>p</em> losowo wybranych cech
+  (4 z 19 albo 5 z 24) według kryterium Giniego [<a class="cyt" href="#ref-cart">9</a>], bez
+  wag klas i bez ograniczenia głębokości (w implementacji własnej do
+  40 poziomów). Ziarno generatora liczb pseudolosowych wynosi 42, co
+  zapewnia powtarzalność wyniku. Obiekt otrzymuje klasę o największym
+  udziale w uśrednionym rozkładzie klas z liści wszystkich drzew
+  (głosowanie miękkie), a ten udział jest zapisywany jako pewność
+  decyzji. Program zlicza obiekty o pewności poniżej 0,5 i ostrzega,
+  gdy stosunek liczebności najliczniejszej i najrzadszej klasy uczącej
+  przekracza 5:1. Gdy dostępna jest biblioteka scikit-learn
+  [<a class="cyt" href="#ref-sklearn">15</a>], używana jest jej implementacja z tymi parametrami,
+  w przeciwnym razie implementacja własna.</p>
+
+  <h3>Rozróżnialność klas</h3>
+  <p>Przed uczeniem program szacuje rozróżnialność każdej pary klas
+  odległością Jeffriesa i Matusity, JM = 2(1 − e<sup>−<em>B</em></sup>),
+  gdzie <em>B</em> jest odległością Bhattacharyyi. Klasyczna JM liczona
+  w pełnej przestrzeni cech na tych samych próbkach, z których
+  estymowano parametry, przy 24 cechach i kilkuset próbkach osiąga
+  wartość bliską 2 niemal dla każdej pary klas. Zastosowano dlatego
+  wariant z pięciokrotną walidacją krzyżową. Na części uczącej
+  wyznacza się kierunek dyskryminacyjny Fishera [<a class="cyt" href="#ref-fisher">16</a>],
+  z macierzą kowariancji estymowaną ze skurczem Ledoita i Wolfa
+  [<a class="cyt" href="#ref-ledoit">17</a>], a odległość liczy się na rzutach części testowej.
+  Tak określona miara jest dolnym ograniczeniem pełnej odległości
+  wielowymiarowej. Progi 1,9 i 1,7 mają więc charakter orientacyjny,
+  a najbardziej użyteczna jest kolejność par klas i ranking cech, które
+  je rozdzielają.</p>
+
+  <h3>Korekty po klasyfikacji</h3>
+  <p>Dwie opcjonalne korekty naruszają czysto obiektowy charakter mapy
+  i jeśli zostały użyte, należy je raportować. Pierwsza rozstrzyga
+  przynależność pojedynczych pikseli dla dwóch wskazanych klas na
+  podstawie ExG uśrednionego w oknie 3 × 3 piksele. Próg jest wyznaczany
+  na próbkach uczących przez maksymalizację średniej trafności obu
+  klas. Korekta odzyskuje elementy węższe niż obiekt, kosztem
+  niewielkiego poszerzenia odzyskanych pasów. Druga korekta, najmniejsza
+  jednostka kartowania, wchłania płaty mniejsze od progu przez klasę
+  otaczającą, z użyciem filtra sita biblioteki GDAL [<a class="cyt" href="#ref-gdal">18</a>]
+  w sąsiedztwie czterospójnym. Próg sita powinien wynikać
+  z przeznaczenia mapy, a nie z optymalizacji wyniku oceny dokładności.</p>
+
+  <h3>Ocena dokładności i estymacja powierzchni</h3>
+  <p>Ocena dokładności opiera się na losowaniu warstwowym według klas
+  mapy: każda klasa otrzymuje co najmniej 50 punktów (wartość
+  domyślna), a pozostałe punkty są przydzielane proporcjonalnie do
+  powierzchni. Punkty kontrolne nie trafiają na obiekty użyte do
+  uczenia, więc populacją docelową jest mapa poza tymi obiektami. Wagi
+  powierzchniowe warstw są zapamiętywane w chwili losowania, tak aby
+  warstwy pozostały przypisane do próby także po późniejszej zmianie
+  mapy [<a class="cyt" href="#ref-stehman">11</a>]. Interpretator opisuje punkty przy ukrytej
+  warstwie klasyfikacji, co ogranicza efekt potwierdzenia. Z macierzy
+  błędów [<a class="cyt" href="#ref-congalton">19</a>] program wyznacza dokładność ogólną,
+  dokładność użytkownika i producenta oraz udziały i powierzchnie klas
+  za pomocą estymatorów ważonych powierzchnią, z 95-procentowymi
+  przedziałami ufności [<a class="cyt" href="#ref-olofsson">10</a>]. Implementacja odtwarza
+  przykład rachunkowy z tej pracy (tab. 8): dokładność ogólna wynosi
+  0,9449 przy wartości opublikowanej 0,944. Współczynnik kappa nie jest
+  liczony [<a class="cyt" href="#ref-pontius">12</a>].</p>
+
+  <h3>Implementacja i odtwarzalność</h3>
+  <p>Program jest napisany w języku Python i korzysta z bibliotek NumPy
+  [<a class="cyt" href="#ref-numpy">20</a>] i SciPy [<a class="cyt" href="#ref-scipy">21</a>]. Odczyt i zapis danych
+  przestrzennych realizuje GDAL [<a class="cyt" href="#ref-gdal">18</a>] we wtyczce QGIS oraz
+  biblioteki rasterio i Fiona w programie wiersza poleceń. Wtyczka QGIS,
+  program wiersza poleceń i program okienkowy dla Windows korzystają
+  z tego samego silnika obliczeniowego. Program dla Windows jest
+  budowany automatycznie w GitHub Actions z kodu w repozytorium, a każde
+  wydanie jest publikowane z sumami kontrolnymi SHA-256. Kod źródłowy
+  jest udostępniony na licencji GPL-3.0-or-later. Do odtworzenia wyniku
+  należy podać wersję programu, wersje bibliotek scikit-image
+  i scikit-learn (albo informację o użyciu implementacji własnych),
+  ziarno losowe oraz wartości wszystkich parametrów ustawionych przez
+  użytkownika.</p>
+
+  <h3>Ograniczenia</h3>
+  <p>Metoda korzysta wyłącznie z zakresu widzialnego, dlatego nie
+  wykorzystuje bliskiej podczerwieni ani wskaźników takich jak NDVI.
+  Model nie przenosi się między nalotami bez ponownego uczenia,
+  ponieważ oświetlenie, faza fenologiczna i ustawienia kamery przesuwają
+  rozkłady cech. Elementy węższe niż obiekt są niedoszacowane. Pod
+  zwartym pokryciem szerszym niż 40 m estymowana powierzchnia gruntu
+  wchodzi na to pokrycie, co zaniża wysokość nad gruntem. Bez wag klas
+  klasy rzadkie są systematycznie niedoszacowywane, gdy zbiór uczący
+  jest niezrównoważony. Program nie korzysta z cech wyznaczanych przez
+  głębokie sieci neuronowe, dlatego klasy różniące się wyłącznie
+  wzorem przestrzennym, a nie materiałem, mogą pozostać
+  nierozdzielone.</p>
+
+  <h3>Zestawienie źródeł</h3>
   <div class="tabela-przewin"><table>
     <thead><tr><th>Element</th><th>Źródło</th></tr></thead>
     <tbody>
-      <tr><td>Podział na obiekty metodą SLIC</td>
-        <td>Achanta i in. (2012), <em>IEEE TPAMI</em> 34(11)</td></tr>
-      <tr><td>Faktura z macierzy współwystąpień (GLCM)</td>
-        <td>Haralick, Shanmugam i Dinstein (1973), <em>IEEE SMC</em> 3(6)</td></tr>
-      <tr><td>Wskaźnik zieloności ExG</td>
-        <td>Woebbecke i in. (1995), <em>Trans. ASAE</em> 38(1)</td></tr>
-      <tr><td>Las losowy</td>
-        <td>Breiman (2001); przegląd zastosowań: Belgiu i Drăguţ (2016)</td></tr>
-      <tr><td>Analiza obiektowa obrazu</td>
-        <td>Blaschke (2010), <em>ISPRS J. Photogramm.</em> 65(1)</td></tr>
-      <tr><td>Ocena dokładności i powierzchni</td>
-        <td>Olofsson i in. (2014), <em>Remote Sens. Environ.</em> 148;
-            Stehman (2014), <em>Int. J. Remote Sens.</em> 35(13);
-            Congalton i Green (2019)</td></tr>
+      <tr><td>Analiza obiektowa obrazu</td><td>[<a class="cyt" href="#ref-blaschke">13</a>]</td></tr>
+      <tr><td>Podział na obiekty metodą SLIC</td><td>[<a class="cyt" href="#ref-achanta">5</a>]</td></tr>
+      <tr><td>Wskaźniki zieloności ExG, VARI, NGRDI</td><td>[<a class="cyt" href="#ref-woebbecke">2</a>], [<a class="cyt" href="#ref-gitelson">3</a>], [<a class="cyt" href="#ref-hunt">4</a>]</td></tr>
+      <tr><td>Faktura z macierzy współwystąpień (GLCM)</td><td>[<a class="cyt" href="#ref-haralick">6</a>]</td></tr>
+      <tr><td>Las losowy i jego zastosowania w teledetekcji</td><td>[<a class="cyt" href="#ref-breiman">7</a>], [<a class="cyt" href="#ref-belgiu">8</a>]</td></tr>
+      <tr><td>Kryterium Giniego w drzewach decyzyjnych</td><td>[<a class="cyt" href="#ref-cart">9</a>]</td></tr>
+      <tr><td>Ocena dokładności i estymacja powierzchni</td><td>[<a class="cyt" href="#ref-olofsson">10</a>], [<a class="cyt" href="#ref-stehman">11</a>], [<a class="cyt" href="#ref-congalton">19</a>]</td></tr>
+      <tr><td>Rozróżnialność klas: kierunek Fishera, skurcz kowariancji</td><td>[<a class="cyt" href="#ref-fisher">16</a>], [<a class="cyt" href="#ref-ledoit">17</a>]</td></tr>
+      <tr><td>Rezygnacja ze współczynnika kappa</td><td>[<a class="cyt" href="#ref-pontius">12</a>]</td></tr>
+      <tr><td>Zdjęcia satelitarne Sentinel-2</td><td>[<a class="cyt" href="#ref-drusch">1</a>]</td></tr>
+      <tr><td>Biblioteki: scikit-image, scikit-learn, NumPy, SciPy, GDAL</td><td>[<a class="cyt" href="#ref-skimage">14</a>], [<a class="cyt" href="#ref-sklearn">15</a>], [<a class="cyt" href="#ref-numpy">20</a>], [<a class="cyt" href="#ref-scipy">21</a>], [<a class="cyt" href="#ref-gdal">18</a>]</td></tr>
     </tbody>
   </table></div>
+</div></section>
 
+<section id="bibliografia"><div class="owijka">
+  <h2>Bibliografia</h2>
+  <ol class="bibliografia">
+    <li id="ref-drusch">M. Drusch <em>et al.</em>, „Sentinel-2: ESA’s optical high-resolution mission for GMES operational services,” <em>Remote Sens. Environ.</em>, vol. 120, pp. 25–36, 2012, doi: <a href="https://doi.org/10.1016/j.rse.2011.11.026">10.1016/j.rse.2011.11.026</a>.</li>
+    <li id="ref-woebbecke">D. M. Woebbecke, G. E. Meyer, K. Von Bargen, and D. A. Mortensen, „Color indices for weed identification under various soil, residue, and lighting conditions,” <em>Trans. ASAE</em>, vol. 38, no. 1, pp. 259–269, 1995, doi: <a href="https://doi.org/10.13031/2013.27838">10.13031/2013.27838</a>.</li>
+    <li id="ref-gitelson">A. A. Gitelson, Y. J. Kaufman, R. Stark, and D. Rundquist, „Novel algorithms for remote estimation of vegetation fraction,” <em>Remote Sens. Environ.</em>, vol. 80, no. 1, pp. 76–87, 2002, doi: <a href="https://doi.org/10.1016/S0034-4257(01)00289-9">10.1016/S0034-4257(01)00289-9</a>.</li>
+    <li id="ref-hunt">E. R. Hunt, M. Cavigelli, C. S. T. Daughtry, J. E. McMurtrey, and C. L. Walthall, „Evaluation of digital photography from model aircraft for remote sensing of crop biomass and nitrogen status,” <em>Precis. Agric.</em>, vol. 6, no. 4, pp. 359–378, 2005, doi: <a href="https://doi.org/10.1007/s11119-005-2324-5">10.1007/s11119-005-2324-5</a>.</li>
+    <li id="ref-achanta">R. Achanta, A. Shaji, K. Smith, A. Lucchi, P. Fua, and S. Süsstrunk, „SLIC superpixels compared to state-of-the-art superpixel methods,” <em>IEEE Trans. Pattern Anal. Mach. Intell.</em>, vol. 34, no. 11, pp. 2274–2282, 2012, doi: <a href="https://doi.org/10.1109/TPAMI.2012.120">10.1109/TPAMI.2012.120</a>.</li>
+    <li id="ref-haralick">R. M. Haralick, K. Shanmugam, and I. Dinstein, „Textural features for image classification,” <em>IEEE Trans. Syst., Man, Cybern.</em>, vol. SMC-3, no. 6, pp. 610–621, 1973, doi: <a href="https://doi.org/10.1109/TSMC.1973.4309314">10.1109/TSMC.1973.4309314</a>.</li>
+    <li id="ref-breiman">L. Breiman, „Random forests,” <em>Mach. Learn.</em>, vol. 45, no. 1, pp. 5–32, 2001, doi: <a href="https://doi.org/10.1023/A:1010933404324">10.1023/A:1010933404324</a>.</li>
+    <li id="ref-belgiu">M. Belgiu and L. Drăguţ, „Random forest in remote sensing: A review of applications and future directions,” <em>ISPRS J. Photogramm. Remote Sens.</em>, vol. 114, pp. 24–31, 2016, doi: <a href="https://doi.org/10.1016/j.isprsjprs.2016.01.011">10.1016/j.isprsjprs.2016.01.011</a>.</li>
+    <li id="ref-cart">L. Breiman, J. H. Friedman, R. A. Olshen, and C. J. Stone, <em>Classification and Regression Trees</em>. New York, NY, USA: Routledge, 2017 (wyd. oryg. 1984), doi: <a href="https://doi.org/10.1201/9781315139470">10.1201/9781315139470</a>.</li>
+    <li id="ref-olofsson">P. Olofsson, G. M. Foody, M. Herold, S. V. Stehman, C. E. Woodcock, and M. A. Wulder, „Good practices for estimating area and assessing accuracy of land change,” <em>Remote Sens. Environ.</em>, vol. 148, pp. 42–57, 2014, doi: <a href="https://doi.org/10.1016/j.rse.2014.02.015">10.1016/j.rse.2014.02.015</a>.</li>
+    <li id="ref-stehman">S. V. Stehman, „Estimating area and map accuracy for stratified random sampling when the strata are different from the map classes,” <em>Int. J. Remote Sens.</em>, vol. 35, no. 13, pp. 4923–4939, 2014, doi: <a href="https://doi.org/10.1080/01431161.2014.930207">10.1080/01431161.2014.930207</a>.</li>
+    <li id="ref-pontius">R. G. Pontius Jr. and M. Millones, „Death to Kappa: birth of quantity disagreement and allocation disagreement for accuracy assessment,” <em>Int. J. Remote Sens.</em>, vol. 32, no. 15, pp. 4407–4429, 2011, doi: <a href="https://doi.org/10.1080/01431161.2011.552923">10.1080/01431161.2011.552923</a>.</li>
+    <li id="ref-blaschke">T. Blaschke, „Object based image analysis for remote sensing,” <em>ISPRS J. Photogramm. Remote Sens.</em>, vol. 65, no. 1, pp. 2–16, 2010, doi: <a href="https://doi.org/10.1016/j.isprsjprs.2009.06.004">10.1016/j.isprsjprs.2009.06.004</a>.</li>
+    <li id="ref-skimage">S. van der Walt <em>et al.</em>, „scikit-image: image processing in Python,” <em>PeerJ</em>, vol. 2, art. no. e453, 2014, doi: <a href="https://doi.org/10.7717/peerj.453">10.7717/peerj.453</a>.</li>
+    <li id="ref-sklearn">F. Pedregosa <em>et al.</em>, „Scikit-learn: Machine learning in Python,” <em>J. Mach. Learn. Res.</em>, vol. 12, no. 85, pp. 2825–2830, 2011. [Online]. Dostępne: <a href="https://jmlr.org/papers/v12/pedregosa11a.html">https://jmlr.org/papers/v12/pedregosa11a.html</a></li>
+    <li id="ref-fisher">R. A. Fisher, „The use of multiple measurements in taxonomic problems,” <em>Ann. Eugen.</em>, vol. 7, no. 2, pp. 179–188, 1936, doi: <a href="https://doi.org/10.1111/j.1469-1809.1936.tb02137.x">10.1111/j.1469-1809.1936.tb02137.x</a>.</li>
+    <li id="ref-ledoit">O. Ledoit and M. Wolf, „A well-conditioned estimator for large-dimensional covariance matrices,” <em>J. Multivar. Anal.</em>, vol. 88, no. 2, pp. 365–411, 2004, doi: <a href="https://doi.org/10.1016/S0047-259X(03)00096-4">10.1016/S0047-259X(03)00096-4</a>.</li>
+    <li id="ref-gdal">GDAL/OGR contributors, <em>GDAL/OGR Geospatial Data Abstraction software Library</em>. Open Source Geospatial Foundation, 2026, doi: <a href="https://doi.org/10.5281/zenodo.5884351">10.5281/zenodo.5884351</a>.</li>
+    <li id="ref-congalton">R. G. Congalton and K. Green, <em>Assessing the Accuracy of Remotely Sensed Data: Principles and Practices</em>, 3rd ed. Boca Raton, FL, USA: CRC Press, 2019, doi: <a href="https://doi.org/10.1201/9780429052729">10.1201/9780429052729</a>.</li>
+    <li id="ref-numpy">C. R. Harris <em>et al.</em>, „Array programming with NumPy,” <em>Nature</em>, vol. 585, no. 7825, pp. 357–362, 2020, doi: <a href="https://doi.org/10.1038/s41586-020-2649-2">10.1038/s41586-020-2649-2</a>.</li>
+    <li id="ref-scipy">P. Virtanen <em>et al.</em>, „SciPy 1.0: fundamental algorithms for scientific computing in Python,” <em>Nat. Methods</em>, vol. 17, no. 3, pp. 261–272, 2020, doi: <a href="https://doi.org/10.1038/s41592-019-0686-2">10.1038/s41592-019-0686-2</a>.</li>
+  </ol>
 </div></section>
 
 <a class="do-gory" href="#" aria-label="Do góry strony">↑</a>
