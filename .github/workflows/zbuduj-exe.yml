@@ -107,6 +107,28 @@ jobs:
           Compress-Archive -Path "GeoAI Klasyfikator" `
                            -DestinationPath "GeoAI_Klasyfikator_win.zip" -Force
 
+      - name: Spakuj wtyczke QGIS
+        shell: pwsh
+        run: |
+          # Paczka do instalacji w QGIS (Wtyczki, Zarzadzanie wtyczkami,
+          # Zainstaluj z pliku ZIP). Folder wtyczki musi lezec w korzeniu
+          # archiwum, a sciezki musza miec ukosniki /, inaczej QGIS na
+          # Linuksie i macOS jej nie rozpakuje. Dlatego Python, nie
+          # Compress-Archive. Pomijamy __pycache__ z kroku sprawdzania kodu.
+          $skrypt = @(
+            "import pathlib, zipfile",
+            "zrodlo = pathlib.Path('geoai_klasyfikator')",
+            "cel = 'program_exe/dist/geoai_klasyfikator.zip'",
+            "with zipfile.ZipFile(cel, 'w', zipfile.ZIP_DEFLATED) as z:",
+            "    for p in sorted(zrodlo.rglob('*')):",
+            "        if p.is_file() and '__pycache__' not in p.parts and p.suffix != '.pyc':",
+            "            z.write(p, p.as_posix())",
+            "print('wtyczka spakowana:', cel)"
+          )
+          $skrypt | Set-Content -Path spakuj_wtyczke.py -Encoding utf8
+          python spakuj_wtyczke.py
+          if ($LASTEXITCODE -ne 0) { throw "Nie udalo sie spakowac wtyczki" }
+
       - name: Policz sumy kontrolne
         shell: pwsh
         run: |
@@ -116,6 +138,7 @@ jobs:
           # exe, wiec suma kontrolna jest jedyna rzeczowa odpowiedzia.
           $pliki = @()
           $pliki += Get-ChildItem "program_exe/dist/GeoAI_Klasyfikator_win.zip"
+          $pliki += Get-ChildItem "program_exe/dist/geoai_klasyfikator.zip"
           $pliki += Get-ChildItem "program_exe/instalator" -Filter *.exe -ErrorAction SilentlyContinue
           $linie = foreach ($p in $pliki) {
             $h = (Get-FileHash $p.FullName -Algorithm SHA256).Hash.ToLower()
@@ -140,6 +163,7 @@ jobs:
           name: GeoAI_Klasyfikator_win
           path: |
             program_exe/dist/GeoAI_Klasyfikator_win.zip
+            program_exe/dist/geoai_klasyfikator.zip
             program_exe/instalator/*.exe
             program_exe/SUMY-KONTROLNE.txt
           if-no-files-found: error
@@ -152,6 +176,7 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           $pliki = @("program_exe/dist/GeoAI_Klasyfikator_win.zip",
+                     "program_exe/dist/geoai_klasyfikator.zip",
                      "program_exe/SUMY-KONTROLNE.txt")
           $inst = Get-ChildItem -Path "program_exe/instalator" -Filter *.exe -ErrorAction SilentlyContinue
           if ($inst) { $pliki += $inst.FullName }
@@ -161,7 +186,7 @@ jobs:
           $plot = [char]0x60
           $ramka = "$plot$plot$plot"
           $opis = @(
-            "Program dla Windows. Pobierz instalator (plik Setup.exe) albo wersje przenosna (plik .zip).",
+            "Program dla Windows: instalator (plik Setup.exe) albo wersja przenosna (GeoAI_Klasyfikator_win.zip). Wtyczka QGIS: geoai_klasyfikator.zip, instalacja przez Wtyczki, Zarzadzanie wtyczkami, Zainstaluj z pliku ZIP.",
             "",
             "## Ostrzezenie przegladarki",
             "",

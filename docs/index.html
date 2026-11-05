@@ -102,6 +102,18 @@ footer a{color:var(--szary)}
 .wersja:hover{border-color:var(--marka)}
 .wersja .tytul{font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
 .wersja .dla{font-size:13px;color:var(--szary);margin-bottom:10px}
+.pobierz{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.przycisk{display:inline-block;padding:11px 20px;border-radius:9px;font-weight:600;
+          text-decoration:none;border:1px solid rgba(255,255,255,.55);color:#fff}
+.przycisk:hover{background:rgba(255,255,255,.12)}
+.przycisk.glowny{background:#fff;color:var(--marka-ciemna);border-color:#fff}
+.przycisk.glowny:hover{background:var(--marka-jasna)}
+.wersja{display:flex;flex-direction:column}
+.wersja .pob{margin-top:auto;padding-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+.wersja .pob a{font-size:14px;font-weight:600;padding:7px 12px;border-radius:7px;
+               background:var(--marka-jasna);color:var(--marka-ciemna);text-decoration:none}
+.wersja .pob a:hover{background:var(--marka);color:#fff}
+.uwaga-pob{font-size:14px;color:var(--szary);margin:4px 0 0}
 @media(max-width:640px){
   header h1{font-size:2rem}
   nav .linki{display:none}
@@ -141,6 +153,10 @@ footer a{color:var(--szary)}
     <span class="odznaka">Program dla Windows</span>
     <span class="odznaka">Wiersz poleceń</span>
     <span class="odznaka">GPL-3.0</span>
+  </div>
+  <div class="pobierz">
+    <a class="przycisk glowny" href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/releases/latest/download/GeoAI_Klasyfikator_Setup.exe">⬇ Pobierz program dla Windows</a>
+    <a class="przycisk" href="#wersje">Wtyczka QGIS i inne wersje</a>
   </div>
 </div></header>
 
@@ -312,6 +328,9 @@ footer a{color:var(--szary)}
       po mapie. <strong>Tylko tutaj</strong> jest ocena dokładności:
       losowanie punktów, macierz błędów i powierzchnie z przedziałami
       ufności.</p>
+      <div class="pob">
+        <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/releases/latest/download/geoai_klasyfikator.zip">⬇ Wtyczka (ZIP)</a>
+      </div>
     </div>
     <div class="wersja">
       <div class="tytul">🪟 Program dla Windows</div>
@@ -319,14 +338,32 @@ footer a{color:var(--szary)}
       <p style="font-size:14.5px;margin:0">Okno z dwiema zakładkami:
       nauka i klasyfikacja całego folderu. Instalator nie wymaga praw
       administratora.</p>
+      <div class="pob">
+        <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/releases/latest/download/GeoAI_Klasyfikator_Setup.exe">⬇ Instalator</a>
+        <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/releases/latest/download/GeoAI_Klasyfikator_win.zip">⬇ Wersja przenośna</a>
+      </div>
     </div>
     <div class="wersja">
       <div class="tytul">⌨️ Wiersz poleceń</div>
       <div class="dla">gdy zdjęć są setki</div>
       <p style="font-size:14.5px;margin:0">Uczysz model raz, puszczasz
       go na folder. Daje się wpiąć w skrypt i wznowić po przerwaniu.</p>
+      <div class="pob">
+        <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/releases/latest">⬇ Kod źródłowy</a>
+      </div>
     </div>
   </div>
+
+  <p class="uwaga-pob">Wtyczkę instalujesz w QGIS: Wtyczki, Zarządzanie
+  wtyczkami, Zainstaluj z pliku ZIP. Przeglądarka może ostrzec przed
+  plikiem programu, bo nie jest on jeszcze podpisany; to brak reputacji
+  nowego pliku, a nie wirus. Projekt ubiega się o bezpłatny certyfikat
+  SignPath Foundation (<em>Free code signing provided by
+  <a href="https://about.signpath.io">SignPath.io</a>, certificate by
+  <a href="https://signpath.org">SignPath Foundation</a></em>), zasady
+  opisuje <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/blob/main/CODE_SIGNING_POLICY.md">Code
+  signing policy</a>. Wszystkie pliki i sumy kontrolne SHA-256:
+  <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/releases/latest">najnowsze wydanie</a>.</p>
 
   <h3>Co jest potrzebne</h3>
   <table>
