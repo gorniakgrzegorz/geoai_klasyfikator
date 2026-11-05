@@ -84,7 +84,7 @@ można go na dwa sposoby:
 - **Najnowszy build:** zakładka
   [Actions](https://github.com/gorniakgrzegorz/geoai_klasyfikator/actions/workflows/zbuduj-exe.yml),
   ostatni przebieg, sekcja **Artifacts**, paczka
-  `GeoAI-Klasyfikator-windows`. Zawiera instalator oraz wersję
+  `GeoAI_Klasyfikator_win`. Zawiera instalator oraz wersję
   przenośną w pliku ZIP, którą wystarczy rozpakować i uruchomić
   `GeoAI Klasyfikator.exe`.
 
@@ -112,7 +112,12 @@ Get-FileHash .\GeoAI_Klasyfikator_Setup.exe -Algorithm SHA256
   bo przeglądarka ocenia archiwum łagodniej niż plik `.exe`.
 
 Ostrzeżenie zniknie dopiero po podpisaniu programu certyfikatem
-wydawcy. Zasady, na jakich to się odbywa, opisuje
+wydawcy. Projekt ubiega się o bezpłatny certyfikat w programie
+SignPath Foundation dla projektów open source. Po przyjęciu wniosku
+pliki programu dla Windows będą podpisywane na tych zasadach:
+*Free code signing provided by [SignPath.io](https://about.signpath.io),
+certificate by [SignPath Foundation](https://signpath.org).*
+Szczegóły, w tym role w zespole i politykę prywatności, opisuje
 [Code signing policy](CODE_SIGNING_POLICY.md).
 
 Opis samej paczki instalacyjnej, krok po kroku, jest w folderze

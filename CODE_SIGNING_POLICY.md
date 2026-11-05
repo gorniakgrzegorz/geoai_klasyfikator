@@ -13,7 +13,7 @@ certificate by [SignPath Foundation](https://signpath.org).
 
 Signed artifacts: the Windows installer
 (`GeoAI_Klasyfikator_Setup.exe`) and the portable build
-(`GeoAI Klasyfikator.exe` inside `GeoAI-Klasyfikator-windows.zip`),
+(`GeoAI Klasyfikator.exe` inside `GeoAI_Klasyfikator_win.zip`),
 published under
 [Releases](https://github.com/gorniakgrzegorz/geoai_klasyfikator/releases).
 
