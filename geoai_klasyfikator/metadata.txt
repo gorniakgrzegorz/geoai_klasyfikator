@@ -1,0 +1,69 @@
+[general]
+name=GeoAI Klasyfikator
+qgisMinimumVersion=3.22
+qgisMaximumVersion=4.99
+description=Mapa pokrycia terenu ze zdjęć z drona i zdjęć lotniczych, metodą obiektową. Wtyczka dzieli zdjęcie na obiekty, mierzy 24 cechy każdego z nich (kolor, wskaźniki roślinności, faktura, kształt, otoczenie, wysokość z NMPT), uczy się klas z przykładów wskazanych klikaniem po mapie i na końcu liczy dokładność mapy wraz z powierzchniami klas i przedziałami ufności. / Object-based land-cover classification of drone and aerial imagery, with a design-based accuracy assessment (Polish UI).
+about=*** ENG description below ***
+    
+    NARZĘDZIE W CAŁOŚCI PO POLSKU
+    Wtyczka robi mapę pokrycia terenu ze zdjęcia z drona albo zdjęcia lotniczego i od razu mówi, ile ta mapa jest warta. Nie klasyfikuje pojedynczych pikseli, tylko tnie zdjęcie na obiekty — kawałki pola, dachu, korony drzewa — a potem uczy się od Ciebie, co jest czym.
+    
+    DLA KOGO:
+    planowanie przestrzenne i studia nad strefą podmiejską, rolnictwo i kartowanie upraw, leśnictwo i luki w drzewostanie, inwentaryzacje przyrodnicze, monitoring powierzchni uszczelnionych, oceny oddziaływania na środowisko, prace dyplomowe i badania naukowe.
+    
+    KROK 1 - ZDJĘCIE I OBIEKTY
+    - dowolny raster trójkanałowy: ortomozaika z drona, zdjęcie lotnicze, scena satelitarna,
+    - opcjonalny numeryczny model pokrycia terenu (NMPT), dopasowywany po współrzędnych, więc może mieć własną rozdzielczość i zasięg,
+    - podział metodą SLIC: podajesz wielkość obiektu w metrach kwadratowych albo liczbę obiektów,
+    - tryb "policz tylko to, co widać na ekranie" do szybkich prób i słabszych komputerów.
+    
+    KROK 2 - CO WTYCZKA MIERZY (24 CECHY)
+    - kolor: średnia i zmienność czerwieni, zieleni i niebieskiego oraz jasność,
+    - wskaźniki roślinności z zakresu widzialnego, liczone na współrzędnych chromatycznych: zieloność ExG, VARI i NGRDI. Zwykłe kamery dronowe nie rejestrują podczerwieni, więc NDVI tu nie ma - zastępują go te wskaźniki, faktura, kształt i wysokość,
+    - faktura GLCM: kontrast, jednolitość, powtarzalność i nieuporządkowanie, 15 poziomów szarości, cztery kierunki,
+    - kształt: powierzchnia, obwód, okrągłość i wypukłość,
+    - otoczenie: jasność obiektu na tle sąsiadów, z grafu sąsiedztwa,
+    - wysokość z NMPT: średnia, zmienność, nachylenie, wysokość na tle sąsiadów oraz wysokość nad gruntem szacowanym z samego modelu.
+    Wszystkie pomiary trafiają do tabeli atrybutów warstwy obiektów, więc możesz liczyć na nich własne analizy.
+    
+    KROK 3 - NAUKA I MAPA
+    - przykłady wskazujesz klikając obiekty na mapie, a z wciśniętym Ctrl możesz je malować przeciągając myszą,
+    - przed nauką sprawdzisz, czy klasy w ogóle da się rozróżnić (miara Jeffriesa-Matusity, krzyżowo walidowana) i które cechy je dzielą,
+    - las losowy, 100 drzew; naukę i klasyfikację powtarzasz do skutku,
+    - dociąganie po zieloności: dla dwóch wybranych klas decyzję podejmuje pojedynczy piksel, co odzyskuje pasy trawy węższe niż obiekt,
+    - czyszczenie drobnych płatów (najmniejsza jednostka kartowania),
+    - zapis do GeoTIFF razem z plikiem stylu .qml, więc u odbiorcy mapa otworzy się od razu w kolorach.
+    
+    KROK 4 - ILE TA MAPA JEST WARTA
+    - losowanie proste albo warstwowe wg klas mapy; punkty nigdy nie trafiają na obiekty użyte do nauki,
+    - punkty opisujesz patrząc na samo zdjęcie, z ukrytą klasyfikacją,
+    - macierz błędów, trafność i kompletność każdej klasy, a przy losowaniu warstwowym także liczby ważone powierzchnią oraz szacowane powierzchnie klas z przedziałami ufności 95 (Olofsson i in. 2014; Stehman 2014). Współczynnika kappa świadomie nie liczymy.
+    
+    CZEGO POTRZEBUJE
+    QGIS 3.22 lub nowszy - i nic więcej. Jeśli w środowisku Pythona QGIS-a są biblioteki scikit-image i scikit-learn, wtyczka skorzysta z nich (szybciej na dużych zdjęciach); jeśli ich nie ma, użyje własnych implementacji tych samych, opublikowanych algorytmów.
+    
+    *** ENGLISH (SHORT) ***
+    Polish-language QGIS plugin for object-based land-cover mapping (GEOBIA) of drone orthomosaics and aerial imagery. It segments the image with SLIC, measures 19 features from RGB or 24 with a digital surface model (colour, visible-light vegetation indices, GLCM texture, shape, neighbourhood context, elevation, slope and height above ground), learns the classes from objects you click on the map canvas with a Random Forest, and finishes with a design-based accuracy assessment: error matrix, user's and producer's accuracy, and area-weighted accuracy with estimated class areas and 95 per cent confidence intervals after Olofsson et al. 2014 and Stehman 2014. Optional pixel-level greenness refinement recovers features narrower than an object; a sieve sets a minimum mapping unit. Needs QGIS 3.22 or newer and nothing else; scikit-image and scikit-learn are used when present.
+version=1.0.0
+author=Grzegorz Górniak
+email=gorniakgrzegorz@gmail.com
+category=Raster
+changelog=1.0.0 (pierwsza wersja / first release)
+    - Podział zdjęcia na obiekty metodą SLIC, z wielkością obiektu podawaną w metrach kwadratowych
+    - 19 cech z samego RGB, 24 z numerycznym modelem pokrycia terenu, wszystkie w tabeli atrybutów
+    - Wskazywanie przykładów klikaniem i malowaniem po mapie
+    - Sprawdzanie rozróżnialności klas miarą Jeffriesa-Matusity z walidacją krzyżową
+    - Klasyfikacja lasem losowym (100 drzew)
+    - Dociąganie po zieloności dla obiektów węższych niż pas terenu, w dwóch trybach
+    - Czyszczenie drobnych płatów (najmniejsza jednostka kartowania)
+    - Zapis mapy do GeoTIFF ze stylem .qml
+    - Ocena dokładności: losowanie proste i warstwowe, macierz błędów, dokładność ważona powierzchnią, szacowane powierzchnie klas z przedziałami ufności
+tags=klasyfikacja,pokrycie terenu,uzytkowanie terenu,obia,geobia,segmentacja,slic,las losowy,random forest,uczenie maszynowe,geoai,dron,uav,ortomozaika,zdjecia lotnicze,teledetekcja,raster,gis,faktura,glcm,wskazniki roslinnosci,exg,nmpt,dsm,nmt,ocena dokladnosci,macierz bledow,olofsson,rolnictwo,lesnictwo,planowanie przestrzenne,land cover,classification,accuracy assessment,drone,remote sensing
+homepage=https://github.com/gorniakgrzegorz/geoai_klasyfikator
+tracker=https://github.com/gorniakgrzegorz/geoai_klasyfikator/issues
+repository=https://github.com/gorniakgrzegorz/geoai_klasyfikator
+icon=icon.png
+experimental=False
+deprecated=False
+license=GPL-3.0-or-later
+hasProcessingProvider=no

@@ -1,0 +1,112 @@
+name: Zbuduj program Windows
+
+# Buduje "GeoAI Klasyfikator.exe" na maszynie Windows w chmurze GitHuba,
+# a obok niego instalator Inno Setup.
+#
+# Kiedy się uruchamia:
+#   - po każdym wypchnięciu zmian na gałąź główną,
+#   - po ręcznym kliknięciu "Run workflow" w zakładce Actions,
+#   - po wypchnięciu znacznika wersji (na przykład v1.0.0): wtedy dodatkowo
+#     tworzy Release i podpina do niego gotowe pliki do pobrania.
+#
+# Gotowe pliki znajdziesz zawsze w zakładce Actions, w podsumowaniu przebiegu,
+# w sekcji Artifacts. Zachowywane są przez 90 dni.
+
+on:
+  push:
+    branches: [main, master]
+  create:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Pobierz repozytorium
+        uses: actions/checkout@v4
+
+      - name: Zainstaluj Pythona
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Zainstaluj biblioteki
+        shell: pwsh
+        run: |
+          python -m pip install --upgrade pip wheel
+          python -m pip install -r program_cli/requirements.txt
+          python -m pip install "pyinstaller>=6,<7"
+
+      - name: Zbuduj plik wykonywalny
+        shell: pwsh
+        working-directory: program_exe
+        run: |
+          pyinstaller GeoAI_Klasyfikator.spec --noconfirm --clean
+          $exe = "dist/GeoAI Klasyfikator/GeoAI Klasyfikator.exe"
+          if (-not (Test-Path $exe)) { throw "Budowanie nie dalo pliku exe" }
+
+      - name: Sprawdz plik wykonywalny
+        shell: pwsh
+        working-directory: program_exe
+        run: |
+          # Program jest okienkowy, wiec nie uruchomimy go bez pulpitu.
+          # Sprawdzamy nazwe, rozmiar i obecnosc ikony.
+          Add-Type -AssemblyName System.Drawing
+          $exe = Get-Item "dist/GeoAI Klasyfikator/GeoAI Klasyfikator.exe"
+          Write-Host ("Nazwa:   {0}" -f $exe.Name)
+          Write-Host ("Rozmiar: {0:N0} bajtow" -f $exe.Length)
+          if ($exe.Length -lt 500000) { throw "Plik exe podejrzanie maly" }
+          $ikona = [System.Drawing.Icon]::ExtractAssociatedIcon($exe.FullName)
+          if ($null -eq $ikona) { throw "Plik exe nie ma ikony" }
+          Write-Host ("Ikona:   {0} na {1} pikseli" -f $ikona.Width, $ikona.Height)
+
+      - name: Zainstaluj Inno Setup
+        shell: pwsh
+        run: choco install innosetup --no-progress -y
+
+      - name: Zbuduj instalator
+        shell: pwsh
+        working-directory: program_exe
+        run: |
+          $iscc = Join-Path ${env:ProgramFiles(x86)} "Inno Setup 6\ISCC.exe"
+          if (-not (Test-Path $iscc)) { throw "Nie znaleziono ISCC.exe" }
+          & $iscc instalator.iss
+          if ($LASTEXITCODE -ne 0) { throw "Inno Setup zwrocil blad" }
+          Get-ChildItem instalator -Filter *.exe | ForEach-Object {
+            Write-Host ("Instalator: {0} ({1:N0} bajtow)" -f $_.Name, $_.Length)
+          }
+
+      - name: Spakuj wersje przenosna
+        shell: pwsh
+        working-directory: program_exe/dist
+        run: |
+          Compress-Archive -Path "GeoAI Klasyfikator" `
+                           -DestinationPath "GeoAI-Klasyfikator-windows.zip" -Force
+
+      - name: Odloz pliki do pobrania
+        uses: actions/upload-artifact@v4
+        with:
+          name: GeoAI-Klasyfikator-windows
+          path: |
+            program_exe/dist/GeoAI-Klasyfikator-windows.zip
+            program_exe/instalator/*.exe
+          if-no-files-found: error
+          retention-days: 90
+
+      - name: Podepnij pliki do wydania
+        if: startsWith(github.ref, 'refs/tags/v')
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $pliki = @("program_exe/dist/GeoAI-Klasyfikator-windows.zip")
+          $inst = Get-ChildItem -Path "program_exe/instalator" -Filter *.exe -ErrorAction SilentlyContinue
+          if ($inst) { $pliki += $inst.FullName }
+          gh release create $env:GITHUB_REF_NAME @pliki `
+            --title "GeoAI Klasyfikator $env:GITHUB_REF_NAME" `
+            --notes "Program dla Windows. Pobierz instalator (plik Setup.exe) albo wersje przenosna (plik .zip)." `
+            --repo $env:GITHUB_REPOSITORY

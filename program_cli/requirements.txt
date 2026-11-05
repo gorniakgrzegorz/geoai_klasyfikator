@@ -1,0 +1,16 @@
+# GeoAI Klasyfikator — biblioteki potrzebne do pracy z wiersza poleceń.
+#
+# Instalacja jednym poleceniem:
+#     python -m pip install -r requirements.txt
+#
+# ── konieczne ────────────────────────────────────────────────────────
+numpy>=1.21
+rasterio>=1.3        # odczyt i zapis GeoTIFF; nosi własnego GDAL-a
+fiona>=1.8           # odczyt plików z przykładami (GPKG, SHP, GeoJSON)
+
+# ── mocno zalecane ───────────────────────────────────────────────────
+# Bez nich program działa, ale na dużych zdjęciach bardzo wolno.
+# Z nimi wyniki są identyczne z wtyczką QGIS.
+scikit-image>=0.19   # podział na obiekty metodą SLIC
+scikit-learn>=1.0    # las losowy
+scipy>=1.7           # szybsze filtry (wysokość nad gruntem, sito)
