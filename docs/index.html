@@ -3,7 +3,11 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>GeoAI Klasyfikator — instrukcja</title>
+<title>GeoAI Klasyfikator</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="icon" href="favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta property="og:title" content="GeoAI Klasyfikator">
 <meta name="description" content="Obiektowa klasyfikacja pokrycia terenu ze zdjęć z drona. Wtyczka QGIS, program dla Windows i wiersz poleceń. Instrukcja krok po kroku.">
 <style>
 :root{
@@ -114,6 +118,37 @@ footer a{color:var(--szary)}
                background:var(--marka-jasna);color:var(--marka-ciemna);text-decoration:none}
 .wersja .pob a:hover{background:var(--marka);color:#fff}
 .uwaga-pob{font-size:14px;color:var(--szary);margin:4px 0 0}
+.anim{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:20px;
+      margin:22px 0 8px;align-items:start}
+.anim-ekran canvas{width:100%;height:auto;display:block;border-radius:10px;
+      box-shadow:var(--cien);image-rendering:pixelated}
+.anim-legenda{display:flex;flex-wrap:wrap;gap:12px;margin-top:9px;font-size:13px;color:var(--szary)}
+.anim-legenda span{display:inline-flex;align-items:center;gap:5px}
+.anim-legenda i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.anim-panel{border:1px solid var(--linia);border-radius:11px;padding:15px 17px;background:#fff;
+      box-shadow:var(--cien);min-height:384px;display:flex;flex-direction:column}
+.anim-panel h3{margin:10px 0 6px}
+.anim-panel p{font-size:14.5px;margin:0 0 10px}
+.anim-panel p.maly{font-size:13px;color:var(--szary)}
+.anim-etapy{display:flex;flex-wrap:wrap;gap:5px}
+.anim-etapy button{font:inherit;font-size:12px;padding:4px 8px;border-radius:6px;cursor:pointer;
+      border:1px solid var(--linia);background:#fff;color:var(--szary)}
+.anim-etapy button[aria-selected="true"]{background:var(--marka);border-color:var(--marka);color:#fff}
+.anim-przyciski{display:flex;gap:8px;margin-top:auto;padding-top:12px}
+.anim-przyciski button{font:inherit;font-size:14px;font-weight:600;padding:7px 14px;border-radius:7px;
+      cursor:pointer;border:1px solid var(--marka);background:var(--marka-jasna);color:var(--marka-ciemna)}
+.anim-przyciski button:hover{background:var(--marka);color:#fff}
+.anim-wykres .slupek{display:grid;grid-template-columns:118px 1fr 52px;gap:8px;align-items:center;
+      font-size:12.5px;margin:3px 0}
+.anim-wykres .et{font-family:"SF Mono",Consolas,monospace;color:#0a5468;overflow:hidden;text-overflow:ellipsis}
+.anim-wykres .tor{background:#eef4f6;border-radius:4px;height:10px;overflow:hidden}
+.anim-wykres .tor span{display:block;height:100%;border-radius:4px}
+.anim-wykres .war{text-align:right;font-variant-numeric:tabular-nums}
+.kratki{display:grid;grid-template-columns:repeat(20,1fr);gap:2px;margin:4px 0 10px}
+.kratki i{display:block;aspect-ratio:1;border-radius:2px}
+.anim-podpis{font-size:13.5px;color:var(--szary)}
+.tabela-przewin{overflow-x:auto}
+@media(max-width:820px){.anim{grid-template-columns:1fr}.anim-panel{min-height:0}}
 @media(max-width:640px){
   header h1{font-size:2rem}
   nav .linki{display:none}
@@ -137,7 +172,9 @@ footer a{color:var(--szary)}
   </a>
   <div class="linki">
     <a href="#jak">Jak to działa</a>
+    <a href="#algorytm">Algorytm</a>
     <a href="#wersje">Wersje</a>
+    <a href="#sentinel">Sentinel</a>
     <a href="#krok1">Krok po kroku</a>
     <a href="#dokladnosc">Dokładność</a>
     <a href="#klopoty">Kłopoty</a>
@@ -147,7 +184,7 @@ footer a{color:var(--szary)}
 <header><div class="owijka">
   <h1>Mapa pokrycia terenu<br>ze zdjęć z drona</h1>
   <p class="lead">Program dzieli zdjęcie na obiekty, uczy się Twoich klas
-  z kilkunastu przykładów — i na końcu uczciwie mówi, ile ta mapa jest warta.</p>
+  z kilkunastu przykładów, a na końcu uczciwie mówi, ile ta mapa jest warta.</p>
   <div class="odznaki">
     <span class="odznaka">Wtyczka QGIS</span>
     <span class="odznaka">Program dla Windows</span>
@@ -162,10 +199,10 @@ footer a{color:var(--szary)}
 
 <section id="jak"><div class="owijka">
   <h2>Dlaczego obiekty, a nie piksele</h2>
-  <p class="podtytul">Na tym stoi cała metoda — warto zrozumieć ją raz.</p>
+  <p class="podtytul">Na tym stoi cała metoda, więc warto zrozumieć ją raz.</p>
 
   <p>Klasyczna klasyfikacja patrzy na każdy piksel osobno. Piksel wie
-  tylko, jaki ma kolor — a to za mało, żeby odróżnić szary dach od
+  tylko, jaki ma kolor, a to za mało, żeby odróżnić szary dach od
   szarego asfaltu. Efektem jest mapa zasypana pojedynczymi kropkami.</p>
 
   <p>Tutaj zdjęcie najpierw tniemy na <strong>obiekty</strong>: grupy
@@ -257,7 +294,7 @@ footer a{color:var(--szary)}
     <text x="560" y="198" text-anchor="middle" font-size="11.5" fill="#5d7076">
       bez pojedynczych kropek</text>
   </svg>
-  <figcaption>Od zdjęcia do mapy. Klasyfikujemy obiekty, nie piksele —
+  <figcaption>Od zdjęcia do mapy. Klasyfikujemy obiekty, nie piksele,
   dlatego mapa nie jest „zaśmiecona”.</figcaption>
   </figure>
 
@@ -269,51 +306,683 @@ footer a{color:var(--szary)}
   <div class="siatka trzy">
     <div class="karta">
       <svg class="ikona" viewBox="0 0 40 40"><circle cx="15" cy="16" r="10" fill="#d1495b" opacity=".8"/><circle cx="25" cy="16" r="10" fill="#2f8f3e" opacity=".8"/><circle cx="20" cy="25" r="10" fill="#2f7fd1" opacity=".8"/></svg>
-      <h4>Kolor — 7 liczb</h4>
+      <h4>Kolor: 7 liczb</h4>
       <p>Średnia i zmienność czerwieni, zieleni i niebieskiego oraz
       jasność. Poszarpana korona ma inną zmienność niż gładki dach.</p>
     </div>
     <div class="karta">
       <svg class="ikona" viewBox="0 0 40 40"><path d="M6 30c4-14 10-14 14 0s10 14 14 0" stroke="#2f8f3e" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M6 20h28" stroke="#c9d84a" stroke-width="2.5" stroke-dasharray="4 3"/></svg>
-      <h4>Zieleń — 3 liczby</h4>
+      <h4>Zieleń: 3 liczby</h4>
       <p>ExG, VARI, NGRDI. Liczone na udziałach barw, więc liść
       w cieniu i w słońcu wypadają podobnie. Zastępują NDVI, którego
       kamery dronowe nie dają.</p>
     </div>
     <div class="karta">
       <svg class="ikona" viewBox="0 0 40 40"><g fill="#5d7076"><rect x="6" y="6" width="5" height="5"/><rect x="16" y="11" width="5" height="5"/><rect x="26" y="6" width="5" height="5"/><rect x="11" y="21" width="5" height="5"/><rect x="21" y="26" width="5" height="5"/><rect x="6" y="31" width="5" height="5"/><rect x="29" y="22" width="5" height="5"/></g></svg>
-      <h4>Faktura — 4 liczby</h4>
+      <h4>Faktura: 4 liczby</h4>
       <p>Jak bardzo sąsiednie piksele różnią się od siebie. Tym
       odróżnisz koronę drzewa od blachy dachowej w tym samym kolorze.</p>
     </div>
     <div class="karta">
       <svg class="ikona" viewBox="0 0 40 40"><path d="M8 28 L14 10 L30 14 L26 32 Z" fill="none" stroke="#00bde7" stroke-width="2.5" stroke-linejoin="round"/></svg>
-      <h4>Kształt — 4 liczby</h4>
+      <h4>Kształt: 4 liczby</h4>
       <p>Powierzchnia, obwód, okrągłość i wypukłość. Długa, wąska
       działka to co innego niż zwarty kwadrat.</p>
     </div>
     <div class="karta">
       <svg class="ikona" viewBox="0 0 40 40"><rect x="6" y="20" width="28" height="4" fill="#b0bec5"/><rect x="14" y="20" width="12" height="4" fill="#102a32"/><path d="M20 20V8" stroke="#00bde7" stroke-width="2.5"/><circle cx="20" cy="8" r="3" fill="#00bde7"/></svg>
-      <h4>Otoczenie — 1 liczba</h4>
+      <h4>Otoczenie: 1 liczba</h4>
       <p>Jasność obiektu na tle tych, które go dotykają. Rów albo luka
       w drzewostanie wychodzą ciemniejsze niż wszystko dokoła.</p>
     </div>
     <div class="karta">
       <svg class="ikona" viewBox="0 0 40 40"><path d="M4 32h32" stroke="#8c6d4f" stroke-width="3"/><path d="M10 32V20l7-6 7 6v12" fill="none" stroke="#d1495b" stroke-width="2.5" stroke-linejoin="round"/><path d="M28 32V24" stroke="#2f8f3e" stroke-width="2.5"/><circle cx="28" cy="20" r="5" fill="#2f8f3e"/></svg>
-      <h4>Wysokość — 5 liczb</h4>
-      <p>Z modelu NMPT: wysokość, jej zmienność, nachylenie i — to
-      najważniejsze — <strong>wysokość nad gruntem</strong>. Dach kontra
+      <h4>Wysokość: 5 liczb</h4>
+      <p>Z modelu NMPT: wysokość, jej zmienność, nachylenie oraz, co
+      najważniejsze, <strong>wysokość nad gruntem</strong>. Dach kontra
       asfalt, drzewo kontra trawnik.</p>
     </div>
   </div>
 
   <div class="ramka">
     <p><strong>Dlaczego nie ma NDVI.</strong> Zwykłe kamery dronowe
-    rejestrują tylko czerwień, zieleń i błękit — podczerwieni nie widzą
+    rejestrują tylko czerwień, zieleń i błękit, a podczerwieni nie widzą
     wcale. Dlatego pracujemy wskaźnikami z zakresu widzialnego,
     fakturą, kształtem i wysokością. W praktyce wystarczają.</p>
   </div>
 </div></section>
+
+<section id="algorytm"><div class="owijka">
+  <h2>Jak program się uczy</h2>
+  <p class="podtytul">Cały algorytm na jednym małym obrazku. Animacja liczy
+  naprawdę, a nie odtwarza nagrania.</p>
+
+  <div class="anim">
+    <div class="anim-ekran">
+      <canvas id="anim-plotno" width="576" height="384"
+              aria-label="Animacja algorytmu: podział na obiekty, cechy, przykłady, las losowy i mapa"></canvas>
+      <div class="anim-legenda" id="anim-legenda"></div>
+    </div>
+    <div class="anim-panel">
+      <div class="anim-etapy" id="anim-etapy" role="tablist"></div>
+      <h3 id="anim-tytul">Zdjęcie</h3>
+      <div id="anim-opis"></div>
+      <div id="anim-wykres" class="anim-wykres"></div>
+      <div class="anim-przyciski">
+        <button type="button" id="anim-wstecz" aria-label="Poprzedni etap">◀</button>
+        <button type="button" id="anim-graj">⏸ Pauza</button>
+        <button type="button" id="anim-dalej" aria-label="Następny etap">▶</button>
+      </div>
+    </div>
+  </div>
+  <p class="anim-podpis">Obrazek ma 96 na 64 piksele i pięć rodzajów terenu.
+  Animacja używa tych samych kroków co program, w uproszczeniu: liczy 10
+  z 19 cech (barwę i zieleń), a „operatora”, który wskazuje przykłady,
+  udaje losowanie obiektów o znanej klasie. Liczby w panelu pochodzą
+  z tego obrazka, nie z prawdziwych zdjęć.</p>
+
+  <h3>Algorytm krok po kroku</h3>
+  <ol class="kroki">
+    <li><strong>Wczytanie i wygładzenie</strong>
+      Program czyta trzy pierwsze kanały zdjęcia jako czerwień, zieleń
+      i błękit i przelicza jasności na zakres od 0 do 1. Przed podziałem
+      wygładza obraz filtrem Gaussa (σ = 2,5), żeby szum matrycy i drobna
+      faktura nie tworzyły sztucznych obiektów.</li>
+    <li><strong>Podział na obiekty metodą SLIC</strong>
+      Na zdjęciu rozmieszcza się regularną siatkę zarodków. Każdy piksel
+      trafia do najbliższego zarodka, przy czym odległość łączy różnicę
+      barwy w przestrzeni CIELAB z odległością w terenie. Zarodki
+      przesuwają się do środka swoich pikseli i całość powtarza się
+      10 razy. Zwartość (domyślnie 0,15) decyduje, czy granice idą za
+      barwą, czy za regularną siatką. Na koniec drobne resztki są
+      dołączane do sąsiadów, tak żeby każdy obiekt był jednym płatem.</li>
+    <li><strong>Pomiar cech</strong>
+      Każdy obiekt dostaje wektor liczb: 19 cech barwy, zieloności,
+      faktury, kształtu i otoczenia, a z modelem wysokości 24. Od tej
+      chwili klasyfikator nie patrzy już na zdjęcie, tylko na te liczby.
+      Cech nikt nie skaluje, bo las losowy dzieli po progach, a nie po
+      odległościach.</li>
+    <li><strong>Przykłady i sprawdzenie rozróżnialności</strong>
+      Wskazujesz przykłady klas; obiekt, w którym leży przykład, dostaje
+      jego klasę. Zanim las się czegokolwiek nauczy, program liczy dla
+      każdej pary klas odległość Jeffriesa i Matusity w skali od 0 do 2,
+      z walidacją krzyżową na pięciu częściach, i pokazuje, które cechy
+      najbardziej je różnią. Ostrzega też, gdy najliczniejsza klasa ma
+      ponad pięć razy więcej przykładów niż najrzadsza.</li>
+    <li><strong>Uczenie lasu losowego</strong>
+      Powstaje 100 drzew decyzyjnych. Każde uczy się na losowej próbie
+      przykładów, losowanej ze zwracaniem, a w każdym węźle wybiera
+      najlepsze pytanie „czy cecha X jest mniejsza od progu?” spośród
+      losowo wybranych √p cech (4 z 19, 5 z 24). Progi dobiera algorytm
+      według kryterium Giniego, nie człowiek. Ziarno losowe jest stałe
+      (42), więc te same dane dają zawsze ten sam model.</li>
+    <li><strong>Głosowanie i pewność</strong>
+      Każde drzewo prowadzi obiekt przez swoje pytania i zwraca rozkład
+      klas z liścia, w którym obiekt wylądował. Rozkłady ze 100 drzew są
+      uśredniane. Obiekt dostaje klasę o największym udziale, a ten
+      udział zapisuje się jako pewność decyzji. Obiekty, w których
+      zwycięska klasa zebrała mniej niż połowę głosów, program liczy
+      i zgłasza.</li>
+    <li><strong>Pętla poprawiania</strong>
+      Pierwsza mapa służy do znalezienia rodzajów pomyłek. Dokładasz kilka
+      przykładów tam, gdzie las się waha, uczysz go od nowa i klasyfikujesz
+      ponownie. Zwykle dwie, trzy rundy dają największy przyrost. Nauczony
+      model zapisuje się do pliku <code>.geoai</code> i można go stosować
+      do kolejnych, podobnych zdjęć.</li>
+  </ol>
+  <p>Wzory, wszystkie stałe i literaturę opisuje plik
+  <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/blob/main/UWARUNKOWANIA_NAUKOWE.md"><code>UWARUNKOWANIA_NAUKOWE.md</code></a>,
+  rozdziały 3, 5 i 6.</p>
+</div></section>
+
+<script>
+(function () {
+  "use strict";
+  var W = 96, H = 64, SKALA = 6;
+  var plotno = document.getElementById("anim-plotno");
+  if (!plotno || !plotno.getContext) { return; }
+  var ctx = plotno.getContext("2d");
+
+  // Losowanie z ziarnem, żeby animacja była za każdym razem taka sama.
+  function generator(ziarno) {
+    var a = ziarno >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      var t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  var KLASY = [
+    { nazwa: "trawa",   kolor: "#8bc34a", rgb: [0.45, 0.63, 0.30], szum: 0.035 },
+    { nazwa: "grunt",   kolor: "#b07a4a", rgb: [0.58, 0.45, 0.31], szum: 0.030 },
+    { nazwa: "dach",    kolor: "#d1495b", rgb: [0.72, 0.31, 0.26], szum: 0.025 },
+    { nazwa: "droga",   kolor: "#6b7b80", rgb: [0.42, 0.42, 0.44], szum: 0.020 },
+    { nazwa: "drzewa",  kolor: "#1f6b35", rgb: [0.17, 0.35, 0.15], szum: 0.070 }
+  ];
+
+  // ── 1. Sztuczne zdjęcie ze znaną prawdą ──────────────────────────
+  var los = generator(7);
+  var prawda = new Int8Array(W * H);
+  var wariant = new Int8Array(W * H);   // 1: trawa przyschnięta, 2: dach szary
+  var rgb = new Float32Array(W * H * 3);
+  var SUCHA = [0.60, 0.50, 0.32], SZARY = [0.56, 0.56, 0.58];
+  var drzewa = [];
+  for (var d = 0; d < 9; d++) {
+    drzewa.push([62 + los() * 30, 4 + los() * 26, 3 + los() * 2.5]);
+  }
+  for (var y = 0; y < H; y++) {
+    for (var x = 0; x < W; x++) {
+      var k = 0, wr = 0;
+      if (((x - 70) * (x - 70)) / 81 + ((y - 50) * (y - 50)) / 25 < 1) { wr = 1; }
+      if (((x - 44) * (x - 44)) / 49 + ((y - 14) * (y - 14)) / 20 < 1) { wr = 1; }
+      if (x < 40 && y > 30) { k = 1; wr = 0; }
+      if (x >= 8 && x < 22 && y >= 6 && y < 18) { k = 2; wr = 0; }
+      if (x >= 27 && x < 36 && y >= 5 && y < 14) { k = 2; wr = 0; }
+      if (x >= 80 && x < 92 && y >= 44 && y < 56) { k = 2; wr = 2; }
+      if (Math.abs((y - 46) - (x - 48) * -0.55) < 3.2) { k = 3; }
+      for (var t = 0; t < drzewa.length; t++) {
+        var dx = x - drzewa[t][0], dy = y - drzewa[t][1];
+        if (dx * dx + dy * dy < drzewa[t][2] * drzewa[t][2]) { k = 4; wr = 0; }
+      }
+      if (k === 3) { wr = 0; }
+      prawda[y * W + x] = k; wariant[y * W + x] = wr;
+      var baza = wr === 1 ? SUCHA : (wr === 2 ? SZARY : KLASY[k].rgb), s = KLASY[k].szum;
+      var pas = (k === 1 && (y % 4) < 2) ? -0.04 : 0;
+      for (var c = 0; c < 3; c++) {
+        var v = baza[c] + pas + (los() - 0.5) * 2 * s;
+        rgb[(y * W + x) * 3 + c] = Math.min(1, Math.max(0, v));
+      }
+    }
+  }
+
+  // Lekkie wygładzenie (program: Gauss σ = 2,5 na pełnym zdjęciu).
+  function rozmyj(zrodlo) {
+    var wynik = new Float32Array(zrodlo.length), wag = [1, 2, 1];
+    for (var y = 0; y < H; y++) {
+      for (var x = 0; x < W; x++) {
+        for (var c = 0; c < 3; c++) {
+          var suma = 0, n = 0;
+          for (var j = -1; j <= 1; j++) {
+            for (var i = -1; i <= 1; i++) {
+              var xx = x + i, yy = y + j;
+              if (xx < 0 || yy < 0 || xx >= W || yy >= H) { continue; }
+              var w = wag[i + 1] * wag[j + 1];
+              suma += zrodlo[(yy * W + xx) * 3 + c] * w; n += w;
+            }
+          }
+          wynik[(y * W + x) * 3 + c] = suma / n;
+        }
+      }
+    }
+    return wynik;
+  }
+  var gladkie = rozmyj(rgb);
+
+  // RGB do CIELAB, te same stałe co w core/slic.py.
+  function doLab(r, g, b) {
+    function lin(u) { return u > 0.04045 ? Math.pow((u + 0.055) / 1.055, 2.4) : u / 12.92; }
+    r = lin(r); g = lin(g); b = lin(b);
+    var X = (0.412453 * r + 0.357580 * g + 0.180423 * b) / 0.950456;
+    var Y = (0.212671 * r + 0.715160 * g + 0.072169 * b);
+    var Z = (0.019334 * r + 0.119193 * g + 0.950227 * b) / 1.088754;
+    var eps = 216 / 24389, kap = 24389 / 27;
+    function f(u) { return u > eps ? Math.cbrt(u) : (kap * u + 16) / 116; }
+    var fx = f(X), fy = f(Y), fz = f(Z);
+    return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
+  }
+  var lab = new Float32Array(W * H * 3);
+  for (var p = 0; p < W * H; p++) {
+    var l = doLab(gladkie[p * 3], gladkie[p * 3 + 1], gladkie[p * 3 + 2]);
+    lab[p * 3] = l[0]; lab[p * 3 + 1] = l[1]; lab[p * 3 + 2] = l[2];
+  }
+
+  // ── 2. SLIC: zapisujemy podział po każdej z 10 iteracji ──────────
+  var S = 8, ZWARTOSC = 10;
+  var srodki = [];
+  for (var sy = S / 2; sy < H; sy += S) {
+    for (var sx = S / 2; sx < W; sx += S) {
+      var q = (Math.floor(sy) * W + Math.floor(sx)) * 3;
+      srodki.push([lab[q], lab[q + 1], lab[q + 2], sx, sy]);
+    }
+  }
+  var historia = [];
+  var etykiety = new Int32Array(W * H);
+  for (var it = 0; it < 10; it++) {
+    var odl = new Float32Array(W * H).fill(Infinity);
+    for (var s2 = 0; s2 < srodki.length; s2++) {
+      var C = srodki[s2];
+      var x0 = Math.max(0, Math.floor(C[3] - 2 * S)), x1 = Math.min(W, Math.ceil(C[3] + 2 * S));
+      var y0 = Math.max(0, Math.floor(C[4] - 2 * S)), y1 = Math.min(H, Math.ceil(C[4] + 2 * S));
+      for (var yy = y0; yy < y1; yy++) {
+        for (var xx = x0; xx < x1; xx++) {
+          var pp = yy * W + xx;
+          var dl = lab[pp * 3] - C[0], da = lab[pp * 3 + 1] - C[1], db = lab[pp * 3 + 2] - C[2];
+          var ds = (xx - C[3]) * (xx - C[3]) + (yy - C[4]) * (yy - C[4]);
+          var D = dl * dl + da * da + db * db + ds / (S * S) * ZWARTOSC * ZWARTOSC;
+          if (D < odl[pp]) { odl[pp] = D; etykiety[pp] = s2; }
+        }
+      }
+    }
+    var sumy = srodki.map(function () { return [0, 0, 0, 0, 0, 0]; });
+    for (var p2 = 0; p2 < W * H; p2++) {
+      var e = sumy[etykiety[p2]];
+      e[0] += lab[p2 * 3]; e[1] += lab[p2 * 3 + 1]; e[2] += lab[p2 * 3 + 2];
+      e[3] += p2 % W; e[4] += Math.floor(p2 / W); e[5] += 1;
+    }
+    for (var s3 = 0; s3 < srodki.length; s3++) {
+      var u = sumy[s3];
+      if (u[5] > 0) { srodki[s3] = [u[0] / u[5], u[1] / u[5], u[2] / u[5], u[3] / u[5], u[4] / u[5]]; }
+    }
+    historia.push({ et: Int32Array.from(etykiety), sr: srodki.map(function (z) { return [z[3], z[4]]; }) });
+  }
+
+  // Spójność: każdy obiekt jednym płatem, drobne resztki do sąsiada.
+  function spojnosc(et) {
+    var nowe = new Int32Array(W * H).fill(-1), rozmiary = [], n = 0;
+    for (var p = 0; p < W * H; p++) {
+      if (nowe[p] >= 0) { continue; }
+      var kolejka = [p]; nowe[p] = n; var ile = 0;
+      while (kolejka.length) {
+        var a = kolejka.pop(); ile++;
+        var ax = a % W, ay = Math.floor(a / W);
+        var sas = [[ax - 1, ay], [ax + 1, ay], [ax, ay - 1], [ax, ay + 1]];
+        for (var i = 0; i < 4; i++) {
+          var bx = sas[i][0], by = sas[i][1];
+          if (bx < 0 || by < 0 || bx >= W || by >= H) { continue; }
+          var b = by * W + bx;
+          if (nowe[b] < 0 && et[b] === et[a]) { nowe[b] = n; kolejka.push(b); }
+        }
+      }
+      rozmiary.push(ile); n++;
+    }
+    var prog = 0.5 * (W * H) / srodki.length;
+    for (var p3 = 0; p3 < W * H; p3++) {
+      if (rozmiary[nowe[p3]] >= prog) { continue; }
+      var x = p3 % W, y = Math.floor(p3 / W);
+      var kand = [[x - 1, y], [x, y - 1], [x + 1, y], [x, y + 1]];
+      for (var j = 0; j < 4; j++) {
+        var cx = kand[j][0], cy = kand[j][1];
+        if (cx < 0 || cy < 0 || cx >= W || cy >= H) { continue; }
+        var c = cy * W + cx;
+        if (rozmiary[nowe[c]] >= prog) { rozmiary[nowe[p3]]--; nowe[p3] = nowe[c]; rozmiary[nowe[c]]++; break; }
+      }
+    }
+    // Ponumeruj od zera.
+    var mapa = {}, licz = 0, wynik = new Int32Array(W * H);
+    for (var p4 = 0; p4 < W * H; p4++) {
+      if (!(nowe[p4] in mapa)) { mapa[nowe[p4]] = licz++; }
+      wynik[p4] = mapa[nowe[p4]];
+    }
+    return { et: wynik, n: licz };
+  }
+  var podzial = spojnosc(historia[historia.length - 1].et);
+  var OB = podzial.et, NOB = podzial.n;
+
+  // ── 3. Cechy: 10 z 19, wzory jak w core/features.py ──────────────
+  var NAZWY = ["r_mean", "g_mean", "b_mean", "r_std", "g_std", "b_std",
+               "brightness_mean", "exg_mean", "vari_mean", "ngrdi_mean"];
+  var cechy = [], wiekszosc = [], czystosc = [], srodek = [], odmiana = [];
+  for (var o = 0; o < NOB; o++) { cechy.push(null); }
+  (function () {
+    var acc = [];
+    for (var o = 0; o < NOB; o++) { acc.push({ s: [0, 0, 0], s2: [0, 0, 0], br: 0, exg: 0, vari: 0, ngrdi: 0, n: 0, kl: [0, 0, 0, 0, 0], x: 0, y: 0, wr: 0 }); }
+    for (var p = 0; p < W * H; p++) {
+      var A = acc[OB[p]], R = rgb[p * 3], G = rgb[p * 3 + 1], B = rgb[p * 3 + 2];
+      A.s[0] += R; A.s[1] += G; A.s[2] += B;
+      A.s2[0] += R * R; A.s2[1] += G * G; A.s2[2] += B * B;
+      A.br += (R + G + B) / 3;
+      var tot = R + G + B, r = tot > 0 ? R / tot : 0, g = tot > 0 ? G / tot : 0, b = tot > 0 ? B / tot : 0;
+      A.exg += 2 * g - r - b;
+      var vd = g + r - b; A.vari += Math.abs(vd) < 1e-9 ? 0 : (g - r) / vd;
+      var nd = g + r; A.ngrdi += nd < 1e-9 ? 0 : (g - r) / nd;
+      A.n++; A.kl[prawda[p]]++; A.x += p % W; A.y += Math.floor(p / W); if (wariant[p]) { A.wr++; }
+    }
+    for (var o2 = 0; o2 < NOB; o2++) {
+      var Z = acc[o2], n = Z.n, m = [Z.s[0] / n, Z.s[1] / n, Z.s[2] / n];
+      cechy[o2] = [m[0], m[1], m[2],
+        Math.sqrt(Math.max(0, Z.s2[0] / n - m[0] * m[0])),
+        Math.sqrt(Math.max(0, Z.s2[1] / n - m[1] * m[1])),
+        Math.sqrt(Math.max(0, Z.s2[2] / n - m[2] * m[2])),
+        Z.br / n, Z.exg / n, Z.vari / n, Z.ngrdi / n];
+      var naj = 0;
+      for (var kk = 1; kk < 5; kk++) { if (Z.kl[kk] > Z.kl[naj]) { naj = kk; } }
+      wiekszosc.push(naj); czystosc.push(Z.kl[naj] / n); srodek.push([Z.x / n, Z.y / n]); odmiana.push(Z.wr / n);
+    }
+  })();
+
+  // ── 4. Przykłady: po trzy czyste obiekty na klasę, tylko typowe ──
+  // odmiany (bujna trawa, czerwony dach), jak u operatora, który nie
+  // pokazał jeszcze każdej odmiany klasy.
+  var losP = generator(11);
+  function wybierzPrzyklady(ile) {
+    var wynik = [];
+    for (var k = 0; k < 5; k++) {
+      var kand = [];
+      for (var o = 0; o < NOB; o++) { if (wiekszosc[o] === k && czystosc[o] > 0.8 && odmiana[o] < 0.1) { kand.push(o); } }
+      for (var i = 0; i < ile && kand.length; i++) {
+        wynik.push(kand.splice(Math.floor(losP() * kand.length), 1)[0]);
+      }
+    }
+    return wynik;
+  }
+  var przyklady1 = wybierzPrzyklady(3);
+
+  // ── 5. Las losowy: 100 drzew, bootstrap, √p cech, Gini ───────────
+  function gini(licz, n) {
+    var s = 1;
+    for (var k = 0; k < 5; k++) { var q = licz[k] / n; s -= q * q; }
+    return s;
+  }
+  function rosnij(idx, X, Y, rnd) {
+    var licz = [0, 0, 0, 0, 0];
+    idx.forEach(function (i) { licz[Y[i]]++; });
+    var czyste = licz.filter(function (v) { return v > 0; }).length <= 1;
+    if (czyste || idx.length < 2) {
+      return { lisc: licz.map(function (v) { return v / idx.length; }) };
+    }
+    var mtry = Math.floor(Math.sqrt(NAZWY.length)), cechyW = [];
+    var pula = NAZWY.map(function (_, i) { return i; });
+    for (var m = 0; m < mtry; m++) { cechyW.push(pula.splice(Math.floor(rnd() * pula.length), 1)[0]); }
+    var naj = null, rodzic = gini(licz, idx.length);
+    cechyW.forEach(function (f) {
+      var war = idx.map(function (i) { return X[i][f]; }).sort(function (a, b) { return a - b; });
+      for (var j = 1; j < war.length; j++) {
+        if (war[j] === war[j - 1]) { continue; }
+        var prog = (war[j] + war[j - 1]) / 2, L = [0, 0, 0, 0, 0], P = [0, 0, 0, 0, 0], nl = 0, np = 0;
+        idx.forEach(function (i) { if (X[i][f] <= prog) { L[Y[i]]++; nl++; } else { P[Y[i]]++; np++; } });
+        var zysk = rodzic - (nl * gini(L, nl) + np * gini(P, np)) / idx.length;
+        if (!naj || zysk > naj.zysk) { naj = { f: f, prog: prog, zysk: zysk }; }
+      }
+    });
+    if (!naj || naj.zysk <= 0) { return { lisc: licz.map(function (v) { return v / idx.length; }) }; }
+    var lewe = idx.filter(function (i) { return X[i][naj.f] <= naj.prog; });
+    var prawe = idx.filter(function (i) { return X[i][naj.f] > naj.prog; });
+    return { f: naj.f, prog: naj.prog, l: rosnij(lewe, X, Y, rnd), p: rosnij(prawe, X, Y, rnd) };
+  }
+  function naucz(przyk) {
+    var X = przyk.map(function (o) { return cechy[o]; });
+    var Y = przyk.map(function (o) { return wiekszosc[o]; });
+    var rnd = generator(42), las = [];
+    for (var t = 0; t < 100; t++) {
+      var idx = [];
+      for (var i = 0; i < X.length; i++) { idx.push(Math.floor(rnd() * X.length)); }
+      las.push(rosnij(idx, X, Y, rnd));
+    }
+    return las;
+  }
+  function zejdz(w, x) { while (!w.lisc) { w = x[w.f] <= w.prog ? w.l : w.p; } return w.lisc; }
+  function klasyfikuj(las) {
+    var wynik = [];
+    for (var o = 0; o < NOB; o++) {
+      var srednia = [0, 0, 0, 0, 0];
+      las.forEach(function (d) { var r = zejdz(d, cechy[o]); for (var k = 0; k < 5; k++) { srednia[k] += r[k] / las.length; } });
+      var naj = 0;
+      for (var k2 = 1; k2 < 5; k2++) { if (srednia[k2] > srednia[naj]) { naj = k2; } }
+      wynik.push({ klasa: naj, pewnosc: srednia[naj], rozklad: srednia });
+    }
+    return wynik;
+  }
+  function zgodnosc(mapa) {
+    var dobrze = 0;
+    for (var p = 0; p < W * H; p++) { if (mapa[OB[p]].klasa === prawda[p]) { dobrze++; } }
+    return dobrze / (W * H);
+  }
+  var las1 = naucz(przyklady1), mapa1 = klasyfikuj(las1);
+  var niepewne1 = [];
+  for (var o3 = 0; o3 < NOB; o3++) { if (mapa1[o3].pewnosc < 0.5) { niepewne1.push(o3); } }
+  // Runda poprawek: operator przegląda mapę i opisuje do 6 obiektów,
+  // najpierw te, które widzi jako pomylone, potem te najmniej pewne.
+  var kolejnosc = mapa1.map(function (m, i) { return i; })
+    .filter(function (i) { return przyklady1.indexOf(i) < 0 && czystosc[i] > 0.8; })
+    .sort(function (a, b) {
+      var ba = mapa1[a].klasa !== wiekszosc[a] ? 0 : 1, bb = mapa1[b].klasa !== wiekszosc[b] ? 0 : 1;
+      return ba - bb || mapa1[a].pewnosc - mapa1[b].pewnosc;
+    });
+  var dodane = kolejnosc.slice(0, 6);
+  var pomylone1 = mapa1.filter(function (m, i) { return m.klasa !== wiekszosc[i]; }).length;
+  var przyklady2 = przyklady1.concat(dodane);
+  var las2 = naucz(przyklady2), mapa2 = klasyfikuj(las2);
+  var niepewne2 = mapa2.filter(function (m) { return m.pewnosc < 0.5; }).length;
+  var pomylone2 = mapa2.filter(function (m, i) { return m.klasa !== wiekszosc[i]; }).length;
+  var zg1 = zgodnosc(mapa1), zg2 = zgodnosc(mapa2);
+
+  // Obiekt pokazowy do głosowania: najmniej pewny w pierwszej rundzie
+  // spośród tych, które nie są przykładami.
+  var pokazowy = mapa1.map(function (m, i) { return i; })
+    .filter(function (i) { return przyklady1.indexOf(i) < 0; })
+    .sort(function (a, b) { return mapa1[a].pewnosc - mapa1[b].pewnosc; })[0];
+  var wzorce = [];
+  for (var kw = 0; kw < 5; kw++) {
+    for (var iw = 0; iw < przyklady1.length; iw++) { if (wiekszosc[przyklady1[iw]] === kw) { wzorce.push(przyklady1[iw]); break; } }
+  }
+
+  // ── Rysowanie ─────────────────────────────────────────────────────
+  function rysujZdjecie(zrodlo) {
+    var img = ctx.createImageData(W, H);
+    for (var p = 0; p < W * H; p++) {
+      img.data[p * 4] = zrodlo[p * 3] * 255; img.data[p * 4 + 1] = zrodlo[p * 3 + 1] * 255;
+      img.data[p * 4 + 2] = zrodlo[p * 3 + 2] * 255; img.data[p * 4 + 3] = 255;
+    }
+    var tmp = document.createElement("canvas"); tmp.width = W; tmp.height = H;
+    tmp.getContext("2d").putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(tmp, 0, 0, W * SKALA, H * SKALA);
+  }
+  function rysujGranice(et, kolor) {
+    ctx.fillStyle = kolor;
+    for (var y = 0; y < H; y++) {
+      for (var x = 0; x < W; x++) {
+        var p = y * W + x;
+        if (x + 1 < W && et[p] !== et[p + 1]) { ctx.fillRect((x + 1) * SKALA - 1, y * SKALA, 1.5, SKALA); }
+        if (y + 1 < H && et[p] !== et[p + W]) { ctx.fillRect(x * SKALA, (y + 1) * SKALA - 1, SKALA, 1.5); }
+      }
+    }
+  }
+  function wypelnij(obiekty, kolorDla, alfa) {
+    ctx.globalAlpha = alfa;
+    var zbior = {};
+    obiekty.forEach(function (o) { zbior[o] = true; });
+    for (var p = 0; p < W * H; p++) {
+      if (!zbior[OB[p]]) { continue; }
+      ctx.fillStyle = kolorDla(OB[p]);
+      ctx.fillRect((p % W) * SKALA, Math.floor(p / W) * SKALA, SKALA, SKALA);
+    }
+    ctx.globalAlpha = 1;
+  }
+  function wszystkie() { var a = []; for (var o = 0; o < NOB; o++) { a.push(o); } return a; }
+  function obrys(o, kolor, grubosc) {
+    ctx.fillStyle = kolor;
+    for (var y = 0; y < H; y++) {
+      for (var x = 0; x < W; x++) {
+        var p = y * W + x;
+        if (OB[p] !== o) { continue; }
+        if (x === 0 || OB[p - 1] !== o) { ctx.fillRect(x * SKALA, y * SKALA, grubosc, SKALA); }
+        if (x === W - 1 || OB[p + 1] !== o) { ctx.fillRect((x + 1) * SKALA - grubosc, y * SKALA, grubosc, SKALA); }
+        if (y === 0 || OB[p - W] !== o) { ctx.fillRect(x * SKALA, y * SKALA, SKALA, grubosc); }
+        if (y === H - 1 || OB[p + W] !== o) { ctx.fillRect(x * SKALA, (y + 1) * SKALA - grubosc, SKALA, grubosc); }
+      }
+    }
+  }
+  function kreskuj(obiekty) {
+    var zbior = {};
+    obiekty.forEach(function (o) { zbior[o] = true; });
+    ctx.fillStyle = "rgba(255,255,255,.85)";
+    for (var p = 0; p < W * H; p++) {
+      var x = p % W, y = Math.floor(p / W);
+      if (zbior[OB[p]] && (x + y) % 4 === 0) { ctx.fillRect(x * SKALA, y * SKALA, SKALA, SKALA); }
+    }
+  }
+  function liczba(v, miejsca) { return v.toFixed(miejsca).replace(".", ","); }
+  function procent(v) { return Math.round(v * 100) + "%"; }
+
+  var opis = document.getElementById("anim-opis");
+  var wykres = document.getElementById("anim-wykres");
+  var tytul = document.getElementById("anim-tytul");
+  var legenda = document.getElementById("anim-legenda");
+  function pokazLegende(widoczna) {
+    legenda.innerHTML = widoczna ? KLASY.map(function (k) {
+      return '<span><i style="background:' + k.kolor + '"></i>' + k.nazwa + "</span>";
+    }).join("") : "";
+  }
+  function slupki(wiersze, maks) {
+    return wiersze.map(function (w) {
+      var szer = Math.max(2, Math.min(100, Math.abs(w[1]) / maks * 100));
+      return '<div class="slupek"><span class="et">' + w[0] + '</span><span class="tor"><span style="width:' +
+        szer + "%;background:" + (w[2] || "var(--marka)") + '"></span></span><span class="war">' + w[3] + "</span></div>";
+    }).join("");
+  }
+
+  // ── Etapy ─────────────────────────────────────────────────────────
+  var ETAPY = [
+    { nazwa: "Zdjęcie", klatki: 1, rysuj: function () {
+        rysujZdjecie(rgb); pokazLegende(false); wykres.innerHTML = "";
+        opis.innerHTML = "<p>Sztuczne zdjęcie: trawa bujna i przyschnięta, pole z bruzdami, dachy czerwone i szary, droga oraz korony drzew. " +
+          "Program widzi tylko trzy liczby w każdym pikselu: czerwień, zieleń i błękit w skali od 0 do 1.</p>";
+      } },
+    { nazwa: "Podział", klatki: 11, rysuj: function (k) {
+        rysujZdjecie(gladkie); pokazLegende(false); wykres.innerHTML = "";
+        if (k < 10) {
+          var h = historia[k];
+          rysujGranice(h.et, "rgba(255,255,255,.9)");
+          ctx.fillStyle = "#ffeb3b";
+          h.sr.forEach(function (z) { ctx.beginPath(); ctx.arc((z[0] + 0.5) * SKALA, (z[1] + 0.5) * SKALA, 3, 0, 7); ctx.fill(); });
+          opis.innerHTML = "<p>Metoda SLIC, iteracja <strong>" + (k + 1) + " z 10</strong>. Żółte kropki to środki obiektów. " +
+            "Każdy piksel idzie do najbliższego środka, licząc łącznie różnicę barwy (CIELAB) i odległość w terenie. " +
+            "Potem środki przesuwają się w środek swoich pikseli.</p>";
+        } else {
+          rysujGranice(OB, "rgba(255,255,255,.9)");
+          opis.innerHTML = "<p>Po 10 iteracjach drobne resztki dołączono do sąsiadów. Zostało <strong>" + NOB +
+            " obiektów</strong>, każdy jednym płatem. Od teraz jednostką analizy jest obiekt, nie piksel.</p>";
+        }
+      } },
+    { nazwa: "Cechy", klatki: 5, rysuj: function (k) {
+        rysujZdjecie(rgb); rysujGranice(OB, "rgba(255,255,255,.55)"); pokazLegende(false);
+        var o = wzorce[k % wzorce.length];
+        obrys(o, "#ffeb3b", 3);
+        opis.innerHTML = "<p>Każdy obiekt zamienia się w wektor liczb. Tu 10 z 19 cech: średnia i zmienność barwy, jasność " +
+          "oraz trzy wskaźniki zieloności. Żółty obiekt ma takie wartości:</p>";
+        var w = cechy[o];
+        wykres.innerHTML = slupki(NAZWY.map(function (n, i) {
+          var maks = i >= 7 ? 1 : (i >= 3 && i < 6 ? 0.15 : 1);
+          return [n, w[i] / maks, w[i] < 0 ? "#d1495b" : null, liczba(w[i], 3)];
+        }), 1);
+      } },
+    { nazwa: "Przykłady", klatki: 1, rysuj: function () {
+        rysujZdjecie(rgb); rysujGranice(OB, "rgba(255,255,255,.55)"); pokazLegende(true);
+        wypelnij(przyklady1, function (o) { return KLASY[wiekszosc[o]].kolor; }, 0.85);
+        przyklady1.forEach(function (o) { obrys(o, "#fff", 2); });
+        wykres.innerHTML = "";
+        opis.innerHTML = "<p>Operator wskazuje do <strong>3 przykładów</strong> na klasę, razem " + przyklady1.length +
+          " obiektów. Tylko te obiekty mają klasę. Pozostałe " + (NOB - przyklady1.length) + " ma nazwać las losowy.</p>" +
+          "<p class=\"maly\">Pokazał tylko bujną trawę i czerwone dachy. Przyschniętej trawy ani szarego dachu jeszcze nie.</p>";
+      } },
+    { nazwa: "Las", klatki: 12, rysuj: function (k) {
+        rysujZdjecie(rgb); rysujGranice(OB, "rgba(255,255,255,.4)"); pokazLegende(true);
+        obrys(pokazowy, "#ffeb3b", 3);
+        var ile = Math.min(100, (k + 1) * 10), srednia = [0, 0, 0, 0, 0], kratki = "";
+        for (var t = 0; t < 100; t++) {
+          var r = zejdz(las1[t], cechy[pokazowy]), naj = 0;
+          for (var c = 1; c < 5; c++) { if (r[c] > r[naj]) { naj = c; } }
+          if (t < ile) { for (var c2 = 0; c2 < 5; c2++) { srednia[c2] += r[c2] / ile; } }
+          kratki += '<i style="background:' + (t < ile ? KLASY[naj].kolor : "#e3ecef") + '"></i>';
+        }
+        opis.innerHTML = "<p>Las ma <strong>100 drzew</strong>. Każde uczyło się na losowej próbie przykładów i w każdym węźle " +
+          "wybierało pytanie spośród 3 losowych cech. Żółty obiekt przechodzi przez drzewa, a każde zwraca rozkład klas. " +
+          "Głosowało: <strong>" + ile + "</strong>.</p><div class=\"kratki\">" + kratki + "</div>";
+        wykres.innerHTML = "<p class=\"maly\">Średni rozkład, czyli głosowanie miękkie:</p>" + slupki(KLASY.map(function (kl, i) {
+          return [kl.nazwa, srednia[i], kl.kolor, procent(srednia[i])];
+        }), 1);
+      } },
+    { nazwa: "Mapa", klatki: 1, rysuj: function () {
+        rysujZdjecie(rgb); pokazLegende(true);
+        wypelnij(wszystkie(), function (o) { return KLASY[mapa1[o].klasa].kolor; }, 0.78);
+        kreskuj(niepewne1); rysujGranice(OB, "rgba(255,255,255,.35)");
+        wykres.innerHTML = "";
+        opis.innerHTML = "<p>Każdy obiekt dostał klasę o największym udziale głosów. Kreskowane obiekty (" + niepewne1.length +
+          ") zebrały mniej niż połowę głosów: tam las się waha. Program podaje ich liczbę po każdej klasyfikacji.</p>" +
+          "<p class=\"maly\">Zgodność z prawdą tego obrazka: <strong>" + procent(zg1) + "</strong> pikseli.</p>";
+      } },
+    { nazwa: "Poprawka", klatki: 2, rysuj: function (k) {
+        rysujZdjecie(rgb); pokazLegende(true);
+        if (k === 0) {
+          wypelnij(wszystkie(), function (o) { return KLASY[mapa1[o].klasa].kolor; }, 0.35);
+          wypelnij(dodane, function (o) { return KLASY[wiekszosc[o]].kolor; }, 0.95);
+          dodane.forEach(function (o) { obrys(o, "#ffeb3b", 3); });
+          rysujGranice(OB, "rgba(255,255,255,.35)");
+          wykres.innerHTML = "";
+          opis.innerHTML = "<p>Pętla poprawiania: operator przegląda całą mapę i opisuje <strong>" + dodane.length +
+            " obiektów</strong> (żółte): najpierw tam, gdzie widzi pomyłkę, potem tam, gdzie las się wahał. " +
+            "Las uczy się od nowa na " + przyklady2.length + " przykładach.</p>";
+        } else {
+          wypelnij(wszystkie(), function (o) { return KLASY[mapa2[o].klasa].kolor; }, 0.78);
+          kreskuj(mapa2.map(function (m, i) { return i; }).filter(function (i) { return mapa2[i].pewnosc < 0.5; }));
+          rysujGranice(OB, "rgba(255,255,255,.35)");
+          wykres.innerHTML = "";
+          opis.innerHTML = "<p>Druga mapa. Obiekty z pewnością poniżej połowy: <strong>" + niepewne1.length + " → " + niepewne2 +
+            "</strong>. Obiekty z błędną klasą: <strong>" + pomylone1 + " → " + pomylone2 + "</strong>.</p><p class=\"maly\">Zgodność z prawdą tego obrazka: <strong>" + procent(zg1) + " → " + procent(zg2) +
+            "</strong> pikseli. Na prawdziwym zdjęciu tę wartość daje dopiero ocena dokładności na niezależnych punktach kontrolnych.</p>";
+        }
+      } }
+  ];
+
+  var etapyEl = document.getElementById("anim-etapy");
+  etapyEl.innerHTML = ETAPY.map(function (e, i) {
+    return '<button type="button" role="tab" data-i="' + i + '">' + (i + 1) + ". " + e.nazwa + "</button>";
+  }).join("");
+  var etap = 0, klatka = 0, gra = false, zegar = null;
+  var bezRuchu = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var graj = document.getElementById("anim-graj");
+
+  function pokaz() {
+    ETAPY[etap].rysuj(klatka);
+    tytul.textContent = (etap + 1) + ". " + ETAPY[etap].nazwa;
+    Array.prototype.forEach.call(etapyEl.children, function (b, i) {
+      b.setAttribute("aria-selected", i === etap ? "true" : "false");
+    });
+  }
+  function krok() {
+    klatka++;
+    if (klatka >= ETAPY[etap].klatki) { klatka = 0; etap = (etap + 1) % ETAPY.length; }
+    pokaz();
+  }
+  function tempo() {
+    var e = ETAPY[etap];
+    if (e.klatki > 1 && klatka < e.klatki - 1) { return etap === 2 ? 1600 : 450; }
+    return 3200;
+  }
+  function petla() { zegar = setTimeout(function () { krok(); if (gra) { petla(); } }, tempo()); }
+  function ustawGre(stan) {
+    gra = stan; clearTimeout(zegar);
+    graj.textContent = gra ? "⏸ Pauza" : "▶ Odtwórz";
+    if (gra) { petla(); }
+  }
+  graj.addEventListener("click", function () { ustawGre(!gra); });
+  document.getElementById("anim-dalej").addEventListener("click", function () {
+    ustawGre(false); klatka = ETAPY[etap].klatki - 1; krok();
+  });
+  document.getElementById("anim-wstecz").addEventListener("click", function () {
+    ustawGre(false); etap = (etap + ETAPY.length - 1) % ETAPY.length; klatka = ETAPY[etap].klatki - 1; pokaz();
+  });
+  etapyEl.addEventListener("click", function (ev) {
+    var i = ev.target.getAttribute("data-i");
+    if (i === null) { return; }
+    ustawGre(false); etap = +i; klatka = ETAPY[etap].klatki - 1; pokaz();
+  });
+
+  pokaz();
+  ustawGre(false);
+  if (!bezRuchu && "IntersectionObserver" in window) {
+    var obs = new IntersectionObserver(function (wpisy) {
+      if (wpisy[0].isIntersecting) { ustawGre(true); obs.disconnect(); }
+    }, { threshold: 0.4 });
+    obs.observe(plotno);
+  }
+  window.__animDemo = { pomylone1: pomylone1, pomylone2: pomylone2, NOB: NOB, niepewne1: niepewne1.length, niepewne2: niepewne2, zg1: zg1, zg2: zg2, przyklady: przyklady1.length };
+})();
+</script>
 
 <section id="wersje"><div class="owijka">
   <h2>Trzy wersje, jeden silnik</h2>
@@ -366,7 +1035,7 @@ footer a{color:var(--szary)}
   <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/releases/latest">najnowsze wydanie</a>.</p>
 
   <h3>Co jest potrzebne</h3>
-  <table>
+  <div class="tabela-przewin"><table>
     <thead><tr><th>Rzecz</th><th>Konieczna?</th><th>Po co</th></tr></thead>
     <tbody>
     <tr><td><strong>Zdjęcie RGB</strong></td><td>tak</td>
@@ -376,9 +1045,82 @@ footer a{color:var(--szary)}
       <td>Kilkanaście miejsc na klasę, które rozpoznajesz na pewno.</td></tr>
     <tr><td><strong>Model wysokości (NMPT)</strong></td><td>nie, ale…</td>
       <td>Bez niego 19 cech, z nim 24. To on odróżnia dach od asfaltu
-      i drzewo od trawnika. Jeśli masz — użyj.</td></tr>
+      i drzewo od trawnika. Jeśli masz, użyj.</td></tr>
     </tbody>
-  </table>
+  </table></div>
+</div></section>
+
+<section id="sentinel"><div class="owijka">
+  <h2>Zdjęcia z satelity Sentinel-2</h2>
+  <p class="podtytul">Bez drona też się da: 10 metrów, cała Ziemia,
+  za darmo.</p>
+
+  <p>Sentinel-2 to satelity Europejskiej Agencji Kosmicznej. Fotografują
+  to samo miejsce co kilka dni, a archiwum sięga 2015 roku. Piksel ma
+  10 metrów, więc jeden piksel to kawałek terenu o powierzchni 100 m².
+  To za mało na pojedyncze drzewo, ale w sam raz na pola, lasy, wody
+  i zabudowę.</p>
+
+  <div class="ramka wazne">
+    <p><strong>Najczęstsza pułapka.</strong> Program czyta trzy pierwsze
+    kanały pliku jako czerwień, zieleń i błękit. W surowej scenie
+    Sentinel-2 kanał pierwszy to aerozol, drugi niebieski, a trzeci
+    zielony; czerwieni wśród nich nie ma wcale. Program nie zgłosi
+    błędu, tylko policzy coś, co wygląda jak mapa, a jest pomyłką.
+    Dlatego zawsze podawaj <strong>gotową kompozycję RGB</strong>.</p>
+  </div>
+
+  <h3>Jak pobrać gotowy RGB</h3>
+  <p>Najprościej wtyczką <a href="https://plugins.qgis.org/plugins/pobieranie_sentinel/">Pobieranie
+  Sentinel</a> (wersja angielska:
+  <a href="https://plugins.qgis.org/plugins/sentinel_download/">Sentinel
+  Download</a>) tego samego autora. Pobiera zdjęcia Sentinel-2 (poziomy
+  L2A i L1C) oraz Sentinel-1 (GRD) z Copernicus Data Space i od razu
+  składa gotowe produkty, w tym kompozycję RGB z kanałami we właściwej
+  kolejności.</p>
+  <ol class="kroki">
+    <li><strong>Zainstaluj wtyczkę</strong>
+      QGIS, menu Wtyczki, Zarządzanie wtyczkami, wpisz
+      <code>Pobieranie Sentinel</code> i kliknij Zainstaluj.</li>
+    <li><strong>Wskaż obszar</strong>
+      Wczytaj albo narysuj warstwę z obszarem, który Cię interesuje.</li>
+    <li><strong>Ustaw daty i chmury</strong>
+      Otwórz wtyczkę, wskaż obszar, ustaw zakres dat i największe
+      dopuszczalne zachmurzenie.</li>
+    <li><strong>Wybierz produkt RGB</strong>
+      Z listy produktów wybierz RGB, pobierz plik i poczekaj.</li>
+    <li><strong>Podaj plik klasyfikatorowi</strong>
+      Powstały plik RGB wskaż w polu Zdjęcie RGB.</li>
+  </ol>
+
+  <h3>Co zmienia się przy 10 metrach</h3>
+  <div class="tabela-przewin"><table>
+    <thead><tr><th>Sprawa</th><th>Dron</th><th>Sentinel-2</th></tr></thead>
+    <tbody>
+    <tr><td>Piksel</td><td>2 do 10 cm</td><td>10 m</td></tr>
+    <tr><td>Co da się rozpoznać</td><td>pojedyncze drzewa, miedze,
+      fragmenty dachu</td><td>duże formy: pole, las, zabudowa, woda</td></tr>
+    <tr><td>Model wysokości</td><td>zwykle jest (NMPT z nalotu)</td>
+      <td>zwykle go nie ma, więc 19 cech zamiast 24</td></tr>
+    <tr><td>Wielkość obiektu</td><td>metry kwadratowe</td>
+      <td>kilkadziesiąt pikseli to już tysiące metrów kwadratowych</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="siatka dwa">
+    <div class="karta">
+      <h4>Patrz na chmury</h4>
+      <p>Scena z 40 procentami chmur bywa bezużyteczna, nawet jeśli Twój
+      fragment akurat wyszedł czysto, bo na ziemi zostają cienie
+      chmur.</p>
+    </div>
+    <div class="karta">
+      <h4>Osobny model dla satelity</h4>
+      <p>Model nauczony na zdjęciach z drona nie nadaje się do Sentinela
+      i odwrotnie. Model działa dla danych podobnych do tych, na których
+      się uczył, więc dla scen satelitarnych ucz go od nowa.</p>
+    </div>
+  </div>
 </div></section>
 
 <section id="krok1"><div class="owijka">
@@ -393,7 +1135,7 @@ footer a{color:var(--szary)}
     chcesz pokazać na mapie.</strong></p>
   </div>
 
-  <p>Za duży obiekt zlewa dwa rodzaje terenu w jeden — i tego nie
+  <p>Za duży obiekt zlewa dwa rodzaje terenu w jeden, a tego nie
   naprawi już żaden klasyfikator. Za mały daje więcej klikania bez
   zysku i dłuższe liczenie.</p>
 
@@ -447,7 +1189,7 @@ footer a{color:var(--szary)}
   </figure>
 
   <h3>Od czego zacząć</h3>
-  <table>
+  <div class="tabela-przewin"><table>
     <thead><tr><th>Co kartujesz</th><th>Rozdzielczość robocza</th>
       <th>Wielkość obiektu</th></tr></thead>
     <tbody>
@@ -456,7 +1198,7 @@ footer a{color:var(--szary)}
       <tr><td>Luki w drzewostanie, korony</td><td>10–25 cm</td><td>10–30 m²</td></tr>
       <tr><td>Duże naloty, setki hektarów</td><td>20–25 cm</td><td>20–50 m²</td></tr>
     </tbody>
-  </table>
+  </table></div>
 
   <div class="ramka uwaga">
     <p><strong>Zanim policzysz wszystko:</strong> we wtyczce zaznacz
@@ -466,14 +1208,14 @@ footer a{color:var(--szary)}
   </div>
 
   <p>Po podziale obejrzyj wynik i sprawdź dwie rzeczy: czy żaden obiekt
-  nie leży jednocześnie na dwóch różnych rodzajach terenu (to problem —
+  nie leży jednocześnie na dwóch różnych rodzajach terenu (to problem:
   zmniejsz obiekty) i czy jednolita łąka nie rozsypała się na setki
   drobin (to już tylko niewygoda, można z tym żyć).</p>
 </div></section>
 
 <section id="krok2"><div class="owijka">
   <h2><span class="numer">2</span>Przykłady</h2>
-  <p class="podtytul">Tu rozstrzyga się jakość mapy — nie w ustawieniach.</p>
+  <p class="podtytul">Tu, a nie w ustawieniach, rozstrzyga się jakość mapy.</p>
 
   <p>Dodajesz klasy i pokazujesz programowi, co jest czym. We wtyczce
   klikasz obiekty na mapie, w pozostałych wersjach rysujesz poligony
@@ -495,14 +1237,14 @@ footer a{color:var(--szary)}
     <div class="karta">
       <h4>Tylko to, co pewne</h4>
       <p>Jeden błędny przykład uczy błędnej reguły. Obiekt na granicy
-      dwóch klas lepiej pominąć — program zresztą sam go odrzuci
+      dwóch klas lepiej pominąć; program zresztą sam go odrzuci
       i powie o tym.</p>
     </div>
   </div>
 
   <div class="ramka">
     <p><strong>Ile przykładów?</strong> Na start kilkanaście na klasę.
-    Potem i tak będziesz dokładał — i to jest normalny tok pracy,
+    Potem i tak będziesz dokładał i jest to normalny tok pracy,
     a nie oznaka, że coś poszło źle.</p>
     <p>Ile klas? Na początek <strong>cztery do sześciu</strong>. Każda
     dodana klasa to nowa para do rozróżnienia, a par przybywa szybciej
@@ -513,13 +1255,13 @@ footer a{color:var(--szary)}
 
 <section id="krok3"><div class="owijka">
   <h2><span class="numer">3</span>Nauka i poprawianie</h2>
-  <p class="podtytul">Pierwsza mapa nigdy nie jest dobra. To nie błąd — to metoda.</p>
+  <p class="podtytul">Pierwsza mapa nigdy nie jest dobra. To nie błąd, to metoda.</p>
 
   <h3>Najpierw sprawdź, czy klasy da się rozróżnić</h3>
   <p>Zanim zainwestujesz w klikanie, program policzy, jak bardzo różnią
-  się Twoje przykłady — parami. Skala od 0 do 2:</p>
+  się Twoje przykłady, para po parze. Skala od 0 do 2:</p>
 
-  <table>
+  <div class="tabela-przewin"><table>
     <thead><tr><th>Wynik</th><th>Co oznacza</th><th>Co zrobić</th></tr></thead>
     <tbody>
       <tr><td><strong>powyżej 1,9</strong></td><td>klasy wyraźnie inne</td>
@@ -529,11 +1271,11 @@ footer a{color:var(--szary)}
       <tr><td><strong>poniżej 1,7</strong></td><td>te klasy się zleją</td>
         <td>dołóż przykładów albo połącz je w jedną</td></tr>
     </tbody>
-  </table>
+  </table></div>
 
   <p>Program pokaże też, <em>która cecha</em> dzieli każdą parę
   najmocniej. Jeśli „trawa” i „grunt odkryty” rozchodzą się głównie na
-  zieloności — to dobry znak. Jeśli na powierzchni obiektu — to
+  zieloności, to dobry znak. Jeśli na powierzchni obiektu, to
   przypadek, nie prawidłowość.</p>
 
   <h3>Pętla poprawiania</h3>
@@ -556,7 +1298,7 @@ footer a{color:var(--szary)}
   <div class="ramka">
     <p><strong>Podpowiedź programu:</strong> po każdej mapie dostaniesz
     informację, ile obiektów dostało mniej niż połowę głosów drzew.
-    To właśnie tam program się waha — i tam Twoje przykłady zrobią
+    To właśnie tam program się waha i tam Twoje przykłady zrobią
     największą różnicę.</p>
   </div>
 
@@ -565,7 +1307,7 @@ footer a{color:var(--szary)}
     <div class="karta">
       <h4>Dociąganie po zieloności</h4>
       <p>Pas trawy między zagonami bywa węższy niż obiekt i ginie.
-      Ta opcja oddaje decyzję pojedynczym pikselom — ale tylko dla
+      Ta opcja oddaje decyzję pojedynczym pikselom, ale tylko dla
       dwóch wskazanych klas, reszta mapy zostaje obiektowa.</p>
       <p style="margin-top:8px"><em>Uwaga:</em> odzyskane pasy wychodzą
       nieco szersze niż w naturze, więc ostrożnie z podawaniem ich
@@ -575,7 +1317,7 @@ footer a{color:var(--szary)}
       <h4>Najmniejszy płat</h4>
       <p>Usuwa pojedyncze drobiny, wchłaniając je w otoczenie. Ustaw to
       pod zastosowanie mapy, a <strong>nie</strong> po to, żeby podbić
-      wynik dokładności — sito dobrane pod punkty kontrolne przestaje
+      wynik dokładności: sito dobrane pod punkty kontrolne przestaje
       być niezależnym sprawdzianem.</p>
     </div>
   </div>
@@ -583,7 +1325,7 @@ footer a{color:var(--szary)}
 
 <section id="dokladnosc"><div class="owijka">
   <h2><span class="numer">4</span>Ile ta mapa jest warta</h2>
-  <p class="podtytul">Część, której w QGIS brakuje — i ta, która
+  <p class="podtytul">Część, której w QGIS brakuje, i ta, która
   decyduje, czy wynik da się opublikować.</p>
 
   <p>Mapa jest tyle warta, ile wiesz o jej błędach. Ocena „na oko”
@@ -592,7 +1334,7 @@ footer a{color:var(--szary)}
 
   <ol class="kroki">
     <li><strong>Program losuje punkty kontrolne</strong>
-      Nigdy na obiektach, które posłużyły do nauki — inaczej
+      Nigdy na obiektach, które posłużyły do nauki, inaczej
       sprawdzałbyś model na jego własnej ściądze.</li>
     <li><strong>Ty opisujesz je patrząc na samo zdjęcie</strong>
       Z <em>wyłączoną</em> warstwą klasyfikacji. Program sam o tym
@@ -681,19 +1423,19 @@ footer a{color:var(--szary)}
 
   <h3>Dlaczego powierzchnia z mapy to nie to samo co powierzchnia prawdziwa</h3>
   <p>Przy losowaniu warstwowym mała klasa dostaje proporcjonalnie dużo
-  punktów — żeby dało się o niej cokolwiek powiedzieć. Przez to udział
+  punktów, żeby dało się o niej cokolwiek powiedzieć. Przez to udział
   punktów <strong>nie jest</strong> udziałem powierzchni, a zwykła
   średnia z punktów zakłamuje wynik.</p>
 
   <p>Dlatego program liczy wszystko <strong>ważąc każdą klasę jej
   powierzchnią</strong> i podaje osobno:</p>
 
-  <table>
+  <div class="tabela-przewin"><table>
     <thead><tr><th>Liczba</th><th>Co to jest</th><th>Cytować?</th></tr></thead>
     <tbody>
       <tr><td>Powierzchnia z mapy</td>
         <td>ile pikseli program przypisał tej klasie</td>
-        <td>nie — zawiera błędy klasyfikacji</td></tr>
+        <td>nie, zawiera błędy klasyfikacji</td></tr>
       <tr><td><strong>Powierzchnia szacowana</strong></td>
         <td>poprawiona o błędy, które wykryła próba</td>
         <td><strong>tak, razem z przedziałem</strong></td></tr>
@@ -701,11 +1443,11 @@ footer a{color:var(--szary)}
         <td>na ile dokładnie udało się ją oszacować</td>
         <td>tak, zawsze obok powierzchni</td></tr>
     </tbody>
-  </table>
+  </table></div>
 
   <div class="ramka">
     <p>Postępowanie jest zgodne z <strong>Olofsson i in. (2014)</strong>
-    oraz <strong>Stehman (2014)</strong> — tym, czego dziś wymagają
+    oraz <strong>Stehman (2014)</strong>, czyli z tym, czego dziś wymagają
     recenzenci w czasopismach z teledetekcji. Współczynnika kappa
     świadomie nie liczymy: obecne zalecenia go odradzają.</p>
     <p style="margin-top:8px"><strong>Jedna uczciwa uwaga:</strong>
@@ -719,7 +1461,7 @@ footer a{color:var(--szary)}
   <h2>Gdy coś nie wychodzi</h2>
   <p class="podtytul">Najczęstsze kłopoty i co z nimi zrobić.</p>
 
-  <table>
+  <div class="tabela-przewin"><table>
     <thead><tr><th>Objaw</th><th>Przyczyna</th><th>Co zrobić</th></tr></thead>
     <tbody>
       <tr><td>Mapa jest „zaszumiona”, pełna drobin</td>
@@ -728,14 +1470,14 @@ footer a{color:var(--szary)}
             dołóż przykładów</td></tr>
       <tr><td>Dwie klasy ciągle się mylą</td>
         <td>są do siebie za podobne w mierzonych cechach</td>
-        <td>sprawdź rozróżnialność — jeśli poniżej 1,7, połącz je
+        <td>sprawdź rozróżnialność; jeśli poniżej 1,7, połącz je
             albo dołóż model wysokości</td></tr>
       <tr><td>Cienkie pasy trawy giną</td>
         <td>są węższe niż obiekt</td>
         <td>włącz dociąganie po zieloności albo zmniejsz obiekty</td></tr>
       <tr><td>Dachy mają zerową wysokość nad gruntem</td>
         <td>liczysz na małym wycinku, węższym niż 40 m</td>
-        <td>policz całe zdjęcie — grunt szacuje się z szerokiego
+        <td>policz całe zdjęcie, bo grunt szacuje się z szerokiego
             otoczenia</td></tr>
       <tr><td><code>Nie zmieści się w pamięci</code></td>
         <td>siatka robocza za gęsta</td>
@@ -746,21 +1488,21 @@ footer a{color:var(--szary)}
         <td>narysuj większe poligony albo zmniejsz wielkość obiektu</td></tr>
       <tr><td>Liczy się bardzo długo</td>
         <td>brak bibliotek przyspieszających</td>
-        <td><code>pip install scikit-image scikit-learn</code> —
+        <td><code>pip install scikit-image scikit-learn</code>;
             wyniki te same, czas kilkukrotnie krótszy</td></tr>
       <tr><td>Dokładność podejrzanie wysoka (powyżej 97%)</td>
         <td>warstwa klasyfikacji była widoczna przy opisywaniu punktów</td>
-        <td>wyłącz ją i opisz punkty jeszcze raz — inaczej wynik jest
+        <td>wyłącz ją i opisz punkty jeszcze raz, inaczej wynik jest
             bezwartościowy</td></tr>
     </tbody>
-  </table>
+  </table></div>
 </div></section>
 
 <section id="metoda"><div class="owijka">
   <h2>Skąd ta metoda</h2>
   <p class="podtytul">Wszystko, co program robi, ma źródło w literaturze.</p>
 
-  <table>
+  <div class="tabela-przewin"><table>
     <thead><tr><th>Element</th><th>Źródło</th></tr></thead>
     <tbody>
       <tr><td>Podział na obiekty metodą SLIC</td>
@@ -778,12 +1520,12 @@ footer a{color:var(--szary)}
             Stehman (2014), <em>Int. J. Remote Sens.</em> 35(13);
             Congalton i Green (2019)</td></tr>
     </tbody>
-  </table>
+  </table></div>
 
   <div class="ramka">
-    <p><strong>Piszesz artykuł?</strong> Pełny opis metody — wzory,
+    <p><strong>Piszesz artykuł?</strong> Pełny opis metody (wzory,
     wszystkie stałe, reguły decyzyjne, ograniczenia i gotowy szkielet
-    sekcji <em>Materials and Methods</em> — znajdziesz w pliku
+    sekcji <em>Materials and Methods</em>) znajdziesz w pliku
     <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/blob/main/UWARUNKOWANIA_NAUKOWE.md"><code>UWARUNKOWANIA_NAUKOWE.md</code></a>.</p>
   </div>
 
