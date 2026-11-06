@@ -16,7 +16,7 @@ authors:
     given-names: "Grzegorz"
     affiliation: "Nicolaus Copernicus University in Toruń"
 version: "1.0.1"
-date-released: "2026-11-05"
+date-released: "2026-11-06"
 license: GPL-3.0-or-later
 repository-code: "https://github.com/gorniakgrzegorz/geoai_klasyfikator"
 url: "https://gorniakgrzegorz.github.io/geoai_klasyfikator/"
