@@ -55,7 +55,10 @@ Strona wtyczki: <https://plugins.qgis.org/plugins/geoai_klasyfikator/>. Bez dost
 ### Szybciej na dużych zdjęciach (nieobowiązkowe)
 
 Wtyczka działa bez niczego więcej. Jeśli jednak doinstalujesz dwie
-biblioteki, podział na obiekty i nauka pójdą wyraźnie szybciej:
+biblioteki, podział na obiekty i nauka pójdą wyraźnie szybciej.
+Najprościej: w kroku 1 kliknij **Zainstaluj biblioteki
+przyspieszające** (wtyczka sama uruchomi pip, tylko dla Twojego konta,
+bez zmiany numpy z QGIS), a potem uruchom QGIS ponownie. Ręcznie:
 
 ```
 python -m pip install scikit-image scikit-learn

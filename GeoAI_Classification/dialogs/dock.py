@@ -28,7 +28,7 @@ from qgis.core import (
     QgsVectorLayer,
 )
 from qgis.gui import QgsMapLayerComboBox
-from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtCore import QProcess, Qt, QTimer
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import (
     QApplication,
@@ -65,7 +65,8 @@ from ..core import qgis_io as IO
 from ..core import refine as REF
 from ..core.compat import liczba, lokalizacja_liczb, make_field
 from ..core.deps import (HAS_SKIMAGE, INSTALL_HINT, engine_report,
-                         missing_packages)
+                         missing_packages, ograniczenia,
+                         polecenie_instalacji, python_qgis)
 from ..core.slic import DEFAULT_COMPACTNESS, DEFAULT_SIGMA, slic_segments
 from .maptools import PointLabelTool, SegmentLabelTool
 
@@ -379,6 +380,14 @@ class PanelKlasyfikatora(QDockWidget):
         self.lbl_engine.setObjectName("engine")
         self.lbl_engine.setWordWrap(True)
         form.addRow(self.lbl_engine)
+        self.btn_install = QPushButton("Install acceleration libraries")
+        self.btn_install.setToolTip(
+            "Downloads scikit-image and scikit-learn from the internet and installs "
+            "them in the QGIS Python, for your account only, without administrator "
+            "rights. QGIS has to be restarted afterwards.")
+        self.btn_install.clicked.connect(self._zainstaluj_biblioteki)
+        form.addRow(self.btn_install)
+        self._instalacja = None
         self._describe_engines()
 
         self.btn_segment = QPushButton("SEGMENT AND MEASURE")
@@ -642,12 +651,111 @@ class PanelKlasyfikatora(QDockWidget):
                     "implementation.").format(report["segmentation"],
                                         report["classifier"])
         else:
-            text = ("Engines built into the plugin. It works with nothing else "
-                    "installed; if you install {0}, it will be faster and "
-                    "closer to the reference implementation. Instructions are "
-                    "in the Guide."
+            text = ("Engines built into the plugin. It works with nothing else installed; "
+                    "with the {0} libraries it will be much faster and match the reference "
+                    "implementation."
                     ).format(" and ".join(missing))
         self.lbl_engine.setText(text)
+        self.btn_install.setVisible(bool(missing))
+
+    # ── instalacja bibliotek przyspieszających ──────────────────────
+
+    def _zainstaluj_biblioteki(self):
+        if self._instalacja is not None:
+            return
+        pakiety = missing_packages()
+        if not pakiety:
+            return
+        python = python_qgis()
+        if python is None:
+            QMessageBox.warning(
+                self, "QGIS Python not found",
+                "Could not determine where the Python used by QGIS is, so the libraries "
+                "have to be installed by hand. Instructions are in the Guide.")
+            return
+        odpowiedz = QMessageBox.question(
+            self, "Install libraries?",
+            "The plugin will download the {0} libraries from the internet (PyPI) "
+            "and install them in the QGIS Python, for your account only, without "
+            "administrator rights. The numpy version shipped with QGIS stays "
+            "unchanged.\n\nAn internet connection is needed; it usually takes a few "
+            "minutes. Progress is shown in the message box. When it finishes, "
+            "restart QGIS.\n\nInstall?".format(" and ".join(pakiety)))
+        if odpowiedz != QMessageBox.StandardButton.Yes:
+            return
+
+        import tempfile
+        plik = tempfile.NamedTemporaryFile(
+            "w", suffix=".txt", delete=False, encoding="utf-8")
+        plik.write(ograniczenia())
+        plik.close()
+        self._plik_ograniczen = plik.name
+
+        proces = QProcess(self)
+        proces.setProcessChannelMode(
+            QProcess.ProcessChannelMode.MergedChannels)
+        proces.readyReadStandardOutput.connect(self._instalacja_wypisz)
+        proces.finished.connect(self._instalacja_koniec)
+        proces.errorOccurred.connect(self._instalacja_blad)
+        self._instalacja = proces
+        self._instalacja_tekst = []
+        self.btn_install.setEnabled(False)
+        self.btn_install.setText("Installing libraries...")
+        self.progress.setVisible(True)
+        self.progress.setRange(0, 0)
+        self.progress.setFormat("Installing libraries...")
+        self.say("Installing: {0}.".format(", ".join(pakiety)))
+        proces.start(python, polecenie_instalacji(pakiety, plik.name))
+
+    def _instalacja_wypisz(self):
+        if self._instalacja is None:
+            return
+        tekst = bytes(self._instalacja.readAllStandardOutput()).decode(
+            "utf-8", errors="replace")
+        for linia in tekst.splitlines():
+            linia = linia.strip()
+            if linia:
+                self._instalacja_tekst.append(linia)
+                if linia.startswith(("Collecting", "Downloading",
+                                     "Installing", "Successfully",
+                                     "ERROR")):
+                    self.say(linia)
+
+    def _instalacja_sprzatnij(self):
+        self.progress.setRange(0, 100)
+        self.progress.setVisible(False)
+        self.btn_install.setEnabled(True)
+        self.btn_install.setText("Install acceleration libraries")
+        with suppress(Exception):
+            os.remove(self._plik_ograniczen)
+        self._instalacja = None
+
+    def _instalacja_koniec(self, kod, *_):
+        self._instalacja_wypisz()
+        ostatnie = "\n".join(self._instalacja_tekst[-8:])
+        self._instalacja_sprzatnij()
+        if kod == 0:
+            self.btn_install.setVisible(False)
+            self.say("Libraries installed. Restart QGIS.")
+            QMessageBox.information(
+                self, "Libraries installed",
+                "Done. Restart QGIS so that the plugin starts using the new libraries.")
+        else:
+            QMessageBox.warning(
+                self, "Installation failed",
+                "pip finished with an error. Last messages:\n\n"
+                "{0}\n\nYou can install the libraries by hand; instructions are in the "
+                "Guide.".format(ostatnie))
+
+    def _instalacja_blad(self, blad):
+        if self._instalacja is None:
+            return
+        if blad == QProcess.ProcessError.FailedToStart:
+            self._instalacja_sprzatnij()
+            QMessageBox.warning(
+                self, "Installation failed",
+                "Could not start the QGIS Python. Install the libraries by hand; "
+                "instructions are in the Guide.")
 
     def _zajety(self, czynnosc="Another computation is running"):
         """True, gdy coś już się liczy — chroni przed drugim przebiegiem.
@@ -849,22 +957,43 @@ class PanelKlasyfikatora(QDockWidget):
                 proponowana = obecna * np.sqrt(
                     height * width / PROG_BEZ_SKIMAGE)
                 proponowana = np.ceil(proponowana * 100) / 100
-                odpowiedz = QMessageBox.question(
-                    self, "This may take a very long time",
-                    "The working grid has {0} million pixels and the scikit-image "
-                    "library is not installed. The built-in segmentation works "
-                    "efficiently up to about half a million pixels; with a "
-                    "larger grid it takes a very long time. Progress is shown "
-                    "in the bar at the bottom of the panel, and QGIS may respond "
-                    "slowly in the meantime.\n\nFaster: set the working "
-                    "resolution to at least {1} m or install scikit-image "
-                    "(instructions are in the Guide).\n\nProcess anyway?"
-                    .format(_liczba(height * width / 1e6, 1),
+                okno = QMessageBox(self)
+                okno.setIcon(QMessageBox.Icon.Question)
+                okno.setWindowTitle("Segmentation will take a very long time")
+                okno.setText(
+                    "The working resolution entered is {0} m. At this resolution the "
+                    "computation grid has {1} by {2} pixels, that is {3} million pixels.\n\n"
+                    "scikit-image is not installed on this computer, so segmentation is done "
+                    "by the version built into the plugin. It works efficiently up to about "
+                    "half a million pixels; with {3} million it can take a very long time, "
+                    "and QGIS responds slowly in the meantime. Progress is shown in the bar "
+                    "at the bottom of the panel.\n\n"
+                    "What you can do:\n"
+                    "  • Install libraries: the plugin installs scikit-image and "
+                    "scikit-learn itself (a few minutes, then restart QGIS). This is the "
+                    "best option.\n"
+                    "  • Or set the working resolution to at least {4} m and start "
+                    "segmentation again.\n"
+                    "  • Or process anyway and wait."
+                    .format(_liczba(obecna, 3), width, height,
+                            _liczba(height * width / 1e6, 1),
                             _liczba(proponowana, 2)))
-                if odpowiedz != QMessageBox.StandardButton.Yes:
+                b_instaluj = okno.addButton(
+                    "Install libraries",
+                    QMessageBox.ButtonRole.ActionRole)
+                b_licz = okno.addButton(
+                    "Process anyway", QMessageBox.ButtonRole.AcceptRole)
+                okno.addButton("Cancel", QMessageBox.ButtonRole.RejectRole)
+                okno.setDefaultButton(b_instaluj)
+                okno.exec()
+                wybor = okno.clickedButton()
+                if wybor is not b_licz:
                     self.progress.setVisible(False)
                     self.say("Stopped before segmentation: the grid is too large "
                              "for the built-in segmentation.")
+                    if wybor is b_instaluj:
+                        # po odblokowaniu przycisków (blok finally)
+                        QTimer.singleShot(0, self._zainstaluj_biblioteki)
                     return
             self.grid = siatka
             self.say("Working grid: {0} by {1} pixels, resolution "
@@ -963,12 +1092,14 @@ class PanelKlasyfikatora(QDockWidget):
         except MemoryError as error:
             self.progress.setVisible(False)
             QMessageBox.warning(
-                self, "Too large for the computer's memory",
+                self, "Working grid too large",
                 "{0}\n\nWhat you can do:\n"
-                "  • enter at least this value in \"Working resolution (m)\",\n"
-                "  • tick \"Process only what is visible on screen\",\n"
-                "  • split the image into tiles (e.g. with GDAL Retile) "
-                "and process them one by one.".format(error))
+                "  • enter this value (or a larger one) in \"Working resolution (m)\" "
+                "and start segmentation again,\n"
+                "  • or tick \"Process only what is visible on screen\" and process part "
+                "of the image,\n"
+                "  • or split the image into tiles (e.g. with GDAL Retile) and process "
+                "them one by one.".format(error))
         except Exception as error:
             self.progress.setVisible(False)
             self.say("Stopped: {0}".format(error))

@@ -129,10 +129,13 @@ def read_rgb(layer, target_pixel_size: float = 0.0,
         miejsca = 2 if potrzebna >= 0.1 else 3
         potrzebna = np.ceil(potrzebna * 10 ** miejsca) / 10 ** miejsca
         raise MemoryError(
-            "At a working resolution of {0} m the grid has {1} by {2} "
-            "pixels, that is {3} million, while the program accepts at most "
-            "{4} million pixels. The finest resolution that fits: "
-            "{5} m.".format(
+            "The working resolution entered is {0} m. At this resolution the "
+            "computation grid has {1} by {2} pixels, that is {3} million pixels.\n\n"
+            "The plugin accepts at most {4} million pixels, because each grid pixel "
+            "takes about 100 bytes of memory during the computation (15 million "
+            "pixels is about 1.5 GB). This limit does not depend on how much memory "
+            "is free.\n\n"
+            "The finest resolution at which the grid fits: {5} m.".format(
                 liczba(obecna, 3), out_width, out_height,
                 liczba(out_width * out_height / 1e6, 1),
                 liczba(MAX_WORKING_PIXELS / 1e6, 0),

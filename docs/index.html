@@ -726,7 +726,9 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
     </div>
     <div class="karta">
       <h4>Użyj bibliotek przyspieszających</h4>
-      <p>Program dla Windows ma je w środku. Do wtyczki i wiersza poleceń
+      <p>Program dla Windows ma je w środku. We wtyczce wystarczy
+      przycisk <strong>Zainstaluj biblioteki przyspieszające</strong>
+      w kroku 1 i ponowne uruchomienie QGIS. Do wiersza poleceń
       doinstaluj <code>scikit-image</code>, <code>scikit-learn</code>
       i <code>scipy</code>. Obliczenia przyspieszą, a wyniki będą zgodne z implementacją wzorcową; do badań naukowych i tak zalecana jest pełna konfiguracja.</p>
     </div>
@@ -2008,8 +2010,10 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
         <td>narysuj większe poligony albo zmniejsz wielkość obiektu</td></tr>
       <tr><td>Liczy się bardzo długo</td>
         <td>brak bibliotek przyspieszających</td>
-        <td><code>pip install scikit-image scikit-learn</code>;
-            wyniki te same, czas kilkukrotnie krótszy</td></tr>
+        <td>we wtyczce przycisk Zainstaluj biblioteki
+            przyspieszające (krok 1), potem ponowne uruchomienie QGIS;
+            wyniki zgodne z implementacją wzorcową, czas kilkukrotnie
+            krótszy</td></tr>
       <tr><td>Dokładność podejrzanie wysoka (powyżej 97%)</td>
         <td>warstwa klasyfikacji była widoczna przy opisywaniu punktów</td>
         <td>wyłącz ją i opisz punkty jeszcze raz, inaczej wynik jest

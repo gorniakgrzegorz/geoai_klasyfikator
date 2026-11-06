@@ -129,9 +129,13 @@ def read_rgb(layer, target_pixel_size: float = 0.0,
         miejsca = 2 if potrzebna >= 0.1 else 3
         potrzebna = np.ceil(potrzebna * 10 ** miejsca) / 10 ** miejsca
         raise MemoryError(
-            "Przy rozdzielczości roboczej {0} m siatka ma {1} na {2} "
-            "pikseli, czyli {3} mln, a program przyjmuje najwyżej "
-            "{4} mln pikseli. Najdrobniejsza rozdzielczość, która się "
+            "Wpisana rozdzielczość robocza to {0} m. Przy niej siatka "
+            "obliczeń ma {1} na {2} pikseli, czyli {3} mln pikseli.\n\n"
+            "Wtyczka przyjmuje najwyżej {4} mln pikseli, bo każdy piksel "
+            "siatki zajmuje w obliczeniach około 100 bajtów pamięci "
+            "(15 mln pikseli to około 1,5 GB). Ten limit nie zależy od "
+            "tego, ile pamięci jest wolne.\n\n"
+            "Najdrobniejsza rozdzielczość, przy której siatka się "
             "zmieści: {5} m.".format(
                 liczba(obecna, 3), out_width, out_height,
                 liczba(out_width * out_height / 1e6, 1),

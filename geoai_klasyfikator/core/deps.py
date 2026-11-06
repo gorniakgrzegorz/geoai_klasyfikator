@@ -60,12 +60,56 @@ def missing_packages() -> list:
     return missing
 
 
+def python_qgis() -> str | None:
+    """Plik wykonywalny Pythona, w którym działa QGIS.
+
+    W QGIS ``sys.executable`` wskazuje zwykle sam program QGIS, a nie
+    Pythona, więc szukamy interpretera obok bibliotek standardowych.
+    """
+    import os
+    import sys
+    kandydaci = []
+    exe = sys.executable or ""
+    if os.path.basename(exe).lower().startswith("python"):
+        kandydaci.append(exe)
+    if os.name == "nt":
+        kandydaci += [os.path.join(sys.exec_prefix, "python.exe"),
+                      os.path.join(sys.exec_prefix, "python3.exe")]
+    else:
+        wersja = "python{0}.{1}".format(*sys.version_info[:2])
+        for katalog in (os.path.join(sys.exec_prefix, "bin"),
+                        os.path.join(os.path.dirname(exe), "bin")):
+            kandydaci += [os.path.join(katalog, nazwa)
+                          for nazwa in (wersja, "python3", "python")]
+    for sciezka in kandydaci:
+        if sciezka and os.path.isfile(sciezka):
+            return sciezka
+    return None
+
+
+def polecenie_instalacji(pakiety, plik_ograniczen) -> list:
+    """Argumenty pip: instalacja dla bieżącego użytkownika, bez praw
+    administratora. Plik ograniczeń przypina wersję numpy z QGIS, żeby
+    pip jej nie podmienił (od numpy zależy GDAL wbudowany w QGIS)."""
+    return ["-m", "pip", "install", "--user",
+            "--disable-pip-version-check", "--no-warn-script-location",
+            "-c", plik_ograniczen] + list(pakiety)
+
+
+def ograniczenia() -> str:
+    """Treść pliku ograniczeń dla pip."""
+    import numpy
+    return "numpy=={0}\n".format(numpy.__version__)
+
+
 INSTALL_HINT = (
     "Wtyczka działa od razu, bez niczego więcej. Jeśli jednak "
     "doinstalujesz dwie biblioteki, podział na obiekty i nauka pójdą "
     "<b>wyraźnie szybciej</b> na dużych zdjęciach, a wyniki będą "
     "identyczne z implementacją wzorcową.\n\n"
-    "Jak to zrobić: w menu Start, w katalogu QGIS, otwórz "
+    "Najprościej: w kroku 1 kliknij <b>Zainstaluj biblioteki "
+    "przyspieszające</b> i po zakończeniu uruchom QGIS ponownie.\n\n"
+    "Gdyby się nie udało, zrób to ręcznie: w menu Start, w katalogu QGIS, otwórz "
     "<b>OSGeo4W Shell</b> i wpisz jedno polecenie:\n\n"
     "&nbsp;&nbsp;&nbsp;&nbsp;<code>python -m pip install scikit-image "
     "scikit-learn</code>\n\n"

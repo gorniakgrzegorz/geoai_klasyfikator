@@ -62,7 +62,10 @@ Without internet access: the **Install from ZIP** tab and the file
 ### Faster on large images (optional)
 
 The plugin works with nothing else installed. If you add two libraries,
-segmentation and training run much faster:
+segmentation and training run much faster. The easiest way: in step 1
+click **Install acceleration libraries** (the plugin runs pip itself,
+for your account only, without changing the numpy shipped with QGIS),
+then restart QGIS. By hand:
 
 ```
 python -m pip install scikit-image scikit-learn

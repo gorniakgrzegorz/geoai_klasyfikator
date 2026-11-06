@@ -28,7 +28,7 @@ from qgis.core import (
     QgsVectorLayer,
 )
 from qgis.gui import QgsMapLayerComboBox
-from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtCore import QProcess, Qt, QTimer
 from qgis.PyQt.QtGui import QColor
 from qgis.PyQt.QtWidgets import (
     QApplication,
@@ -65,7 +65,8 @@ from ..core import qgis_io as IO
 from ..core import refine as REF
 from ..core.compat import liczba, lokalizacja_liczb, make_field
 from ..core.deps import (HAS_SKIMAGE, INSTALL_HINT, engine_report,
-                         missing_packages)
+                         missing_packages, ograniczenia,
+                         polecenie_instalacji, python_qgis)
 from ..core.slic import DEFAULT_COMPACTNESS, DEFAULT_SIGMA, slic_segments
 from .maptools import PointLabelTool, SegmentLabelTool
 
@@ -382,6 +383,14 @@ class PanelKlasyfikatora(QDockWidget):
         self.lbl_engine.setObjectName("engine")
         self.lbl_engine.setWordWrap(True)
         form.addRow(self.lbl_engine)
+        self.btn_install = QPushButton("Zainstaluj biblioteki przyspieszające")
+        self.btn_install.setToolTip(
+            "Pobiera scikit-image i scikit-learn z internetu i instaluje "
+            "je w Pythonie QGIS, tylko dla Ciebie, bez praw "
+            "administratora. Potem trzeba uruchomić QGIS ponownie.")
+        self.btn_install.clicked.connect(self._zainstaluj_biblioteki)
+        form.addRow(self.btn_install)
+        self._instalacja = None
         self._describe_engines()
 
         self.btn_segment = QPushButton("PODZIEL NA OBIEKTY I ZMIERZ")
@@ -643,10 +652,112 @@ class PanelKlasyfikatora(QDockWidget):
                                         report["classifier"])
         else:
             text = ("Silniki wbudowane we wtyczkę. Działa bez niczego "
-                    "więcej; jeśli doinstalujesz {0}, będzie szybciej "
-                    "i dokładniej — przepis jest w Instrukcji."
+                    "więcej; z bibliotekami {0} będzie wyraźnie szybciej "
+                    "i zgodnie z implementacją wzorcową."
                     ).format(" oraz ".join(missing))
         self.lbl_engine.setText(text)
+        self.btn_install.setVisible(bool(missing))
+
+    # ── instalacja bibliotek przyspieszających ──────────────────────
+
+    def _zainstaluj_biblioteki(self):
+        if self._instalacja is not None:
+            return
+        pakiety = missing_packages()
+        if not pakiety:
+            return
+        python = python_qgis()
+        if python is None:
+            QMessageBox.warning(
+                self, "Nie znalazłem Pythona QGIS",
+                "Nie udało się ustalić, gdzie jest Python, w którym działa "
+                "QGIS, więc biblioteki trzeba zainstalować ręcznie. "
+                "Przepis jest w Instrukcji.")
+            return
+        odpowiedz = QMessageBox.question(
+            self, "Zainstalować biblioteki?",
+            "Wtyczka pobierze z internetu (PyPI) biblioteki {0} i zainstaluje "
+            "je w Pythonie QGIS, tylko dla Twojego konta, bez praw "
+            "administratora. Wersja numpy z QGIS zostanie bez zmian.\n\n"
+            "Potrzebny jest internet; trwa to zwykle kilka minut. Postęp "
+            "widać w okienku komunikatów. Po zakończeniu uruchom QGIS "
+            "ponownie.\n\nZainstalować?".format(" oraz ".join(pakiety)))
+        if odpowiedz != QMessageBox.StandardButton.Yes:
+            return
+
+        import tempfile
+        plik = tempfile.NamedTemporaryFile(
+            "w", suffix=".txt", delete=False, encoding="utf-8")
+        plik.write(ograniczenia())
+        plik.close()
+        self._plik_ograniczen = plik.name
+
+        proces = QProcess(self)
+        proces.setProcessChannelMode(
+            QProcess.ProcessChannelMode.MergedChannels)
+        proces.readyReadStandardOutput.connect(self._instalacja_wypisz)
+        proces.finished.connect(self._instalacja_koniec)
+        proces.errorOccurred.connect(self._instalacja_blad)
+        self._instalacja = proces
+        self._instalacja_tekst = []
+        self.btn_install.setEnabled(False)
+        self.btn_install.setText("Instaluję biblioteki...")
+        self.progress.setVisible(True)
+        self.progress.setRange(0, 0)
+        self.progress.setFormat("Instaluję biblioteki...")
+        self.say("Instaluję: {0}.".format(", ".join(pakiety)))
+        proces.start(python, polecenie_instalacji(pakiety, plik.name))
+
+    def _instalacja_wypisz(self):
+        if self._instalacja is None:
+            return
+        tekst = bytes(self._instalacja.readAllStandardOutput()).decode(
+            "utf-8", errors="replace")
+        for linia in tekst.splitlines():
+            linia = linia.strip()
+            if linia:
+                self._instalacja_tekst.append(linia)
+                if linia.startswith(("Collecting", "Downloading",
+                                     "Installing", "Successfully",
+                                     "ERROR")):
+                    self.say(linia)
+
+    def _instalacja_sprzatnij(self):
+        self.progress.setRange(0, 100)
+        self.progress.setVisible(False)
+        self.btn_install.setEnabled(True)
+        self.btn_install.setText("Zainstaluj biblioteki przyspieszające")
+        with suppress(Exception):
+            os.remove(self._plik_ograniczen)
+        self._instalacja = None
+
+    def _instalacja_koniec(self, kod, *_):
+        self._instalacja_wypisz()
+        ostatnie = "\n".join(self._instalacja_tekst[-8:])
+        self._instalacja_sprzatnij()
+        if kod == 0:
+            self.btn_install.setVisible(False)
+            self.say("Biblioteki zainstalowane. Uruchom QGIS ponownie.")
+            QMessageBox.information(
+                self, "Biblioteki zainstalowane",
+                "Gotowe. Uruchom QGIS ponownie, żeby wtyczka zaczęła "
+                "używać nowych bibliotek.")
+        else:
+            QMessageBox.warning(
+                self, "Instalacja się nie udała",
+                "pip zakończył pracę z błędem. Ostatnie komunikaty:\n\n"
+                "{0}\n\nMożesz zainstalować biblioteki ręcznie; przepis "
+                "jest w Instrukcji.".format(ostatnie))
+
+    def _instalacja_blad(self, blad):
+        if self._instalacja is None:
+            return
+        if blad == QProcess.ProcessError.FailedToStart:
+            self._instalacja_sprzatnij()
+            QMessageBox.warning(
+                self, "Instalacja się nie udała",
+                "Nie udało się uruchomić Pythona QGIS. Zainstaluj "
+                "biblioteki ręcznie; przepis jest w Instrukcji.")
 
     def _zajety(self, czynnosc="Trwa inne obliczenie"):
         """True, gdy coś już się liczy — chroni przed drugim przebiegiem.
@@ -848,23 +959,45 @@ class PanelKlasyfikatora(QDockWidget):
                 proponowana = obecna * np.sqrt(
                     height * width / PROG_BEZ_SKIMAGE)
                 proponowana = np.ceil(proponowana * 100) / 100
-                odpowiedz = QMessageBox.question(
-                    self, "To może potrwać bardzo długo",
-                    "Siatka robocza ma {0} mln pikseli, a biblioteka "
-                    "scikit-image nie jest zainstalowana. Wbudowany "
-                    "podział na obiekty radzi sobie sprawnie do około "
-                    "pół miliona pikseli; przy większej siatce liczy "
-                    "bardzo długo. Postęp widać na pasku na dole panelu, "
-                    "a QGIS może w tym czasie reagować z opóźnieniem."
-                    "\n\nSzybciej: ustaw rozdzielczość roboczą "
-                    "co najmniej {1} m albo zainstaluj scikit-image "
-                    "(przepis jest w Instrukcji).\n\nLiczyć mimo to?"
-                    .format(_liczba(height * width / 1e6, 1),
+                okno = QMessageBox(self)
+                okno.setIcon(QMessageBox.Icon.Question)
+                okno.setWindowTitle("Podział potrwa bardzo długo")
+                okno.setText(
+                    "Wpisana rozdzielczość robocza to {0} m. Przy niej "
+                    "siatka obliczeń ma {1} na {2} pikseli, czyli {3} mln "
+                    "pikseli.\n\n"
+                    "Na tym komputerze nie ma biblioteki scikit-image, więc "
+                    "podział na obiekty liczy wersja wbudowana we wtyczkę. "
+                    "Liczy ona sprawnie do około pół miliona pikseli; przy "
+                    "{3} mln może pracować bardzo długo, a QGIS w tym "
+                    "czasie reaguje z opóźnieniem. Postęp widać na pasku "
+                    "na dole panelu.\n\n"
+                    "Co możesz zrobić:\n"
+                    "  • Zainstaluj biblioteki: wtyczka sama doinstaluje "
+                    "scikit-image i scikit-learn (kilka minut, potem "
+                    "ponowne uruchomienie QGIS). To rozwiązanie najlepsze.\n"
+                    "  • Albo ustaw rozdzielczość roboczą co najmniej "
+                    "{4} m i kliknij podział jeszcze raz.\n"
+                    "  • Albo licz mimo to i poczekaj."
+                    .format(_liczba(obecna, 3), width, height,
+                            _liczba(height * width / 1e6, 1),
                             _liczba(proponowana, 2)))
-                if odpowiedz != QMessageBox.StandardButton.Yes:
+                b_instaluj = okno.addButton(
+                    "Zainstaluj biblioteki",
+                    QMessageBox.ButtonRole.ActionRole)
+                b_licz = okno.addButton(
+                    "Licz mimo to", QMessageBox.ButtonRole.AcceptRole)
+                okno.addButton("Anuluj", QMessageBox.ButtonRole.RejectRole)
+                okno.setDefaultButton(b_instaluj)
+                okno.exec()
+                wybor = okno.clickedButton()
+                if wybor is not b_licz:
                     self.progress.setVisible(False)
                     self.say("Przerwane przed podziałem: siatka za duża "
                              "dla wbudowanego podziału.")
+                    if wybor is b_instaluj:
+                        # po odblokowaniu przycisków (blok finally)
+                        QTimer.singleShot(0, self._zainstaluj_biblioteki)
                     return
             self.grid = siatka
             self.say("Siatka robocza: {0} na {1} pikseli, rozdzielczość "
@@ -967,13 +1100,14 @@ class PanelKlasyfikatora(QDockWidget):
         except MemoryError as error:
             self.progress.setVisible(False)
             QMessageBox.warning(
-                self, "Za duże jak na pamięć komputera",
+                self, "Za duża siatka robocza",
                 "{0}\n\nCo możesz zrobić:\n"
-                "  • wpisz w polu „Rozdzielczość robocza (m)” co "
-                "najmniej tę wartość,\n"
-                "  • zaznacz „Policz tylko to, co widać na "
-                "ekranie”,\n"
-                "  • podziel zdjęcie na kafle (np. narzędziem GDAL "
+                "  • wpisz tę wartość (albo większą) w polu "
+                "„Rozdzielczość robocza (m)” i kliknij podział jeszcze "
+                "raz,\n"
+                "  • albo zaznacz „Policz tylko to, co widać na "
+                "ekranie” i licz fragment zdjęcia,\n"
+                "  • albo podziel zdjęcie na kafle (np. narzędziem GDAL "
                 "Retile) i licz je po kolei.".format(error))
         except Exception as error:
             self.progress.setVisible(False)

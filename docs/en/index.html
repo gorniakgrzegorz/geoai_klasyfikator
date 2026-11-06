@@ -737,9 +737,11 @@ python geoai.py klasyfikuj --folder flights --model my_model.geoai ^
     </div>
     <div class="karta">
       <h4>Use the acceleration libraries</h4>
-      <p>The Windows application includes them. For the plugin and the
-      command line, install <code>scikit-image</code>,
-      <code>scikit-learn</code> and <code>scipy</code>. The computation
+      <p>The Windows application includes them. In the plugin, click
+      <strong>Install acceleration libraries</strong> in step 1 and
+      restart QGIS. For the command line, install
+      <code>scikit-image</code>, <code>scikit-learn</code> and
+      <code>scipy</code>. The computation
       gets faster and the results match the reference implementation;
       for research work the full setup is recommended anyway.</p>
     </div>
@@ -2038,9 +2040,9 @@ python geoai.py klasyfikuj --folder flights --model my_model.geoai ^
         <td>draw larger polygons or reduce the object size</td></tr>
       <tr><td>Processing takes very long</td>
         <td>acceleration libraries are missing</td>
-        <td><code>pip install scikit-image scikit-learn</code>; results
-            match the reference implementation, several times
-            faster</td></tr>
+        <td>in the plugin, the Install acceleration libraries button
+            (step 1), then restart QGIS; results match the reference
+            implementation, several times faster</td></tr>
       <tr><td>Accuracy suspiciously high (above 97%)</td>
         <td>the classification layer was visible while labelling
             points</td>

@@ -60,14 +60,58 @@ def missing_packages() -> list:
     return missing
 
 
+def python_qgis() -> str | None:
+    """Plik wykonywalny Pythona, w którym działa QGIS.
+
+    W QGIS ``sys.executable`` wskazuje zwykle sam program QGIS, a nie
+    Pythona, więc szukamy interpretera obok bibliotek standardowych.
+    """
+    import os
+    import sys
+    kandydaci = []
+    exe = sys.executable or ""
+    if os.path.basename(exe).lower().startswith("python"):
+        kandydaci.append(exe)
+    if os.name == "nt":
+        kandydaci += [os.path.join(sys.exec_prefix, "python.exe"),
+                      os.path.join(sys.exec_prefix, "python3.exe")]
+    else:
+        wersja = "python{0}.{1}".format(*sys.version_info[:2])
+        for katalog in (os.path.join(sys.exec_prefix, "bin"),
+                        os.path.join(os.path.dirname(exe), "bin")):
+            kandydaci += [os.path.join(katalog, nazwa)
+                          for nazwa in (wersja, "python3", "python")]
+    for sciezka in kandydaci:
+        if sciezka and os.path.isfile(sciezka):
+            return sciezka
+    return None
+
+
+def polecenie_instalacji(pakiety, plik_ograniczen) -> list:
+    """Argumenty pip: instalacja dla bieżącego użytkownika, bez praw
+    administratora. Plik ograniczeń przypina wersję numpy z QGIS, żeby
+    pip jej nie podmienił (od numpy zależy GDAL wbudowany w QGIS)."""
+    return ["-m", "pip", "install", "--user",
+            "--disable-pip-version-check", "--no-warn-script-location",
+            "-c", plik_ograniczen] + list(pakiety)
+
+
+def ograniczenia() -> str:
+    """Treść pliku ograniczeń dla pip."""
+    import numpy
+    return "numpy=={0}\n".format(numpy.__version__)
+
+
 INSTALL_HINT = (
-    "The plugin works out of the box. If you install two "
-    "libraries, segmentation and training will run <b>much "
-    "faster</b> on large images, and the results will match "
-    "the reference implementation.\n\nHow to do it: in the Start "
-    "menu, in the QGIS folder, open <b>OSGeo4W Shell</b> and "
-    "type one command:\n\n&nbsp;&nbsp;&nbsp;&nbsp;<code>python "
-    "-m pip install scikit-image scikit-learn</code>\n\nThen "
-    "restart QGIS. If the command fails, run OSGeo4W Shell as "
+    "The plugin works out of the box. If you install two libraries, "
+    "segmentation and training will run <b>much faster</b> on large images, "
+    "and the results will match the reference implementation.\n\n"
+    "The easiest way: in step 1 click <b>Install acceleration libraries</b> "
+    "and restart QGIS when it finishes.\n\n"
+    "If that fails, do it by hand: in the Start menu, in the QGIS folder, open "
+    "<b>OSGeo4W Shell</b> and type one command:\n\n"
+    "&nbsp;&nbsp;&nbsp;&nbsp;<code>python -m pip install scikit-image "
+    "scikit-learn</code>\n\n"
+    "Then restart QGIS. If the command fails, run OSGeo4W Shell as "
     "administrator."
 )
