@@ -179,7 +179,11 @@ Współczynnika kappa świadomie nie liczymy.
 | Program Windows | nic, instalator ma wszystko w środku |
 
 `scikit-image` i `scikit-learn` są opcjonalne: bez nich program działa,
-z nimi liczy kilkakrotnie szybciej.
+z nimi liczy kilkakrotnie szybciej. Karta graficzna nie jest potrzebna.
+Główne ograniczenie to pamięć: największa siatka robocza, 15 milionów
+pikseli, zajmuje około 1,5 GB na same obliczenia. Co spowalnia pracę
+i jak ją przyspieszyć bez nowego komputera, opisuje
+[strona programu](https://gorniakgrzegorz.github.io/geoai_klasyfikator/#komputer).
 
 ## Dokumentacja
 

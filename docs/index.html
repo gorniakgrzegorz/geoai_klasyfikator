@@ -276,6 +276,7 @@ a.cyt:hover{text-decoration:underline}
     <div class="lista">
       <a href="#wersje">Pobierz</a>
       <a href="#folder">Wiele zdjęć naraz</a>
+      <a href="#komputer">Komputer i szybkość</a>
       <a href="#sentinel">Sentinel-2</a>
       <a href="#jak">Jak to działa</a>
       <a href="#algorytm">Algorytm</a>
@@ -578,6 +579,118 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
   requestAnimationFrame(petla);
 })();
 </script>
+
+<section id="komputer"><div class="owijka">
+  <h2>Komputer i szybkość pracy</h2>
+  <p class="podtytul">Co jest potrzebne, co spowalnia obliczenia i jak
+  przyspieszyć pracę bez kupowania nowego komputera.</p>
+
+  <h3>Wymagania</h3>
+  <div class="tabela-przewin"><table>
+    <thead><tr><th>Wersja</th><th>Czego potrzebuje</th></tr></thead>
+    <tbody>
+      <tr><td>Wtyczka QGIS</td><td>QGIS 3.22 lub nowszy i nic więcej</td></tr>
+      <tr><td>Program dla Windows</td><td>64-bitowy Windows; instalator
+        (około 96 MB) ma w środku wszystkie biblioteki, także te
+        przyspieszające</td></tr>
+      <tr><td>Wiersz poleceń</td><td>Python 3.9 lub nowszy oraz biblioteki
+        <code>numpy</code>, <code>rasterio</code> i <code>fiona</code>;
+        zalecane także <code>scikit-image</code>, <code>scikit-learn</code>
+        i <code>scipy</code></td></tr>
+      <tr><td>Karta graficzna</td><td>niepotrzebna: program nie używa
+        sieci neuronowych</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="ramka">
+    <p><strong>Pamięć to główne ograniczenie.</strong> Na każdy piksel
+    siatki roboczej obliczenia zajmują około 100 bajtów, więc największa
+    dopuszczalna siatka, 15 milionów pikseli, potrzebuje około 1,5 GB
+    pamięci na same obliczenia, poza tym, co zajmują system i QGIS.
+    Większej siatki program nie przyjmie i podpowie grubszą
+    rozdzielczość roboczą.</p>
+  </div>
+
+  <h3>Co decyduje o czasie obliczeń</h3>
+  <div class="tabela-przewin"><table>
+    <thead><tr><th>Czynnik</th><th>Dlaczego</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Liczba pikseli siatki roboczej</strong></td>
+        <td>każdy krok przechodzi przez wszystkie piksele; dwa razy
+        grubsza rozdzielczość to cztery razy mniej pikseli</td></tr>
+      <tr><td><strong>Liczba obiektów</strong></td>
+        <td>fakturę, kształt i otoczenie mierzy się osobno dla każdego
+        obiektu; mniejsze obiekty oznaczają więcej obiektów</td></tr>
+      <tr><td><strong>Biblioteki przyspieszające</strong></td>
+        <td>z <code>scikit-image</code> i <code>scikit-learn</code>
+        obliczenia idą kilkakrotnie szybciej; bez <code>scikit-image</code>
+        praktyczna granica to około pół miliona pikseli</td></tr>
+      <tr><td><strong>Model wysokości (NMPT)</strong></td>
+        <td>dochodzi 5 cech i szacowanie powierzchni gruntu filtrem
+        morfologicznym</td></tr>
+      <tr><td><strong>Dodatki</strong></td>
+        <td>sprawdzanie rozróżnialności klas, dociąganie po zieloności
+        i usuwanie drobnych płatów to osobne kroki</td></tr>
+      <tr><td><strong>Procesor</strong></td>
+        <td>Random Forest ze <code>scikit-learn</code> rozkłada drzewa na
+        wszystkie rdzenie procesora</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Jak przyspieszyć pracę bez nowego komputera</h3>
+  <div class="siatka dwa">
+    <div class="karta">
+      <h4>Dobierz rozdzielczość do celu</h4>
+      <p>Na pola, zagony i dachy wystarcza siatka 5 do 10 cm. Zdjęcie
+      z drona o pikselu 2 cm policzone na siatce 8 cm ma 16 razy mniej
+      pikseli. Najdrobniejszej siatki, 3 do 5 cm, potrzebujesz dopiero do
+      pojedynczych drzew i krzewów.</p>
+    </div>
+    <div class="karta">
+      <h4>Próbuj na fragmencie</h4>
+      <p>We wtyczce zaznacz liczenie tylko tego, co widać na ekranie.
+      Ustawienia i przykłady dopracujesz w kilka chwil, a całe zdjęcie
+      policzysz na końcu.</p>
+    </div>
+    <div class="karta">
+      <h4>Użyj bibliotek przyspieszających</h4>
+      <p>Program dla Windows ma je w środku. Do wtyczki i wiersza poleceń
+      doinstaluj <code>scikit-image</code>, <code>scikit-learn</code>
+      i <code>scipy</code>. Obliczenia przyspieszą, a wyniki będą zgodne z implementacją wzorcową; do badań naukowych i tak zalecana jest pełna konfiguracja.</p>
+    </div>
+    <div class="karta">
+      <h4>Duże obiekty tam, gdzie można</h4>
+      <p>Obiekt ma być mniejszy od najwęższej rzeczy, którą chcesz
+      pokazać, ale nie mniejszy. Przy kartowaniu pól obiekt 20 m²
+      zamiast 5 m² to cztery razy mniej obiektów do zmierzenia.</p>
+    </div>
+    <div class="karta">
+      <h4>Licz w tle i na raty</h4>
+      <p>Wiele zdjęć puść jako <a href="#folder">klasyfikację całego
+      folderu</a>, na przykład na noc. Przerwany przebieg wznowisz tym
+      samym poleceniem, gotowe zdjęcia zostaną pominięte.</p>
+    </div>
+    <div class="karta">
+      <h4>Za duża mozaika? Podziel ją</h4>
+      <p>Gdy jedno zdjęcie przekracza limit nawet przy rozsądnej
+      rozdzielczości, podziel je na kafle (na przykład narzędziem GDAL
+      Retile w QGIS) i policz folder kafli jednym modelem.</p>
+    </div>
+    <div class="karta">
+      <h4>Ucz raz, stosuj wiele razy</h4>
+      <p>Nauka trwa sekundy, ale przygotowanie przykładów trwa.
+      W programie wiersza poleceń i w programie dla Windows model zapisuje
+      się do pliku <code>.geoai</code>, który stosujesz do kolejnych
+      podobnych zdjęć bez ponownego uczenia.</p>
+    </div>
+    <div class="karta">
+      <h4>Zwolnij pamięć</h4>
+      <p>Zamknij inne programy, zwłaszcza przeglądarkę z wieloma kartami.
+      Przy pracy blisko limitu pamięci to bywa różnica między wynikiem
+      a komunikatem o braku pamięci.</p>
+    </div>
+  </div>
+</div></section>
 
 <section id="sentinel"><div class="owijka">
   <h2>Zdjęcia z satelity Sentinel-2</h2>

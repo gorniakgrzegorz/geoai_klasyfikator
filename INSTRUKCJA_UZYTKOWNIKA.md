@@ -146,10 +146,13 @@ w rozdziale 7.
 
 ### Wymagania sprzętowe
 
-Zdjęcie o 15 milionach pikseli to mniej więcej granica wygodnej pracy.
-Przy większym program sam zmniejsza je na czas obliczeń i rozciąga
-wynik z powrotem. Zdjęcie 10 000 na 10 000 pikseli policzy się w kilka
-minut na zwykłym laptopie.
+Granicą jest pamięć. Na każdy piksel siatki roboczej obliczenia zajmują
+około 100 bajtów, więc największa dopuszczalna siatka, 15 milionów
+pikseli, potrzebuje około 1,5 GB pamięci na same obliczenia. Większej
+siatki program nie przyjmie: ustaw wtedy grubszą rozdzielczość roboczą
+albo podziel zdjęcie na fragmenty. Karta graficzna nie jest potrzebna.
+Jak przyspieszyć pracę, opisuje strona programu, dział „Komputer
+i szybkość pracy”.
 
 ---
 
@@ -514,8 +517,9 @@ warstwa **GeoAI obiekty**: poligony z tabelą atrybutów, w której każdy
 obiekt ma swoje 19 albo 24 zmierzone liczby.
 
 Jeśli wtyczka napisze w dzienniku, że *obiekty wyszły większe, niż
-zamawiałeś*, to znaczy, że obraz został zmniejszony na czas obliczeń.
-Zmniejsz wielkość obiektu albo pracuj na fragmencie.
+zamawiałeś*, to skutek niskiej zwartości podziału: przy domyślnej
+zwartości rzeczywista liczba obiektów bywa dwa do trzech razy mniejsza
+od zamówionej. Zmniejsz wielkość obiektu albo zwiększ zwartość.
 
 ---
 
@@ -860,7 +864,7 @@ w [UWARUNKOWANIA_NAUKOWE.md](UWARUNKOWANIA_NAUKOWE.md).
 | Przycisku wtyczki nie ma na pasku | menu **Widok**, **Paski narzędzi**, zaznacz pasek wtyczek. Sprawdź też w **Zarządzaniu wtyczkami**, czy jest włączona |
 | Lista zdjęć w kroku 1 jest pusta | wczytaj najpierw raster do QGIS; wtyczka pokazuje tylko warstwy obecne w projekcie |
 | Podział trwa bardzo długo | zaznacz pracę na fragmencie albo zwiększ wielkość obiektu |
-| Dziennik pisze, że obiekty wyszły większe, niż zamawiałeś | obraz został zmniejszony na czas obliczeń; zmniejsz wielkość obiektu albo pracuj na fragmencie |
+| Dziennik pisze, że obiekty wyszły większe, niż zamawiałeś | skutek niskiej zwartości podziału; zmniejsz wielkość obiektu albo zwiększ zwartość |
 | Mapa jest usiana pojedynczymi drobinami | ustaw **Najmniejszy płat** na kilkadziesiąt pikseli |
 | Wąskie pasy trawy znikają | wielkość obiektu jest za duża; dopiero potem próbuj dociągania pasów |
 | Klasy mieszają się mimo wielu przykładów | kliknij **Czy klasy da się rozróżnić?**; jeśli para wypada słabo, żadna liczba przykładów tego nie naprawi |
