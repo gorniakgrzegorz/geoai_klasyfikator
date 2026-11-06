@@ -293,10 +293,11 @@ a.cyt:hover{text-decoration:underline}
     <p><strong>Instalacja wtyczki:</strong> QGIS, Wtyczki, Zarządzanie
     wtyczkami, Zainstaluj z pliku ZIP.</p>
     <p><strong>Ostrzeżenie przeglądarki</strong> przy pliku programu
-    oznacza brak podpisu wydawcy, a nie wykrytego wirusa. Projekt ubiega
-    się o bezpłatny certyfikat SignPath Foundation (<em>Free code signing
-    provided by <a href="https://about.signpath.io">SignPath.io</a>,
-    certificate by <a href="https://signpath.org">SignPath Foundation</a></em>);
+    oznacza brak podpisu wydawcy, a nie wykrytego wirusa. Pliki nie są
+    jeszcze podpisane; projekt przygotowuje wniosek do programu SignPath
+    Foundation (<em>Free code signing provided by
+    <a href="https://about.signpath.io">SignPath.io</a>, certificate by
+    <a href="https://signpath.org">SignPath Foundation</a></em>);
     zasady opisuje <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/blob/main/CODE_SIGNING_POLICY.md">Code
     signing policy</a>. Sumy kontrolne SHA-256 wszystkich plików są
     w <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/releases/latest">najnowszym wydaniu</a>.</p>
@@ -554,7 +555,7 @@ a.cyt:hover{text-decoration:underline}
   <div class="anim">
     <div class="anim-ekran">
       <canvas id="anim-plotno" width="576" height="384"
-              aria-label="Animacja algorytmu: podział na obiekty, cechy, przykłady, las losowy i mapa"></canvas>
+              aria-label="Animacja algorytmu: podział na obiekty, cechy, przykłady, Random Forest i mapa"></canvas>
       <div class="anim-legenda" id="anim-legenda"></div>
     </div>
     <div class="anim-panel">
@@ -595,20 +596,21 @@ a.cyt:hover{text-decoration:underline}
       [<a class="cyt" href="#ref-woebbecke">2</a>], [<a class="cyt" href="#ref-gitelson">3</a>], [<a class="cyt" href="#ref-hunt">4</a>], faktury z macierzy współwystąpień poziomów
       szarości [<a class="cyt" href="#ref-haralick">6</a>], kształtu i otoczenia, a z modelem wysokości 24. Od tej
       chwili klasyfikator nie patrzy już na zdjęcie, tylko na te liczby.
-      Cech nikt nie skaluje, bo las losowy dzieli po progach, a nie po
+      Cech nikt nie skaluje, bo Random Forest dzieli po progach, a nie po
       odległościach.</li>
     <li><strong>Przykłady i sprawdzenie rozróżnialności</strong>
       Wskazujesz przykłady klas; obiekt, w którym leży przykład, dostaje
-      jego klasę. Zanim las się czegokolwiek nauczy, program liczy dla
+      jego klasę. Zanim Random Forest czegokolwiek się nauczy, program liczy dla
       każdej pary klas odległość Jeffriesa i Matusity w skali od 0 do 2,
       z walidacją krzyżową na pięciu częściach, i pokazuje, które cechy
       najbardziej je różnią. Ostrzega też, gdy najliczniejsza klasa ma
       ponad pięć razy więcej przykładów niż najrzadsza.</li>
-    <li><strong>Uczenie lasu losowego [<a class="cyt" href="#ref-breiman">7</a>], [<a class="cyt" href="#ref-belgiu">8</a>]</strong>
+    <li><strong>Uczenie klasyfikatora Random Forest [<a class="cyt" href="#ref-breiman">7</a>], [<a class="cyt" href="#ref-belgiu">8</a>]</strong>
       Powstaje 100 drzew decyzyjnych. Każde uczy się na losowej próbie
       przykładów, losowanej ze zwracaniem, a w każdym węźle wybiera
       najlepsze pytanie „czy cecha X jest mniejsza od progu?” spośród
-      losowo wybranych √p cech (4 z 19, 5 z 24). Progi dobiera algorytm
+      losowo wybranych cech, których liczba to część całkowita z √p
+      (4 zarówno przy 19, jak i przy 24 cechach). Progi dobiera algorytm
       według kryterium Giniego [<a class="cyt" href="#ref-cart">9</a>], nie człowiek. Ziarno losowe jest stałe
       (42), więc te same dane dają zawsze ten sam model.</li>
     <li><strong>Głosowanie i pewność</strong>
@@ -620,7 +622,7 @@ a.cyt:hover{text-decoration:underline}
       i zgłasza.</li>
     <li><strong>Pętla poprawiania</strong>
       Pierwsza mapa służy do znalezienia rodzajów pomyłek. Dokładasz kilka
-      przykładów tam, gdzie las się waha, uczysz go od nowa i klasyfikujesz
+      przykładów tam, gdzie Random Forest się waha, uczysz go od nowa i klasyfikujesz
       ponownie. Zwykle dwie, trzy rundy dają największy przyrost. Nauczony
       model zapisuje się do pliku <code>.geoai</code> i można go stosować
       do kolejnych, podobnych zdjęć.</li>
@@ -865,7 +867,7 @@ a.cyt:hover{text-decoration:underline}
   }
   var przyklady1 = wybierzPrzyklady(3);
 
-  // ── 5. Las losowy: 100 drzew, bootstrap, √p cech, Gini ───────────
+  // ── 5. Random Forest: 100 drzew, bootstrap, √p cech, Gini ───────────
   function gini(licz, n) {
     var s = 1;
     for (var k = 0; k < 5; k++) { var q = licz[k] / n; s -= q * q; }
@@ -1071,10 +1073,10 @@ a.cyt:hover{text-decoration:underline}
         przyklady1.forEach(function (o) { obrys(o, "#fff", 2); });
         wykres.innerHTML = "";
         opis.innerHTML = "<p>Operator wskazuje do <strong>3 przykładów</strong> na klasę, razem " + przyklady1.length +
-          " obiektów. Tylko te obiekty mają klasę. Pozostałe " + (NOB - przyklady1.length) + " ma nazwać las losowy.</p>" +
+          " obiektów. Tylko te obiekty mają klasę. Pozostałe " + (NOB - przyklady1.length) + " ma nazwać Random Forest.</p>" +
           "<p class=\"maly\">Pokazał tylko bujną trawę i czerwone dachy. Przyschniętej trawy ani szarego dachu jeszcze nie.</p>";
       } },
-    { nazwa: "Las", klatki: 12, rysuj: function (k) {
+    { nazwa: "Random Forest", klatki: 12, rysuj: function (k) {
         rysujZdjecie(rgb); rysujGranice(OB, "rgba(255,255,255,.4)"); pokazLegende(true);
         obrys(pokazowy, "#ffeb3b", 3);
         var ile = Math.min(100, (k + 1) * 10), srednia = [0, 0, 0, 0, 0], kratki = "";
@@ -1084,7 +1086,7 @@ a.cyt:hover{text-decoration:underline}
           if (t < ile) { for (var c2 = 0; c2 < 5; c2++) { srednia[c2] += r[c2] / ile; } }
           kratki += '<i style="background:' + (t < ile ? KLASY[naj].kolor : "#e3ecef") + '"></i>';
         }
-        opis.innerHTML = "<p>Las ma <strong>100 drzew</strong>. Każde uczyło się na losowej próbie przykładów i w każdym węźle " +
+        opis.innerHTML = "<p>Random Forest ma <strong>100 drzew</strong>. Każde uczyło się na losowej próbie przykładów i w każdym węźle " +
           "wybierało pytanie spośród 3 losowych cech. Żółty obiekt przechodzi przez drzewa, a każde zwraca rozkład klas. " +
           "Głosowało: <strong>" + ile + "</strong>.</p><div class=\"kratki\">" + kratki + "</div>";
         wykres.innerHTML = "<p class=\"maly\">Średni rozkład, czyli głosowanie miękkie:</p>" + slupki(KLASY.map(function (kl, i) {
@@ -1097,7 +1099,7 @@ a.cyt:hover{text-decoration:underline}
         kreskuj(niepewne1); rysujGranice(OB, "rgba(255,255,255,.35)");
         wykres.innerHTML = "";
         opis.innerHTML = "<p>Każdy obiekt dostał klasę o największym udziale głosów. Kreskowane obiekty (" + niepewne1.length +
-          ") zebrały mniej niż połowę głosów: tam las się waha. Program podaje ich liczbę po każdej klasyfikacji.</p>" +
+          ") zebrały mniej niż połowę głosów: tam Random Forest się waha. Program podaje ich liczbę po każdej klasyfikacji.</p>" +
           "<p class=\"maly\">Zgodność z prawdą tego obrazka: <strong>" + procent(zg1) + "</strong> pikseli.</p>";
       } },
     { nazwa: "Poprawka", klatki: 2, rysuj: function (k) {
@@ -1109,8 +1111,8 @@ a.cyt:hover{text-decoration:underline}
           rysujGranice(OB, "rgba(255,255,255,.35)");
           wykres.innerHTML = "";
           opis.innerHTML = "<p>Pętla poprawiania: operator przegląda całą mapę i opisuje <strong>" + dodane.length +
-            " obiektów</strong> (żółte): najpierw tam, gdzie widzi pomyłkę, potem tam, gdzie las się wahał. " +
-            "Las uczy się od nowa na " + przyklady2.length + " przykładach.</p>";
+            " obiektów</strong> (żółte): najpierw tam, gdzie widzi pomyłkę, potem tam, gdzie Random Forest się wahał. " +
+            "Random Forest uczy się od nowa na " + przyklady2.length + " przykładach.</p>";
         } else {
           wypelnij(wszystkie(), function (o) { return KLASY[mapa2[o].klasa].kolor; }, 0.78);
           kreskuj(mapa2.map(function (m, i) { return i; }).filter(function (i) { return mapa2[i].pewnosc < 0.5; }));
@@ -1573,7 +1575,8 @@ a.cyt:hover{text-decoration:underline}
   <p>Program interpretuje trzy pierwsze kanały zdjęcia jako czerwony,
   zielony i niebieski i wymaga metrycznego układu współrzędnych.
   Jasności są skalowane do przedziału 0–1 według typu danych pliku
-  (dane 8-bitowe dzielone przez 255, 16-bitowe przez 65 535), a nie
+  (dane 8-bitowe dzielone przez 255, 16-bitowe bez znaku przez 65 535,
+  16-bitowe ze znakiem przez 32 767), a nie
   według rozstępu wartości w zdjęciu; zdjęcia zapisane w tym samym
   formacie pozostają więc porównywalne. Zdjęcie jest przeliczane na
   siatkę roboczą o rozdzielczości wybranej przez użytkownika, przy czym
@@ -1627,16 +1630,17 @@ a.cyt:hover{text-decoration:underline}
   wysokość względem sąsiadów oraz wysokość nad gruntem (5 cech).
   Powierzchnię gruntu estymuje z samego NMPT: minimum w blokach
   około 1 m, otwarcie morfologiczne oknem 40 m i wygładzenie średnią
-  ruchomą. Cechy nie są standaryzowane, ponieważ las losowy dzieli
+  ruchomą. Cechy nie są standaryzowane, ponieważ Random Forest dzieli
   przestrzeń cech progami i jest niewrażliwy na monotoniczne
   przekształcenia pojedynczej cechy.</p>
 
   <h3>Klasyfikacja</h3>
-  <p>Regułę decyzyjną stanowi las losowy [<a class="cyt" href="#ref-breiman">7</a>], klasyfikator
-  szeroko stosowany w teledetekcji [<a class="cyt" href="#ref-belgiu">8</a>]. Las składa się
+  <p>Regułę decyzyjną stanowi Random Forest [<a class="cyt" href="#ref-breiman">7</a>], klasyfikator
+  szeroko stosowany w teledetekcji [<a class="cyt" href="#ref-belgiu">8</a>]. Model składa się
   ze 100 drzew. Każde drzewo uczy się na próbie bootstrapowej, a w każdym
   węźle wybiera podział spośród √<em>p</em> losowo wybranych cech
-  (4 z 19 albo 5 z 24) według kryterium Giniego [<a class="cyt" href="#ref-cart">9</a>], bez
+  (część całkowita z √<em>p</em>, czyli 4 zarówno przy 19, jak i przy 24
+  cechach) według kryterium Giniego [<a class="cyt" href="#ref-cart">9</a>], bez
   wag klas i bez ograniczenia głębokości (w implementacji własnej do
   40 poziomów). Ziarno generatora liczb pseudolosowych wynosi 42, co
   zapewnia powtarzalność wyniku. Obiekt otrzymuje klasę o największym
@@ -1732,7 +1736,7 @@ a.cyt:hover{text-decoration:underline}
       <tr><td>Podział na obiekty metodą SLIC</td><td>[<a class="cyt" href="#ref-achanta">5</a>]</td></tr>
       <tr><td>Wskaźniki zieloności ExG, VARI, NGRDI</td><td>[<a class="cyt" href="#ref-woebbecke">2</a>], [<a class="cyt" href="#ref-gitelson">3</a>], [<a class="cyt" href="#ref-hunt">4</a>]</td></tr>
       <tr><td>Faktura z macierzy współwystąpień (GLCM)</td><td>[<a class="cyt" href="#ref-haralick">6</a>]</td></tr>
-      <tr><td>Las losowy i jego zastosowania w teledetekcji</td><td>[<a class="cyt" href="#ref-breiman">7</a>], [<a class="cyt" href="#ref-belgiu">8</a>]</td></tr>
+      <tr><td>Random Forest i jego zastosowania w teledetekcji</td><td>[<a class="cyt" href="#ref-breiman">7</a>], [<a class="cyt" href="#ref-belgiu">8</a>]</td></tr>
       <tr><td>Kryterium Giniego w drzewach decyzyjnych</td><td>[<a class="cyt" href="#ref-cart">9</a>]</td></tr>
       <tr><td>Ocena dokładności i estymacja powierzchni</td><td>[<a class="cyt" href="#ref-olofsson">10</a>], [<a class="cyt" href="#ref-stehman">11</a>], [<a class="cyt" href="#ref-congalton">19</a>]</td></tr>
       <tr><td>Rozróżnialność klas: kierunek Fishera, skurcz kowariancji</td><td>[<a class="cyt" href="#ref-fisher">16</a>], [<a class="cyt" href="#ref-ledoit">17</a>]</td></tr>

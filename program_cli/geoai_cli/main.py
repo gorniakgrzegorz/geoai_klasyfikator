@@ -116,7 +116,7 @@ def polecenie_sprawdz(args, mowi):
             mowi("  [BRAK]  {0:12s} {1:10s} {2}".format(nazwa, "", opis))
 
     for nazwa, opis in (("scikit-image", "szybszy podział na obiekty"),
-                        ("scikit-learn", "szybszy las losowy"),
+                        ("scikit-learn", "szybszy Random Forest"),
                         ("scipy", "szybsze filtry")):
         modul = {"scikit-image": "skimage",
                  "scikit-learn": "sklearn"}.get(nazwa, nazwa)
@@ -139,7 +139,7 @@ def polecenie_sprawdz(args, mowi):
         mowi()
         mowi("Silniki obliczeniowe:")
         mowi("  podział na obiekty: {0}".format(raport["segmentation"]))
-        mowi("  las losowy:         {0}".format(raport["classifier"]))
+        mowi("  Random Forest:         {0}".format(raport["classifier"]))
         if not raport["exact"]:
             mowi()
             mowi("Działa, ale na dużych zdjęciach będzie wolno. Dla "
@@ -269,7 +269,7 @@ def polecenie_ucz(args, mowi):
     duza, mala, stosunek = classifier.niezrownowazenie(etykietki)
     if stosunek >= 5.0:
         mowi("    uwaga: klasa „{0}” ma {1:.0f} razy więcej przykładów "
-             "niż „{2}”; las losowy tego nie wyrównuje"
+             "niż „{2}”; Random Forest tego nie wyrównuje"
              .format(duza, stosunek, mala))
 
     if args.separowalnosc:
@@ -284,7 +284,7 @@ def polecenie_ucz(args, mowi):
                 oceny.get(para["verdict"], "")))
 
     mowi()
-    mowi("  uczę las losowy...")
+    mowi("  uczę Random Forest...")
     las = classifier.train(macierz[wiersze], etykietki)
 
     waznosc = classifier.feature_importance(las, nazwy_cech)

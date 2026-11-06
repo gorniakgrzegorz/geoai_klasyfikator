@@ -1,0 +1,47 @@
+{
+  "upload_type": "software",
+  "title": "GeoAI Klasyfikator: object-based land cover classification of drone and satellite imagery",
+  "creators": [
+    {
+      "name": "Górniak, Grzegorz",
+      "affiliation": "Nicolaus Copernicus University in Toruń"
+    }
+  ],
+  "description": "<p>GeoAI Klasyfikator is open source software for supervised, object-based land cover mapping (GEOBIA) from RGB imagery: drone orthomosaics, aerial photographs and RGB composites of Sentinel-2 scenes, optionally supported by a digital surface model. It is distributed in three versions that share one computational core: a QGIS plugin, a command line program and a desktop application for Windows.</p><p>The processing chain consists of SLIC segmentation in CIELAB space, 19 object features computed from RGB (colour, visible-band vegetation indices ExG, VARI and NGRDI, GLCM texture, shape and neighbourhood context) or 24 with a surface model (including height above ground), a check of class separability before training (cross-validated Jeffries-Matusita distance), classification with Random Forest, and design-based accuracy assessment: stratified sampling of check points outside training objects, error matrix, user's and producer's accuracy, and area-weighted estimates of accuracy and class areas with 95% confidence intervals following Olofsson et al. (2014) and Stehman (2014). Optional pixel-level greenness refinement and a minimum mapping unit are available. Fixed random seeds make results repeatable.</p><p>The user interface and documentation are in Polish. The archive contains the full source code, the user manual, the technical documentation for scientific use and the description of the method with all constants used in the code.</p><p><strong>Polski opis.</strong> GeoAI Klasyfikator to otwarte oprogramowanie do nadzorowanej, obiektowej klasyfikacji pokrycia terenu ze zdjęć RGB z drona, zdjęć lotniczych i kompozycji RGB scen Sentinel-2, w trzech wersjach na jednym silniku: wtyczka QGIS, program wiersza poleceń i program okienkowy dla Windows. Łączy segmentację SLIC, 19 albo 24 cechy obiektów, ocenę rozróżnialności klas, klasyfikację metodą Random Forest i ocenę dokładności z estymacją powierzchni klas i przedziałami ufności 95%.</p>",
+  "license": "gpl-3.0-or-later",
+  "keywords": [
+    "GEOBIA",
+    "object-based image analysis",
+    "land cover classification",
+    "Random Forest",
+    "SLIC",
+    "superpixels",
+    "UAV",
+    "drone orthomosaic",
+    "Sentinel-2",
+    "accuracy assessment",
+    "area estimation",
+    "QGIS plugin",
+    "remote sensing",
+    "GeoAI"
+  ],
+  "language": "pol",
+  "related_identifiers": [
+    {
+      "identifier": "https://gorniakgrzegorz.github.io/geoai_klasyfikator/",
+      "relation": "isDocumentedBy"
+    }
+  ],
+  "references": [
+    "R. Achanta et al., SLIC superpixels compared to state-of-the-art superpixel methods, IEEE Trans. Pattern Anal. Mach. Intell., vol. 34, no. 11, pp. 2274-2282, 2012, doi: 10.1109/TPAMI.2012.120",
+    "R. M. Haralick, K. Shanmugam, and I. Dinstein, Textural features for image classification, IEEE Trans. Syst., Man, Cybern., vol. SMC-3, no. 6, pp. 610-621, 1973, doi: 10.1109/TSMC.1973.4309314",
+    "D. M. Woebbecke et al., Color indices for weed identification under various soil, residue, and lighting conditions, Trans. ASAE, vol. 38, no. 1, pp. 259-269, 1995, doi: 10.13031/2013.27838",
+    "A. A. Gitelson et al., Novel algorithms for remote estimation of vegetation fraction, Remote Sens. Environ., vol. 80, no. 1, pp. 76-87, 2002, doi: 10.1016/S0034-4257(01)00289-9",
+    "E. R. Hunt et al., Evaluation of digital photography from model aircraft for remote sensing of crop biomass and nitrogen status, Precis. Agric., vol. 6, no. 4, pp. 359-378, 2005, doi: 10.1007/s11119-005-2324-5",
+    "L. Breiman, Random forests, Mach. Learn., vol. 45, no. 1, pp. 5-32, 2001, doi: 10.1023/A:1010933404324",
+    "T. Blaschke, Object based image analysis for remote sensing, ISPRS J. Photogramm. Remote Sens., vol. 65, no. 1, pp. 2-16, 2010, doi: 10.1016/j.isprsjprs.2009.06.004",
+    "P. Olofsson et al., Good practices for estimating area and assessing accuracy of land change, Remote Sens. Environ., vol. 148, pp. 42-57, 2014, doi: 10.1016/j.rse.2014.02.015",
+    "S. V. Stehman, Estimating area and map accuracy for stratified random sampling when the strata are different from the map classes, Int. J. Remote Sens., vol. 35, no. 13, pp. 4923-4939, 2014, doi: 10.1080/01431161.2014.930207",
+    "R. G. Pontius Jr. and M. Millones, Death to Kappa: birth of quantity disagreement and allocation disagreement for accuracy assessment, Int. J. Remote Sens., vol. 32, no. 15, pp. 4407-4429, 2011, doi: 10.1080/01431161.2011.552923"
+  ]
+}

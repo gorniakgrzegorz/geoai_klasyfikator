@@ -108,7 +108,7 @@ zbiorczy `raport.csv`.
 
 Pod spodem pracuje **dokładnie ten sam silnik** co we wtyczce QGIS
 i w wersji dla wiersza poleceń — ten sam podział na obiekty, te same
-19 albo 24 cechy, ten sam las losowy.
+19 albo 24 cechy, ten sam Random Forest.
 
 Przycisk „Instrukcja" w prawym górnym rogu otwiera opis metody
 i wskazówki, jak dobierać ustawienia.

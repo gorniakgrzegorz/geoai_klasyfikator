@@ -1,0 +1,33 @@
+cff-version: 1.2.0
+message: >-
+  Jeśli korzystasz z tego programu, zacytuj go według tych metadanych.
+  If you use this software, please cite it using these metadata.
+type: software
+title: "GeoAI Klasyfikator"
+abstract: >-
+  Open source software for supervised, object-based land cover mapping
+  (GEOBIA) from RGB drone, aerial and Sentinel-2 imagery: SLIC
+  segmentation, 19 or 24 object features, class separability check,
+  Random Forest classification and design-based accuracy assessment
+  with area estimates and 95% confidence intervals. QGIS plugin,
+  command line program and Windows application sharing one core.
+authors:
+  - family-names: "Górniak"
+    given-names: "Grzegorz"
+    affiliation: "Nicolaus Copernicus University in Toruń"
+version: "1.0.1"
+date-released: "2026-11-05"
+license: GPL-3.0-or-later
+repository-code: "https://github.com/gorniakgrzegorz/geoai_klasyfikator"
+url: "https://gorniakgrzegorz.github.io/geoai_klasyfikator/"
+keywords:
+  - GEOBIA
+  - object-based image analysis
+  - land cover classification
+  - Random Forest
+  - SLIC
+  - UAV
+  - Sentinel-2
+  - accuracy assessment
+  - QGIS plugin
+  - remote sensing

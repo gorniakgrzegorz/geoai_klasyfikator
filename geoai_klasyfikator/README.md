@@ -25,7 +25,7 @@ pojedynczymi kropkami.
 |---|---|
 | 1 · Zdjęcie i obiekty | wczytanie rastra i opcjonalnego NMPT, podział metodą SLIC, pomiar 19 lub 24 cech |
 | 2 · Klasy i przykłady | dodajesz klasy i klikasz na mapie przykłady każdej z nich |
-| 3 · Nauka i mapa | sprawdzenie rozróżnialności klas, las losowy, poprawki, zapis GeoTIFF |
+| 3 · Nauka i mapa | sprawdzenie rozróżnialności klas, Random Forest, poprawki, zapis GeoTIFF |
 | 4 · Ocena dokładności | losowanie punktów, opis na ślepo, macierz błędów i powierzchnie z przedziałami ufności |
 
 ## Co wtyczka mierzy
@@ -112,7 +112,7 @@ geoai_klasyfikator/
 └── core/
     ├── slic.py             podział na obiekty
     ├── features.py         19 lub 24 cechy obiektu
-    ├── classifier.py       las losowy i rozróżnialność klas
+    ├── classifier.py       Random Forest i rozróżnialność klas
     ├── refine.py           dociąganie po zieloności, sito
     ├── accuracy.py         ocena dokładności wg Olofssona
     ├── qgis_io.py          odczyt rastrów, zapis GeoTIFF, polygonizacja

@@ -4,7 +4,7 @@
 Most do modułów obliczeniowych wtyczki.
 
 Wtyczka QGIS i program wiersza poleceń liczą dokładnie to samo — ten
-sam podział na obiekty, te same 19 albo 24 cechy, ten sam las losowy.
+sam podział na obiekty, te same 19 albo 24 cechy, ten sam Random Forest.
 Różni je tylko to, skąd biorą dane i gdzie odkładają wynik. Dlatego
 pliki z katalogu ``core`` są wspólne i leżą obok, w katalogu
 ``geoai_klasyfikator``.

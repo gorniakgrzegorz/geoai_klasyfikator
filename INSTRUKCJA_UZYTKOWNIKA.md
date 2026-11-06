@@ -60,7 +60,7 @@ a jeśli dołożysz model wysokości, to **24 liczby**:
 
 Potem pokazujesz programowi po kilkanaście przykładów każdej klasy,
 a on uczy się reguły i stosuje ją do całego zdjęcia. Metoda nazywa się
-**las losowy**: sto drzew decyzyjnych głosuje nad każdym obiektem.
+**Random Forest**: sto drzew decyzyjnych głosuje nad każdym obiektem.
 
 ### Czego program nie robi
 
@@ -87,7 +87,7 @@ z tego samego silnika. Różnią się tym, co potrafisz przez nie zrobić.
 | Co instalujesz | QGIS 3.22 lub nowszy | sam instalator, nic więcej | Pythona i biblioteki |
 | Podział na obiekty | tak | tak | tak |
 | Pomiar 19 albo 24 cech | tak | tak | tak |
-| Nauka lasu losowego | tak | tak | tak |
+| Nauka klasyfikatora Random Forest | tak | tak | tak |
 | Wskazywanie przykładów **klikaniem po mapie** | **tak** | nie | nie |
 | Przykłady z gotowej warstwy poligonowej | tak | tak | tak |
 | Sprawdzenie, czy klasy da się rozróżnić | tak | tak, automatycznie przy nauce | tak |
@@ -193,9 +193,10 @@ Jasności są przeliczane na zakres od 0 do 1 według typu danych pliku:
 zdjęcie z drona i scena satelitarna liczą się tak samo i nie trzeba
 niczego skalować ręcznie.
 
-Zdjęcie większe niż 15 milionów pikseli jest na czas obliczeń
-zmniejszane przez uśrednianie, a wynik rozciągany z powrotem.
-Informacja o tym pojawia się w dzienniku.
+Siatka robocza większa niż 15 milionów pikseli jest odrzucana
+z komunikatem. Ustaw wtedy grubszą rozdzielczość roboczą albo licz
+zdjęcie we fragmentach. Przy zgrubianiu jasności pikseli są
+uśredniane, a wynik zapisuje się na siatce roboczej.
 
 ### Jakie dane mają sens, a jakie nie
 
@@ -368,10 +369,10 @@ Jedno takie drzewo reguł łatwo się myli: wystarczy jeden nietypowy
 przykład i cała gałąź idzie w złą stronę. Dlatego program buduje
 **sto drzew**, każde na nieco innym losowym podzbiorze przykładów
 i cech. Potem wszystkie głosują nad każdym obiektem, a wygrywa
-większość. Metoda nazywa się **las losowy**.
+większość. Metoda nazywa się **Random Forest**.
 
 Przy okazji dostajesz coś użytecznego: jeśli obiekt dostał **mniej niż
-połowę głosów**, to znaczy, że las się waha. Wtyczka wypisuje liczbę
+połowę głosów**, to znaczy, że Random Forest się waha. Wtyczka wypisuje liczbę
 takich obiektów po zrobieniu mapy. To są miejsca, w których warto
 dołożyć przykłady.
 
@@ -390,7 +391,7 @@ informację.
 
 ### Co znaczy, że program jest odtwarzalny
 
-Losowanie w lesie losowym jest sterowane stałym ziarnem (liczbą 42).
+Losowanie w klasyfikatorze Random Forest jest sterowane stałym ziarnem (liczbą 42).
 Oznacza to, że **te same przykłady na tym samym zdjęciu zawsze dadzą
 tę samą mapę**, co do piksela. To ważne przy pisaniu artykułu: wynik
 da się powtórzyć, a nie tylko opisać.
@@ -555,7 +556,7 @@ wskazuj tylko to, co rozpoznajesz bez wahania.
 | Przycisk | Co robi |
 |---|---|
 | **Czy klasy da się rozróżnić?** | sprawdza, **zanim** zaczniesz uczyć, czy Twoje klasy w ogóle różnią się na tyle, żeby je rozdzielić, i które cechy je dzielą |
-| **Naucz** | uczy las losowy na wskazanych przykładach, trwa sekundy |
+| **Naucz** | uczy Random Forest na wskazanych przykładach, trwa sekundy |
 | **ZRÓB MAPĘ** | nadaje klasę każdemu obiektowi na zdjęciu |
 | **Zapisz mapę do pliku GeoTIFF** | zapisuje wynik na dysk razem z plikiem stylu |
 
@@ -806,7 +807,7 @@ nauki i zostają w pamięci. W tabeli są same klasy.
 
 Po kliknięciu **ZRÓB MAPĘ** wtyczka wypisuje w dzienniku udział i
 powierzchnię każdej klasy, a także liczbę obiektów, które **dostały
-mniej niż połowę głosów** lasu losowego. To są obiekty graniczne albo
+mniej niż połowę głosów** klasyfikatora Random Forest. To są obiekty graniczne albo
 miejsca, których nie pokazałeś w przykładach, więc ta liczba jest
 gotową podpowiedzią, gdzie dodać przykłady w następnej rundzie.
 
@@ -843,7 +844,7 @@ i kiedy.
 | Łącznie punktów | 200 | więcej klas, więcej punktów |
 
 Stałe metody, których nie da się zmienić w interfejsie i które warto
-znać przy opisie w artykule: las losowy ma 100 drzew i ziarno losowania
+znać przy opisie w artykule: Random Forest ma 100 drzew i ziarno losowania
 42, faktura GLCM liczona jest na 15 poziomach szarości w czterech
 kierunkach, przedziały ufności są 95-procentowe. Pełny wykaz jest
 w [UWARUNKOWANIA_NAUKOWE.md](UWARUNKOWANIA_NAUKOWE.md).
@@ -912,7 +913,7 @@ Dla dachu będzie to wysokość budynku, dla trawnika około zera.
 **Segment, obiekt**: zwarty kawałek zdjęcia o podobnej barwie,
 traktowany jako jedna całość.
 
-**Las losowy**: metoda uczenia maszynowego, w której sto drzew
+**Random Forest**: metoda uczenia maszynowego, w której sto drzew
 decyzyjnych głosuje nad każdym obiektem.
 
 **Cecha**: jedna z 19 albo 24 liczb opisujących obiekt.

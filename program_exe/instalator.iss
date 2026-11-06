@@ -10,7 +10,7 @@
 ; ====================================================================
 
 #define NazwaProgramu   "GeoAI Klasyfikator"
-#define Wersja          "1.0.0"
+#define Wersja          "1.0.1"
 #define Autor           "Grzegorz Górniak"
 #define Strona          "https://github.com/gorniakgrzegorz/geoai_klasyfikator"
 #define PlikExe         "GeoAI Klasyfikator.exe"

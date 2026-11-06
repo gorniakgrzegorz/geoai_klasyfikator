@@ -199,7 +199,7 @@ jobs:
             "",
             "## Podpisywanie kodu",
             "",
-            "Projekt ubiega sie o bezplatny certyfikat SignPath Foundation. Zasady podpisywania:",
+            "Pliki nie sa jeszcze podpisane. Projekt przygotowuje wniosek do programu SignPath Foundation. Zasady podpisywania:",
             "Free code signing provided by SignPath.io, certificate by SignPath Foundation.",
             ("Code signing policy: " + $env:GITHUB_SERVER_URL + "/" + $env:GITHUB_REPOSITORY + "/blob/main/CODE_SIGNING_POLICY.md"),
             "",

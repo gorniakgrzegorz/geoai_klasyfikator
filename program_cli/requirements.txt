@@ -12,5 +12,5 @@ fiona>=1.8           # odczyt plików z przykładami (GPKG, SHP, GeoJSON)
 # Bez nich program działa, ale na dużych zdjęciach bardzo wolno.
 # Z nimi wyniki są identyczne z wtyczką QGIS.
 scikit-image>=0.19   # podział na obiekty metodą SLIC
-scikit-learn>=1.0    # las losowy
+scikit-learn>=1.0    # Random Forest
 scipy>=1.7           # szybsze filtry (wysokość nad gruntem, sito)

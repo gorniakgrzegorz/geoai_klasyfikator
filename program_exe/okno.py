@@ -53,7 +53,7 @@ def _ostry_tekst() -> float:
         return 1.0
 
 NAZWA = "GeoAI Klasyfikator"
-WERSJA = "1.0.0"
+WERSJA = "1.0.1"
 AUTOR = "Grzegorz Górniak"
 POCZTA = "gorniakgrzegorz@gmail.com"
 
@@ -648,7 +648,7 @@ INSTRUKCJA = [
     ("podtytul", "Skąd ta metoda"),
     ("", "Segmentacja SLIC (Achanta i in., 2012), faktura GLCM "
          "(Haralick i in., 1973), zieloność ExG (Woebbecke i in., "
-         "1995), las losowy (Breiman, 2001) oraz ocena dokładności wg "
+         "1995), Random Forest (Breiman, 2001) oraz ocena dokładności wg "
          "Olofssona i in. (2014) i Stehmana (2014)."),
 ]
 

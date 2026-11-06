@@ -269,8 +269,8 @@
 <path fill="#fde8e8" stroke="#c53030" stroke-width="2.8" d="M762.66,-944.4C762.66,-944.4 566.66,-944.4 566.66,-944.4 560.66,-944.4 554.66,-938.4 554.66,-932.4 554.66,-932.4 554.66,-854.4 554.66,-854.4 554.66,-848.4 560.66,-842.4 566.66,-842.4 566.66,-842.4 762.66,-842.4 762.66,-842.4 768.66,-842.4 774.66,-848.4 774.66,-854.4 774.66,-854.4 774.66,-932.4 774.66,-932.4 774.66,-938.4 768.66,-944.4 762.66,-944.4"/>
 <text text-anchor="start" x="620.66" y="-912.8" font-family="Arial, Liberation Sans, Helvetica, sans-serif" font-weight="bold" font-size="12.00">Luka badawcza</text>
 <text text-anchor="start" x="574.66" y="-899.2" font-family="Arial, Liberation Sans, Helvetica, sans-serif" font-size="9.00">Brak otwartego toru łączącego segmentację,</text>
-<text text-anchor="start" x="576.16" y="-889.2" font-family="Arial, Liberation Sans, Helvetica, sans-serif" font-size="9.00">cechy, las losowy i estymację powierzchni z</text>
-<text text-anchor="start" x="581.66" y="-879.2" font-family="Arial, Liberation Sans, Helvetica, sans-serif" font-size="9.00">niepewnością w jednym środowisku GIS.</text>
+<text text-anchor="start" x="569.66" y="-889.2" font-family="Arial, Liberation Sans, Helvetica, sans-serif" font-size="9.00">cechy, Random Forest i estymację powierzchni</text>
+<text text-anchor="start" x="578.16" y="-879.2" font-family="Arial, Liberation Sans, Helvetica, sans-serif" font-size="9.00">z niepewnością w jednym środowisku GIS.</text>
 <text text-anchor="start" x="596.66" y="-869" font-family="Arial, Liberation Sans, Helvetica, sans-serif" font-style="italic" font-size="8.00" fill="#4a5568">wymaga zapisu przeszukania literatury</text>
 </g>
 <!-- cel -->
@@ -352,7 +352,7 @@
 <g id="node14" class="node">
 <title>m34</title>
 <path fill="#eef7ea" stroke="#38a169" stroke-width="1.4" d="M762.66,-523.2C762.66,-523.2 566.66,-523.2 566.66,-523.2 560.66,-523.2 554.66,-517.2 554.66,-511.2 554.66,-511.2 554.66,-433.2 554.66,-433.2 554.66,-427.2 560.66,-421.2 566.66,-421.2 566.66,-421.2 762.66,-421.2 762.66,-421.2 768.66,-421.2 774.66,-427.2 774.66,-433.2 774.66,-433.2 774.66,-511.2 774.66,-511.2 774.66,-517.2 768.66,-523.2 762.66,-523.2"/>
-<text text-anchor="start" x="622.66" y="-486.6" font-family="Arial, Liberation Sans, Helvetica, sans-serif" font-weight="bold" font-size="12.00">3.4 Las losowy</text>
+<text text-anchor="start" x="610.66" y="-486.6" font-family="Arial, Liberation Sans, Helvetica, sans-serif" font-weight="bold" font-size="12.00">3.4 Random Forest</text>
 <text text-anchor="start" x="579.66" y="-473" font-family="Arial, Liberation Sans, Helvetica, sans-serif" font-size="9.00">100 drzew, Gini, pierwiastek z liczby cech,</text>
 <text text-anchor="start" x="580.66" y="-463" font-family="Arial, Liberation Sans, Helvetica, sans-serif" font-size="9.00">bootstrap, ziarno 42, głosowanie miękkie.</text>
 <text text-anchor="start" x="639.66" y="-452.8" font-family="Arial, Liberation Sans, Helvetica, sans-serif" font-style="italic" font-size="8.00" fill="#4a5568">Breiman 2001</text>

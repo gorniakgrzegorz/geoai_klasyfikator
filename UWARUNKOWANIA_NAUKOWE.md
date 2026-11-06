@@ -3,7 +3,7 @@
 **Co dokładnie decyduje o tym, że obiekt trafia do danej klasy**
 
 Dokument opisuje metodę zaimplementowaną w programie GeoAI
-Klasyfikator w wersji 1.0.0: wzory, stałe, progi i reguły decyzyjne
+Klasyfikator w wersji 1.0.1: wzory, stałe, progi i reguły decyzyjne
 w takiej postaci, w jakiej występują w kodzie. Powstał po to, by
 wyniki dało się opisać w artykule i powtórzyć.
 
@@ -23,7 +23,7 @@ jest to zaznaczone osobno.
    - [4.1 Barwa](#41) · [4.2 Wskaźniki roślinności](#42)
    - [4.3 Faktura GLCM](#43) · [4.4 Kształt](#44)
    - [4.5 Kontekst](#45) · [4.6 Wysokość](#46)
-5. [Reguła decyzyjna: las losowy](#5)
+5. [Reguła decyzyjna: Random Forest](#5)
 6. [Rozróżnialność klas przed uczeniem](#6)
 7. [Korekty po klasyfikacji](#7)
 8. [Ocena dokładności i estymacja powierzchni](#8)
@@ -44,7 +44,7 @@ reszta dokumentu bywa źle rozumiana.
 0,15, to trawa".** Nie istnieje żaden słownik klas, żadna tablica
 progów dla pokrycia terenu, żadna wiedza o tym, jak wygląda droga czy
 dach. Przynależność obiektu do klasy wynika **wyłącznie** z granic
-decyzyjnych, których las losowy nauczył się z przykładów wskazanych
+decyzyjnych, których Random Forest nauczył się z przykładów wskazanych
 przez użytkownika.
 
 Trzy poziomy, które warto rozdzielić:
@@ -187,7 +187,7 @@ odpowiadać obiektom terenowym, a cechy fakturowe tracą interpretację.
 **Implementacja:** `core/features.py`.
 
 Każdy obiekt jest opisany wektorem liczb. **To ten wektor, a nie
-obraz, trafia do klasyfikatora**, las losowy nigdy nie „widzi"
+obraz, trafia do klasyfikatora**, Random Forest nigdy nie „widzi"
 zdjęcia. Zrozumienie, co w tym wektorze siedzi, jest więc warunkiem
 zrozumienia, dlaczego obiekt trafił tam, gdzie trafił.
 
@@ -232,7 +232,7 @@ atrybutów warstwy obiektów, co ma znaczenie przy odczytywaniu
 ważności cech z modelu.
 
 Istotna cecha wspólna: **żadna z 24 wielkości nie jest standaryzowana
-ani skalowana.** Las losowy jest niewrażliwy na monotoniczne
+ani skalowana.** Random Forest jest niewrażliwy na monotoniczne
 przekształcenia pojedynczej cechy, dzieli po progach, nie po
 odległościach, więc skalowanie byłoby zbędną operacją, która
 utrudniłaby interpretację ważności cech.
@@ -440,7 +440,7 @@ liczyć całe zdjęcie.
 ---
 
 <a name="5"></a>
-## 5. Reguła decyzyjna: las losowy
+## 5. Reguła decyzyjna: Random Forest
 
 **Źródło:** Breiman (2001); przegląd zastosowań w teledetekcji:
 Belgiu i Drăguţ (2016).
@@ -455,7 +455,7 @@ realizująca ten sam algorytm.
 | Liczba drzew | **100** | |
 | Ziarno losowe | **42** | wynik powtarzalny przy tych samych danych |
 | Kryterium podziału | **Gini** | domyślne w scikit-learn |
-| Liczba cech losowanych w węźle | **√p** (czyli 4 z 19, 5 z 24) | domyślne |
+| Liczba cech losowanych w węźle | **część całkowita z √p** (4 zarówno przy 19, jak i przy 24 cechach) | domyślne `max_features="sqrt"`; od wersji 1.0.1 tak samo w implementacji własnej |
 | Próbkowanie | **bootstrap**, n obserwacji ze zwracaniem | domyślne |
 | Głębokość | **nieograniczona** (implementacja własna: 40) | domyślne |
 | Wagi klas | **brak** | patrz uwaga o niezrównoważeniu niżej |
@@ -485,12 +485,12 @@ algorytm tak, by maksymalizować spadek nieczystości Giniego na danych
 uczących. To właśnie tu, i tylko tu, powstaje odpowiedź na pytanie
 „co decyduje, że obiekt trafia do danej klasy".
 
-### 5.3 Dlaczego las losowy, a nie reguły progowe
+### 5.3 Dlaczego Random Forest, a nie reguły progowe
 
 Reguła ręczna („jasność poniżej 50 to cień") jest czytelna, ale krucha:
 łamie ją każda zmiana oświetlenia, a przy 24 cechach i ośmiu klasach
 liczba potrzebnych reguł i ich interakcji przekracza możliwości ręcznego
-strojenia. Las losowy ma w tym zastosowaniu cztery własności, które
+strojenia. Random Forest ma w tym zastosowaniu cztery własności, które
 przesądzają o wyborze (zob. Belgiu i Drăguţ 2016):
 
 - **toleruje cechy skorelowane**, a `exg_mean`, `ngrdi_mean` i `vari_mean`
@@ -504,7 +504,7 @@ przesądzają o wyborze (zob. Belgiu i Drăguţ 2016):
 
 Obiekty, dla których klasa zwycięska zebrała **mniej niż połowę
 głosów**, są zliczane i raportowane po każdej klasyfikacji. Są to
-miejsca, w których las się waha, zwykle obiekty graniczne albo
+miejsca, w których Random Forest się waha, zwykle obiekty graniczne albo
 reprezentujące odmianę klasy nieobecną w zbiorze uczącym. To one
 przynoszą największy przyrost dokładności na jeden dodany przykład.
 
@@ -977,7 +977,7 @@ cztery kierunki).
 sposób doboru (klikanie na kanwie albo poligony); liczba rund
 poprawiania; informacja, czy przykłady dobierano po obejrzeniu mapy.
 
-**Klasyfikator.** Las losowy, 100 drzew, kryterium Giniego, √p cech
+**Klasyfikator.** Random Forest, 100 drzew, kryterium Giniego, √p cech
 w węźle, bootstrap, ziarno 42, bez wag klas.
 
 **Rozróżnialność.** Wartości JM dla par najtrudniejszych, z adnotacją,
@@ -1073,7 +1073,7 @@ residue, and lighting conditions. *Transactions of the ASAE*, 38(1),
 
 ## Jak cytować program
 
-> Górniak, G. (2026). *GeoAI Klasyfikator* (wersja 1.0.0)
+> Górniak, G. (2026). *GeoAI Klasyfikator* (wersja 1.0.1)
 > [oprogramowanie]. https://github.com/gorniakgrzegorz/geoai_klasyfikator
 
 

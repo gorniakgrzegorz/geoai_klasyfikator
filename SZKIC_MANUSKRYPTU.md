@@ -50,7 +50,7 @@ pozostaje puste. Nie wolno wstawiać wartości przykładowych.
 ## Słowa kluczowe
 
 **[DECYZJA AUTORA]** Pięć lub sześć, bez powtarzania słów z tytułu.
-Propozycja: analiza obiektowa obrazu; superpiksele; las losowy;
+Propozycja: analiza obiektowa obrazu; superpiksele; Random Forest;
 wskaźniki roślinności w zakresie widzialnym; estymacja powierzchni
 warstwowa; odtwarzalność.
 
@@ -111,7 +111,7 @@ dokładnością tematyczną.
 Poszczególne elementy opisanego toru są dobrze opisane osobno:
 segmentacja superpikselowa {{cite: Achanta i in., 2012, 10.1109/TPAMI.2012.120}},
 cechy faktury {{cite: Haralick i in., 1973, 10.1109/TSMC.1973.4309314}},
-las losowy jako klasyfikator teledetekcyjny
+Random Forest jako klasyfikator teledetekcyjny
 {{cite: Breiman, 2001, 10.1023/A:1010933404324}};
 {{cite: Belgiu i Drăguţ, 2016, 10.1016/j.isprsjprs.2016.01.011}}
 oraz estymacja powierzchni z niepewnością
@@ -279,7 +279,7 @@ wygładzenie średnią ruchomą. Okno otwarcia jest ograniczane do połowy
 krótszego boku obrazu, co zapobiega zawyżeniu gruntu na małych
 fragmentach.
 
-Cechy nie są skalowane, ponieważ las losowy dzieli po progach
+Cechy nie są skalowane, ponieważ Random Forest dzieli po progach
 pojedynczych cech i jest odporny na monotoniczne przekształcenia
 zmiennych.
 
@@ -291,7 +291,7 @@ etykietą całego segmentu, nie pojedynczego piksela.
 
 ### 3.5 Klasyfikator
 
-Las losowy {{cite: Breiman, 2001, 10.1023/A:1010933404324}}: 100
+Random Forest {{cite: Breiman, 2001, 10.1023/A:1010933404324}}: 100
 drzew, kryterium Giniego, liczba cech rozpatrywanych przy podziale
 równa pierwiastkowi z liczby cech, losowanie ze zwracaniem, ziarno
 generatora 42, głosowanie miękkie. Wagi klas nie są stosowane.
@@ -389,7 +389,7 @@ przedstawione, oraz wymagania wobec każdej pozycji.
 
 - **Tab. 1.** Macierz odległości JM dla wszystkich par klas, wartości
   z walidacji krzyżowej, oznaczenie par poniżej 1,7.
-- **Ryc. 1.** Ranking ważności cech z lasu losowego, z ostrzeżeniem,
+- **Ryc. 1.** Ranking ważności cech z klasyfikatora Random Forest, z ostrzeżeniem,
   że ważność nie jest miarą przyczynową.
 - Komentarz musi wskazać pary, których tor nie rozdziela, a nie
   wyłącznie te, które rozdziela dobrze.

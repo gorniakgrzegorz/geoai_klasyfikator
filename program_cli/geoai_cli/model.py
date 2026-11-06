@@ -3,7 +3,7 @@
 """
 Zapisywanie i wczytywanie nauczonego modelu.
 
-Model to jeden plik .geoai: zwykłe archiwum ZIP z nauczonym lasem
+Model to jeden plik .geoai: zwykłe archiwum ZIP z nauczonym modelem Random Forest
 losowym, listą klas wraz z kolorami, listą cech i wszystkimi
 ustawieniami, przy których powstał. Dzięki temu klasyfikacja setki
 zdjęć przebiega dokładnie tak samo jak nauka, a plik można przekazać
@@ -26,7 +26,7 @@ class BladModelu(Exception):
 
 
 # UWAGA O ZAUFANIU
-# Nauczony las losowy zapisujemy modułem pickle, bo tak robi to cały
+# Nauczony Random Forest zapisujemy modułem pickle, bo tak robi to cały
 # ekosystem scikit-learn (również joblib pod spodem). Wczytanie pliku
 # pickle potrafi wykonać dowolny kod, więc obowiązuje jedna zasada:
 #

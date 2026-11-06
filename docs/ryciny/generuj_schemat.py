@@ -24,7 +24,7 @@ N = {
         '[DO UZUPEŁNIENIA: źródło przeglądowe]'),
  # Luka i cel
  'luka': (1.35, 1, 'brak', 'Luka badawcza',
-        'Brak otwartego toru łączącego segmentację, cechy, las losowy i estymację powierzchni z niepewnością w jednym środowisku GIS.',
+        'Brak otwartego toru łączącego segmentację, cechy, Random Forest i estymację powierzchni z niepewnością w jednym środowisku GIS.',
         'wymaga zapisu przeszukania literatury'),
  'cel': (4.05, 1, 'tez', 'Cel i teza',
         'Teza: tor obiektowy na samym RGB, z opcjonalnym NMPT, daje mapę pokrycia wraz z powierzchnią i jej niepewnością, odtwarzalnie i bez zewnętrznego modelu.',
@@ -49,7 +49,7 @@ N = {
  'm33': (1.35, 3, 'met', '3.3 Cechy barwy i faktury',
         '7 wielkości barwy, 3 wskaźniki na współrzędnych chromatycznych (ExG, VARI, NGRDI), 4 cechy GLCM (15 poziomów, odległość 1, cztery kierunki), 4 cechy kształtu, 1 cecha kontekstu.',
         'Haralick i in. 1973; obwód estymatorem Croftona'),
- 'm34': (1.35, 4, 'met', '3.4 Las losowy',
+ 'm34': (1.35, 4, 'met', '3.4 Random Forest',
         '100 drzew, Gini, pierwiastek z liczby cech, bootstrap, ziarno 42, głosowanie miękkie.',
         'Breiman 2001'),
  'm35': (2.7, 3, 'met', '3.5 Cechy z NMPT',

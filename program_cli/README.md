@@ -4,7 +4,7 @@ Ta sama klasyfikacja co we wtyczce QGIS, tylko **bez klikania**:
 uczysz model raz, a potem puszczasz go na cały folder nalotów.
 
 Oba programy liczą dokładnie to samo — ten sam podział na obiekty, te
-same 19 albo 24 cechy, ten sam las losowy. Dzielą katalog `core`.
+same 19 albo 24 cechy, ten sam Random Forest. Dzielą katalog `core`.
 
 ---
 
@@ -115,7 +115,7 @@ Co znaczą te opcje:
 niż najwęższa rzecz, którą chcesz pokazać na mapie. Dla pól i dachów
 zwykle 5–20 m², dla pojedynczych drzew 2–5 m².
 
-Powstaje plik `moj_model.geoai` — jedno archiwum z nauczonym lasem,
+Powstaje plik `moj_model.geoai` — jedno archiwum z nauczonym modelem Random Forest,
 listą klas, kolorami i wszystkimi ustawieniami. Możesz go przekazać
 komuś innemu albo dołączyć do artykułu.
 

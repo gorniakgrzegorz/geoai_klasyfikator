@@ -5,7 +5,7 @@ PANEL WTYCZKI "GeoAI Klasyfikator" — cztery kroki, jeden pod drugim.
 
     1  Zdjęcie i obiekty   wczytanie, podział na obiekty, pomiary
     2  Klasy i przykłady   wskazywanie przykładów klikaniem po mapie
-    3  Nauka i klasyfikacja  las losowy, poprawki, zapis mapy
+    3  Nauka i klasyfikacja  Random Forest, poprawki, zapis mapy
     4  Ocena dokładności   losowanie punktów, opis na ślepo, raport
 
 © Grzegorz Górniak
@@ -445,7 +445,7 @@ class PanelKlasyfikatora(QDockWidget):
         self.btn_separability.clicked.connect(self.check_separability)
         self.btn_train = QPushButton("Naucz")
         self.btn_train.setToolTip(
-            "Uczy las losowy na wskazanych przykładach. Trwa sekundy, "
+            "Uczy Random Forest na wskazanych przykładach. Trwa sekundy, "
             "możesz powtarzać do skutku.")
         self.btn_train.clicked.connect(self.train_model)
         row.addWidget(self.btn_separability, 1)
@@ -1381,7 +1381,7 @@ class PanelKlasyfikatora(QDockWidget):
         except ValueError as error:
             QMessageBox.information(self, "Za mało przykładów", str(error))
             return
-        self.step(40, "Uczę las losowy...")
+        self.step(40, "Uczę Random Forest...")
         try:
             self.model = CLF.train(features, labels)
         except Exception as error:
@@ -1396,7 +1396,7 @@ class PanelKlasyfikatora(QDockWidget):
         duza, mala, stosunek = CLF.niezrownowazenie(labels)
         if stosunek >= 5.0 and duza and mala:
             self.say("Klasa „{0}” ma {1} razy więcej przykładów niż "
-                     "„{2}”. Las losowy tego nie wyrównuje — dołóż "
+                     "„{2}”. Random Forest tego nie wyrównuje — dołóż "
                      "przykładów rzadszej klasie, inaczej będzie "
                      "przegrywać głosowania.".format(
                          duza, _liczba(stosunek, 0), mala))
@@ -2143,7 +2143,7 @@ te.</p>
 
 <h3>Skąd ta metoda</h3>
 <p>Segmentacja SLIC (Achanta i in., 2012), faktura GLCM (Haralick
-i in., 1973), zieloność ExG (Woebbecke i in., 1995), las losowy
+i in., 1973), zieloność ExG (Woebbecke i in., 1995), Random Forest
 (Breiman, 2001; Belgiu i Drăguţ, 2016), rozróżnialność klas miarą
 Jeffriesa-Matusity oraz ocena dokładności wg Congaltona i Greena,
 Olofssona i in. (2014) i Stehmana (2014).</p>

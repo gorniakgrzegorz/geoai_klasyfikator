@@ -33,7 +33,7 @@ warta.
 
 Wszystkie trzy liczą **dokładnie to samo**, dzielą katalog
 [`geoai_klasyfikator/core/`](geoai_klasyfikator/core/): ten sam podział
-na obiekty, te same cechy, ten sam las losowy.
+na obiekty, te same cechy, ten sam Random Forest.
 
 ## Co program mierzy
 
@@ -112,9 +112,9 @@ Get-FileHash .\GeoAI_Klasyfikator_Setup.exe -Algorithm SHA256
   bo przeglądarka ocenia archiwum łagodniej niż plik `.exe`.
 
 Ostrzeżenie zniknie dopiero po podpisaniu programu certyfikatem
-wydawcy. Projekt ubiega się o bezpłatny certyfikat w programie
-SignPath Foundation dla projektów open source. Po przyjęciu wniosku
-pliki programu dla Windows będą podpisywane na tych zasadach:
+wydawcy. Pliki nie są jeszcze podpisane. Projekt przygotowuje wniosek
+do programu SignPath Foundation dla projektów open source; po jego
+przyjęciu pliki programu dla Windows będą podpisywane na tych zasadach:
 *Free code signing provided by [SignPath.io](https://about.signpath.io),
 certificate by [SignPath Foundation](https://signpath.org).*
 Szczegóły, w tym role w zespole i politykę prywatności, opisuje
@@ -170,11 +170,22 @@ z nimi liczy kilkakrotnie szybciej.
 | [📖 Instrukcja z rysunkami](https://gorniakgrzegorz.github.io/geoai_klasyfikator/) | każdy, jak to działa i jak tego używać |
 | [INSTRUKCJA_UZYTKOWNIKA.md](INSTRUKCJA_UZYTKOWNIKA.md) | **pełny podręcznik**: wtyczka i program .exe, pole po polu, co działa gdzie |
 | [INSTRUKCJA_TESTERA.md](INSTRUKCJA_TESTERA.md) | tester, instalacja i pierwszy przebieg, krok po kroku |
+| [DOKUMENTACJA_TECHNICZNA.md](DOKUMENTACJA_TECHNICZNA.md) | **do pracy naukowej**: algorytmy, biblioteki, wszystkie parametry, odtwarzalność |
 | [UWARUNKOWANIA_NAUKOWE.md](UWARUNKOWANIA_NAUKOWE.md) | **do artykułu**, wzory, stałe, reguły decyzyjne, ograniczenia, co cytować |
 | [SZKIC_MANUSKRYPTU.md](SZKIC_MANUSKRYPTU.md) | szkielet artykułu: metoda napisana, wyniki do wypełnienia po badaniu |
 | [RAPORT_ZGODNOSCI.md](RAPORT_ZGODNOSCI.md) | dowód, że wtyczka i program liczą to samo, co do piksela |
 | [CODE_SIGNING_POLICY.md](CODE_SIGNING_POLICY.md) | **Code signing policy**: kto podpisuje pliki, role w zespole, polityka prywatności |
 | [NOTICE.md](NOTICE.md) | pochodzenie i licencja |
+
+## Jak cytować
+
+> Górniak, G. (2026). *GeoAI Klasyfikator* (wersja 1.0.1) [oprogramowanie
+> komputerowe]. https://github.com/gorniakgrzegorz/geoai_klasyfikator
+
+Metadane do cytowania są w pliku [CITATION.cff](CITATION.cff); GitHub
+pokazuje je pod przyciskiem **Cite this repository** w prawej kolumnie.
+Każde wydanie jest archiwizowane w Zenodo, które nadaje mu trwały
+identyfikator DOI.
 
 ## Struktura repozytorium
 
@@ -190,6 +201,9 @@ docs/                      instrukcja publikowana na GitHub Pages
 .github/workflows/         budowanie programu Windows w chmurze
 INSTRUKCJA_TESTERA.md      instalacja i pierwszy przebieg
 UWARUNKOWANIA_NAUKOWE.md   metoda, wzory i stałe, do artykułu
+DOKUMENTACJA_TECHNICZNA.md algorytmy, biblioteki, parametry, odtwarzalność
+CITATION.cff               metadane do cytowania (GitHub, Zenodo)
+.zenodo.json               opis wydania archiwizowanego w Zenodo
 SZKIC_MANUSKRYPTU.md       szkielet artykułu, rozdziały 4 do 6 do wypełnienia
 ```
 

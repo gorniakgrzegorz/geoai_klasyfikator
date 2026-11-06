@@ -42,9 +42,9 @@ def engine_report() -> dict:
     return {
         "segmentation": ("SLIC ze scikit-image (wzorcowy)" if HAS_SKIMAGE
                          else "SLIC wbudowany we wtyczkę"),
-        "classifier": ("las losowy ze scikit-learn (wzorcowy)"
+        "classifier": ("Random Forest ze scikit-learn (wzorcowy)"
                        if HAS_SKLEARN
-                       else "las losowy wbudowany we wtyczkę"),
+                       else "Random Forest wbudowany we wtyczkę"),
         "filters": ("SciPy" if HAS_SCIPY else "wbudowane"),
         "exact": HAS_SKIMAGE and HAS_SKLEARN,
     }

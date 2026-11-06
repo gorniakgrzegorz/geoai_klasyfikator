@@ -151,7 +151,8 @@ class BuiltinRandomForest:
         features = np.asarray(features, dtype=np.float64)
         self.classes_, encoded = np.unique(labels, return_inverse=True)
         n_classes = len(self.classes_)
-        mtry = max(1, int(round(np.sqrt(features.shape[1]))))
+        # jak max_features="sqrt" w scikit-learn: część całkowita z √p
+        mtry = max(1, int(np.sqrt(features.shape[1])))
         rng = np.random.default_rng(self.random_state)
 
         self.trees = []
@@ -196,7 +197,7 @@ def train(features: np.ndarray, labels: np.ndarray,
 def niezrownowazenie(labels) -> tuple:
     """Zwraca (najliczniejsza, najrzadsza, stosunek) dla klas uczących.
 
-    Las losowy nie wyrównuje liczebności sam z siebie, więc klasa
+    Random Forest nie wyrównuje liczebności sam z siebie, więc klasa
     z garstką przykładów przegrywa głosowania z klasą, której naklikano
     kilkaset. Lepiej uprzedzić, niż po cichu krzywdzić.
     """

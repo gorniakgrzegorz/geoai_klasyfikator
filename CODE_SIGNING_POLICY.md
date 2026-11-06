@@ -8,6 +8,10 @@ Polityka podpisywania kodu / Code signing policy for **GeoAI Klasyfikator**.
 
 ## Signing
 
+**Status (November 2026):** the binaries are not signed yet. The project
+is preparing an application to the SignPath Foundation programme for
+open source projects; this policy applies from the first signed release.
+
 Free code signing provided by [SignPath.io](https://about.signpath.io),
 certificate by [SignPath Foundation](https://signpath.org).
 
