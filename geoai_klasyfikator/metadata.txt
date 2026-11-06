@@ -45,11 +45,18 @@ about=Wtyczka robi mapę pokrycia terenu ze zdjęcia RGB i od razu mówi, ile ta
     
     ENGLISH
     QGIS plugin with a Polish user interface for supervised, object-based land cover mapping (GEOBIA) from RGB imagery: drone orthomosaics, aerial photographs and RGB composites of Sentinel-2 scenes, optionally with a digital surface model. It segments the image with SLIC in CIELAB space and measures 19 object features from RGB, or 24 with a surface model: colour, visible-band vegetation indices (ExG, VARI, NGRDI), GLCM texture, shape, neighbourhood context, elevation, slope and height above ground. Training examples are picked by clicking objects on the map canvas. Class separability is checked before training with a cross-validated Jeffries-Matusita distance, and objects are classified with Random Forest (100 trees, fixed random seed). The plugin finishes with a design-based accuracy assessment: stratified sampling of check points outside training objects, error matrix, user's and producer's accuracy, and area-weighted accuracy with estimated class areas and 95 per cent confidence intervals following Olofsson et al. (2014) and Stehman (2014). Optional pixel-level greenness refinement recovers features narrower than an object, and a sieve sets a minimum mapping unit. Requires QGIS 3.22 or newer and nothing else; scikit-image and scikit-learn are used when present. For large image sets there is no need to mosaic the images: a command line program and a Windows application with the same computational core, available in the repository, train a model once and batch-classify a whole folder of images, each image separately, writing a GeoTIFF map per image and a summary report of class areas (raport.csv); an interrupted run can be resumed. Documentation: https://gorniakgrzegorz.github.io/geoai_klasyfikator/ ; citation: DOI 10.5281/zenodo.24005560.
-version=1.0.2
+version=1.0.3
 author=Grzegorz Górniak
 email=gorniakgrzegorz@gmail.com
 category=Raster
-changelog=1.0.2
+changelog=1.0.3
+    - Przycisk "Zainstaluj biblioteki przyspieszające": wtyczka sama instaluje scikit-image i scikit-learn w Pythonie QGIS (dla bieżącego konta, bez zmiany numpy)
+    - Pola liczbowe i liczby w komunikatach oraz w raporcie CSV z przecinkiem dziesiętnym; pole "Rozdzielczość robocza (m)" z jednostką
+    - Jaśniejsze komunikaty: przy zbyt dużej siatce wtyczka podaje liczbę pikseli, przyczynę limitu i najdrobniejszą rozdzielczość, która się mieści; przed długim podziałem bez scikit-image pyta i proponuje rozwiązania
+    - Pasek postępu zawsze widoczny na dole panelu, postęp także podczas wbudowanego podziału na obiekty
+    - Podpowiedzi kolorów klas rozpoznają też nazwy angielskie
+    - Wiersz poleceń i program dla Windows przyjmują liczby z przecinkiem
+    1.0.2
     - Wydanie z kompletem plików programu i wtyczki (wydanie 1.0.1 opublikowano bez nich)
     1.0.1
     - Wbudowany Random Forest losuje w węźle część całkowitą z √p cech, tak jak scikit-learn (wcześniej zaokrąglał do najbliższej liczby, przy 24 cechach 5 zamiast 4)

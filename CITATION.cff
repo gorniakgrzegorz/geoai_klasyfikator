@@ -15,7 +15,7 @@ authors:
   - family-names: "Górniak"
     given-names: "Grzegorz"
     affiliation: "Nicolaus Copernicus University in Toruń"
-version: "1.0.2"
+version: "1.0.3"
 doi: "10.5281/zenodo.24005560"
 identifiers:
   - type: doi

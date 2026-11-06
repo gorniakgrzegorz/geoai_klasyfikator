@@ -42,12 +42,15 @@ about=The plugin makes a land cover map from an RGB image and tells you straight
 
     Guide: https://gorniakgrzegorz.github.io/geoai_klasyfikator/en/
     How to cite: DOI 10.5281/zenodo.24005560
-version=1.0.2
+version=1.0.3
 author=Grzegorz Górniak
 email=gorniakgrzegorz@gmail.com
 category=Raster
-changelog=1.0.2
-    - First release of the English edition, built from GeoAI Klasyfikator 1.0.2 with the same computational core
+changelog=1.0.3
+    - First release of the English edition, built from GeoAI Klasyfikator 1.0.3 with the same computational core
+    - "Install acceleration libraries" button: the plugin installs scikit-image and scikit-learn in the QGIS Python itself (current account only, numpy unchanged)
+    - Numbers follow the QGIS regional settings in fields, messages and the CSV report; "Working resolution (m)" field shows its unit
+    - Clearer messages for a working grid that is too large or too slow to segment without scikit-image; progress bar always visible
 tags=classification,land cover,land use,obia,geobia,segmentation,slic,random forest,machine learning,geoai,drone,uav,orthomosaic,aerial imagery,sentinel-2,remote sensing,raster,gis,texture,glcm,vegetation index,exg,dsm,accuracy assessment,error matrix,area estimation,olofsson,agriculture,forestry,spatial planning
 homepage=https://gorniakgrzegorz.github.io/geoai_klasyfikator/en/
 tracker=https://github.com/gorniakgrzegorz/geoai_klasyfikator/issues
