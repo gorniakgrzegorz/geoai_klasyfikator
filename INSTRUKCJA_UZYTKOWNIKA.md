@@ -466,11 +466,18 @@ zapasowej i zawsze możesz go zmienić dwuklikiem.
 
 ### Instalacja
 
+Wtyczka jest w oficjalnym repozytorium wtyczek QGIS
+(<https://plugins.qgis.org/plugins/geoai_klasyfikator/>).
+
 1. QGIS, menu **Wtyczki**, potem **Zarządzanie wtyczkami**.
-2. Zakładka **Zainstaluj z pliku ZIP**.
-3. Wskaż `geoai_klasyfikator.zip` i kliknij **Zainstaluj wtyczkę**.
-4. Na pasku narzędzi pojawi się przycisk **GeoAI Klasyfikator**.
+2. Zakładka **Wszystkie**, w polu wyszukiwania wpisz
+   `GeoAI Klasyfikator`, kliknij **Zainstaluj wtyczkę**.
+3. Na pasku narzędzi pojawi się przycisk **GeoAI Klasyfikator**.
    Kliknięcie otwiera panel po prawej stronie okna.
+
+QGIS sam powiadomi o nowych wersjach. Bez dostępu do internetu użyj
+zakładki **Zainstaluj z pliku ZIP** i wskaż `geoai_klasyfikator.zip`
+z zakładki Releases na GitHubie.
 
 Panel ma cztery kroki, jeden pod drugim. Na samej górze jest przycisk
 **Instrukcja**, a pod spodem **okno dziennika**, w którym na bieżąco

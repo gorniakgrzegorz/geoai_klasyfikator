@@ -45,10 +45,12 @@ i wysokość.
 
 ## Instalacja
 
-1. QGIS → Wtyczki → Zarządzanie wtyczkami…
-2. Zakładka **Zainstaluj z pliku ZIP**
-3. Wskaż `geoai_klasyfikator.zip` → **Zainstaluj wtyczkę**
-4. Na pasku narzędzi pojawi się przycisk **GeoAI Klasyfikator**
+1. QGIS, menu Wtyczki, Zarządzanie wtyczkami
+2. Wyszukaj „GeoAI Klasyfikator” i kliknij **Zainstaluj wtyczkę**
+3. Na pasku narzędzi pojawi się przycisk **GeoAI Klasyfikator**
+
+Strona wtyczki: <https://plugins.qgis.org/plugins/geoai_klasyfikator/>. Bez dostępu do internetu: zakładka
+**Zainstaluj z pliku ZIP** i plik `geoai_klasyfikator.zip`.
 
 ### Szybciej na dużych zdjęciach (nieobowiązkowe)
 
