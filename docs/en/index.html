@@ -1138,7 +1138,7 @@ python geoai.py klasyfikuj --folder flights --model my_model.geoai ^
 
   var KLASY = [
     { nazwa: "grass",   kolor: "#8bc34a", rgb: [0.45, 0.63, 0.30], szum: 0.035 },
-    { nazwa: "soil",    kolor: "#b07a4a", rgb: [0.58, 0.45, 0.31], szum: 0.030 },
+    { nazwa: "field", kolor: "#b07a4a", rgb: [0.58, 0.45, 0.31], szum: 0.030 },
     { nazwa: "roof",    kolor: "#d1495b", rgb: [0.72, 0.31, 0.26], szum: 0.025 },
     { nazwa: "road",    kolor: "#6b7b80", rgb: [0.42, 0.42, 0.44], szum: 0.020 },
     { nazwa: "trees",   kolor: "#1f6b35", rgb: [0.17, 0.35, 0.15], szum: 0.070 }
@@ -1606,6 +1606,53 @@ python geoai.py klasyfikuj --folder flights --model my_model.geoai ^
             "</strong>. Objects with a wrong class: <strong>" + pomylone1 + " → " + pomylone2 + "</strong>.</p><p class=\"maly\">Agreement with the truth of this picture: <strong>" + procent(zg1) + " → " + procent(zg2) +
             "</strong> of pixels. On a real image this value comes only from an accuracy assessment on independent check points.</p>";
         }
+      } },
+    { nazwa: "Final map", klatki: 1, rysuj: function () {
+        // gotowa mapa: pełne barwy klas, granice tylko między klasami
+        var klasaPix = new Int32Array(W * H);
+        for (var p = 0; p < W * H; p++) { klasaPix[p] = mapa2[OB[p]].klasa; }
+        wypelnij(wszystkie(), function (o) { return KLASY[mapa2[o].klasa].kolor; }, 1);
+        rysujGranice(klasaPix, "rgba(255,255,255,.9)");
+        pokazLegende(true);
+        // pojedyncze drzewo: najdalej od pozostałych; reszta to las
+        var samotne = 0, najdalej = -1;
+        drzewa.forEach(function (a, i) {
+          var min = Infinity;
+          drzewa.forEach(function (b, j) { if (i !== j) { min = Math.min(min, Math.hypot(a[0] - b[0], a[1] - b[1])); } });
+          if (min > najdalej) { najdalej = min; samotne = i; }
+        });
+        var lx = 0, ly = 0, ln = 0;
+        drzewa.forEach(function (a, i) { if (i !== samotne) { lx += a[0]; ly += a[1]; ln++; } });
+        function napis(tekst, x, y, kat) {
+          ctx.save();
+          ctx.translate(x * SKALA, y * SKALA);
+          if (kat) { ctx.rotate(kat); }
+          ctx.font = "700 15px Figtree, Segoe UI, sans-serif";
+          ctx.textAlign = "center"; ctx.textBaseline = "middle";
+          ctx.lineJoin = "round"; ctx.lineWidth = 4.5; ctx.strokeStyle = "rgba(255,255,255,.95)";
+          ctx.strokeText(tekst, 0, 0);
+          ctx.fillStyle = "#14262b"; ctx.fillText(tekst, 0, 0);
+          ctx.restore();
+        }
+        napis("house", 15, 12);
+        napis("house", 31.5, 9.5);
+        napis("farm", 86, 48.3);
+        napis("building", 86, 51.7);
+        napis("field", 20, 47);
+        napis("road", 63, 37.6, Math.atan(-0.55));
+        napis("forest", lx / ln, ly / ln);
+        var t = drzewa[samotne];
+        napis("tree", t[0], Math.max(2, t[1] - t[2] - 1.8));
+        napis("grass", 52, 26);
+        var udzial = [0, 0, 0, 0, 0];
+        for (var q = 0; q < W * H; q++) { udzial[klasaPix[q]] += 1 / (W * H); }
+        opis.innerHTML = "<p>The finished land cover map after the correction. Objects of the same class have merged into patches, and only " +
+          "the boundaries between classes remain. The map shows two houses and a farm building (roof class), a field, a road, " +
+          "a forest, a single tree and the grass around them.</p><p class=\"maly\">In the program this map is saved to a " +
+          "GeoTIFF file together with a colour style (.qml). Class shares on this map:</p>";
+        wykres.innerHTML = slupki(KLASY.map(function (kl, i) {
+          return [kl.nazwa, udzial[i], kl.kolor, procent(udzial[i])];
+        }), 1);
       } }
   ];
 
@@ -1632,6 +1679,7 @@ python geoai.py klasyfikuj --folder flights --model my_model.geoai ^
   function tempo() {
     var e = ETAPY[etap];
     if (e.klatki > 1 && klatka < e.klatki - 1) { return etap === 2 ? 1600 : 450; }
+    if (etap === ETAPY.length - 1) { return 5000; }
     return 3200;
   }
   function petla() { zegar = setTimeout(function () { krok(); if (gra) { petla(); } }, tempo()); }
