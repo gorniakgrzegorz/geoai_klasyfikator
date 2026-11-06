@@ -232,7 +232,7 @@ a.cyt:hover{text-decoration:underline}
 .anim-przyciski button{font:inherit;font-size:14px;font-weight:600;padding:7px 14px;border-radius:7px;
       cursor:pointer;border:1px solid var(--marka-ciemna);background:var(--marka-jasna);color:var(--marka-ciemna)}
 .anim-przyciski button:hover{background:var(--marka-ciemna);color:#fff}
-.anim-wykres .slupek{display:grid;grid-template-columns:118px 1fr 52px;gap:8px;align-items:center;
+.anim-wykres .slupek{display:grid;grid-template-columns:150px 1fr 52px;gap:8px;align-items:center;
       font-size:12.5px;margin:3px 0}
 .anim-wykres .et{font-family:"SF Mono",Consolas,monospace;color:#0a5468;overflow:hidden;text-overflow:ellipsis}
 .anim-wykres .tor{background:#eef4f6;border-radius:4px;height:10px;overflow:hidden}
@@ -1550,13 +1550,15 @@ python geoai.py klasyfikuj --folder flights --model my_model.geoai ^
     // budynki: prostokąty
     ctx.fillStyle = KLASY[DACH].kolor;
     // budynek gospodarczy: najmniejszy z budynków, w ciemnym pomarańczu
-    var budynki = skladowe(DACH).filter(function (s) { return s.length >= 6; }).map(prostokat);
+    var sklBud = skladowe(DACH).filter(function (s) { return s.length >= 6; });
+    var budynki = sklBud.map(prostokat);
     var pola = budynki.map(function (r) { return (r[2] - r[0]) * (r[3] - r[1]); });
     var najmniejszy = pola.indexOf(Math.min.apply(null, pola));
     budynki.forEach(function (r, i) {
       ctx.fillStyle = (i === najmniejszy && budynki.length > 1) ? GOSPODARCZY : KLASY[DACH].kolor;
       wypelnijProstokat(r);
     });
+    var pikseleGosp = budynki.length > 1 ? sklBud[najmniejszy].length : 0;
     // drzewa: okrągłe korony wpisane w płat, od największej
     ctx.fillStyle = KLASY[DRZEWA].kolor;
     skladowe(DRZEWA).forEach(function (s) {
@@ -1585,6 +1587,7 @@ python geoai.py klasyfikuj --folder flights --model my_model.geoai ^
         });
       }
     });
+    return pikseleGosp;
   }
   function wszystkie() { var a = []; for (var o = 0; o < NOB; o++) { a.push(o); } return a; }
   function obrys(o, kolor, grubosc) {
@@ -1724,9 +1727,17 @@ python geoai.py klasyfikuj --folder flights --model my_model.geoai ^
         // gotowa mapa: pełne barwy klas, granice tylko między klasami
         var klasaPix = new Int32Array(W * H);
         for (var p = 0; p < W * H; p++) { klasaPix[p] = mapa2[OB[p]].klasa; }
-        uogolnionaMapa(klasaPix);
-        pokazLegende(true);
-        legenda.innerHTML += '<span><i style="background:' + GOSPODARCZY + '"></i>farm building</span>';
+        var pikseleGosp = uogolnionaMapa(klasaPix);
+        // legenda gotowej mapy: klasa dach rozdzielona na domy mieszkalne
+        // i budynek gospodarczy, tak jak podpisy na mapie
+        var LEGENDA = [
+          [KLASY[0].nazwa, KLASY[0].kolor], [KLASY[1].nazwa, KLASY[1].kolor],
+          ["houses", KLASY[2].kolor], ["farm building", GOSPODARCZY],
+          [KLASY[3].nazwa, KLASY[3].kolor], [KLASY[4].nazwa, KLASY[4].kolor]
+        ];
+        legenda.innerHTML = LEGENDA.map(function (e) {
+          return '<span><i style="background:' + e[1] + '"></i>' + e[0] + "</span>";
+        }).join("");
         // pojedyncze drzewo: najdalej od pozostałych; reszta to las
         var samotne = 0, najdalej = -1;
         drzewa.forEach(function (a, i) {
@@ -1764,8 +1775,10 @@ python geoai.py klasyfikuj --folder flights --model my_model.geoai ^
           "generalised as on a topographic map: buildings and the field as rectangles (the smallest building, the farm building, in its own colour), the road as a straight strip, trees as round " +
           "crowns. The program saves a raster map with the object shapes, as a GeoTIFF with a colour style (.qml). Class shares from " +
           "the classification:</p>";
-        wykres.innerHTML = slupki(KLASY.map(function (kl, i) {
-          return [kl.nazwa, udzial[i], kl.kolor, procent(udzial[i])];
+        var uGosp = pikseleGosp / (W * H);
+        var udzialy = [udzial[0], udzial[1], udzial[2] - uGosp, uGosp, udzial[3], udzial[4]];
+        wykres.innerHTML = slupki(LEGENDA.map(function (e, i) {
+          return [e[0], udzialy[i], e[1], procent(udzialy[i])];
         }), 1);
       } }
   ];
