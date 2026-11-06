@@ -1,7 +1,7 @@
 # GeoAI Klasyfikator
 
 Wtyczka QGIS, która robi **mapę pokrycia terenu** ze zdjęcia z drona
-albo zdjęcia lotniczego — i od razu mówi, ile ta mapa jest warta.
+albo zdjęcia lotniczego i od razu mówi, ile ta mapa jest warta.
 
 Nie klasyfikuje pojedynczych pikseli, tylko tnie zdjęcie na **obiekty**
 (kawałki pola, dachu, korony drzewa), mierzy każdy z nich i uczy się
@@ -9,7 +9,7 @@ od Ciebie, co jest czym.
 
 **Autor:** Grzegorz Górniak (gorniakgrzegorz@gmail.com)
 **Licencja:** GPL-3.0-or-later
-**Wymaga:** QGIS 3.22 lub nowszy — i nic więcej
+**Wymaga:** QGIS 3.22 lub nowszy i nic więcej
 
 ---
 
@@ -33,7 +33,7 @@ pojedynczymi kropkami.
 | Grupa | Cechy |
 |---|---|
 | Kolor (7) | średnia i zmienność R, G, B oraz jasność |
-| Wskaźniki roślinności (3) | zieloność ExG, VARI, NGRDI — na współrzędnych chromatycznych, więc liść w cieniu i w słońcu wypadają podobnie |
+| Wskaźniki roślinności (3) | zieloność ExG, VARI, NGRDI, liczone na współrzędnych chromatycznych, więc liść w cieniu i w słońcu wypadają podobnie |
 | Faktura GLCM (4) | kontrast, jednolitość, powtarzalność, nieuporządkowanie |
 | Kształt (4) | powierzchnia, obwód, okrągłość, wypukłość |
 | Otoczenie (1) | jasność na tle sąsiadów |
@@ -62,13 +62,13 @@ python -m pip install scikit-image scikit-learn
 ```
 
 Polecenie wpisz w **OSGeo4W Shell** (menu Start, katalog QGIS), potem
-uruchom QGIS ponownie. Jeśli nie przejdzie — uruchom powłokę jako
+uruchom QGIS ponownie. Jeśli nie przejdzie, uruchom powłokę jako
 administrator.
 
 ## Trzy rady, które decydują o wyniku
 
 1. **Dobierz wielkość obiektu do najwęższej rzeczy**, którą chcesz
-   pokazać na mapie — nie do tego, czego jest najwięcej.
+   pokazać na mapie, a nie do tego, czego jest najwięcej.
 2. **Rozrzuć przykłady po całym zdjęciu** i pokaż każdą odmianę klasy:
    i bujną trawę, i tę przyschniętą.
 3. **Poprawianie to metoda, nie porażka.** Pierwsza mapa nigdy nie
@@ -88,17 +88,17 @@ patrząc na samo zdjęcie, a na wyjściu dostajesz:
 - **szacowane powierzchnie klas z przedziałami ufności 95 procent**.
 
 Przy losowaniu warstwowym udział punktów nie jest udziałem
-powierzchni — dlatego w publikacji cytuje się liczby ważone
+powierzchni, dlatego w publikacji cytuje się liczby ważone
 powierzchnią i szacowaną powierzchnię, a nie tę odczytaną wprost
 z mapy (Olofsson i in., 2014; Stehman, 2014). Współczynnika kappa
 świadomie nie liczymy.
 
 ## Co zostaje w projekcie
 
-- **GeoAI obiekty** — warstwa poligonowa; w tabeli atrybutów wszystkie
+- **GeoAI obiekty**: warstwa poligonowa; w tabeli atrybutów wszystkie
   zmierzone cechy, kolumna `klasa_uczaca` (Twoje przykłady) i
   `klasa_mapy` (wynik).
-- **GeoAI punkty kontrolne** — punkty z opisem ze zdjęcia, klasą
+- **GeoAI punkty kontrolne**: punkty z opisem ze zdjęcia, klasą
   z mapy i warstwą losowania.
 - Zapisany **GeoTIFF** z plikiem stylu `.qml` obok.
 
