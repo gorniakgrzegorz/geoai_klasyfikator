@@ -22,8 +22,8 @@ identifiers:
     value: "10.5281/zenodo.24005560"
     description: "Wszystkie wersje / all versions (Zenodo concept DOI)"
   - type: doi
-    value: "10.5281/zenodo.24005561"
-    description: "Wersja 1.0.2 / version 1.0.2"
+    value: "10.5281/zenodo.24011434"
+    description: "Wersja 1.0.3 / version 1.0.3"
 date-released: "2026-11-06"
 license: GPL-3.0-or-later
 repository-code: "https://github.com/gorniakgrzegorz/geoai_klasyfikator"

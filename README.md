@@ -208,13 +208,13 @@ i jak ją przyspieszyć bez nowego komputera, opisuje
 
 ## Jak cytować
 
-> Górniak, G. (2026). *GeoAI Klasyfikator* (wersja 1.0.2) [oprogramowanie
-> komputerowe]. Zenodo. https://doi.org/10.5281/zenodo.24005561
+> Górniak, G. (2026). *GeoAI Klasyfikator* (wersja 1.0.3) [oprogramowanie
+> komputerowe]. Zenodo. https://doi.org/10.5281/zenodo.24011434
 
 | Identyfikator | DOI | Kiedy używać |
 |---|---|---|
 | wszystkie wersje | [10.5281/zenodo.24005560](https://doi.org/10.5281/zenodo.24005560) | odwołanie do programu w ogóle; zawsze prowadzi do najnowszej wersji |
-| wersja 1.0.2 | [10.5281/zenodo.24005561](https://doi.org/10.5281/zenodo.24005561) | wynik policzony dokładnie tą wersją, np. w artykule |
+| wersja 1.0.3 | [10.5281/zenodo.24011434](https://doi.org/10.5281/zenodo.24011434) | wynik policzony dokładnie tą wersją, np. w artykule |
 
 Metadane do cytowania są w pliku [CITATION.cff](CITATION.cff); GitHub
 pokazuje je pod przyciskiem **Cite this repository** w prawej kolumnie.
