@@ -2,7 +2,7 @@
 
 # GeoAI Klasyfikator
 
-**Mapa pokrycia terenu ze zdjęć z drona, w trzech wersjach, na jednym silniku.**
+**Mapa pokrycia terenu ze zdjęć z drona lub satelity, w trzech wersjach, na jednym silniku.**
 
 [📖 Instrukcja z rysunkami](https://gorniakgrzegorz.github.io/geoai_klasyfikator/) ·
 [⬇️ Pobierz program dla Windows](https://github.com/gorniakgrzegorz/geoai_klasyfikator/releases) ·
