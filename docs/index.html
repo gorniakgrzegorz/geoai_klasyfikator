@@ -275,6 +275,7 @@ a.cyt:hover{text-decoration:underline}
     <summary>Spis treści</summary>
     <div class="lista">
       <a href="#wersje">Pobierz</a>
+      <a href="#folder">Wiele zdjęć naraz</a>
       <a href="#sentinel">Sentinel-2</a>
       <a href="#jak">Jak to działa</a>
       <a href="#algorytm">Algorytm</a>
@@ -337,7 +338,8 @@ a.cyt:hover{text-decoration:underline}
       <div class="tytul"><svg class="ik" aria-hidden="true"><use href="#i-terminal"/></svg>Wiersz poleceń</div>
       <div class="dla">gdy zdjęć są setki</div>
       <p style="font-size:14.5px;margin:0">Uczysz model raz, puszczasz
-      go na folder. Daje się wpiąć w skrypt i wznowić po przerwaniu.</p>
+      go na folder. Daje się wpiąć w skrypt i wznowić po przerwaniu.
+      <a href="#folder">Jak policzyć cały folder</a>.</p>
       <div class="pob">
         <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/releases/latest"><svg class="ik" aria-hidden="true"><use href="#i-pobierz"/></svg>Kod źródłowy</a>
       </div>
@@ -373,6 +375,209 @@ a.cyt:hover{text-decoration:underline}
     </tbody>
   </table></div>
 </div></section>
+
+<section id="folder"><div class="owijka">
+  <h2>Wiele zdjęć? Nie łącz ich, wskaż folder</h2>
+  <p class="podtytul">Dziesiątki albo setki nalotów liczysz jednym
+  poleceniem, bez sklejania ich w mozaikę.</p>
+
+  <div class="ramka">
+    <p><strong>Nie musisz łączyć zdjęć w jedną mozaikę.</strong> Model
+    uczysz raz, na jednym reprezentatywnym zdjęciu. Potem wskazujesz
+    folder, a program bierze zdjęcia po kolei, każde liczy osobno
+    i zapisuje osobną mapę. Na końcu dostajesz zbiorczy raport
+    z powierzchnią każdej klasy na każdym zdjęciu.</p>
+  </div>
+
+  <figure class="rysunek">
+    <svg id="folder-anim" viewBox="0 0 760 292" role="img"
+         aria-label="Animacja: zdjęcia z folderu naloty trafiają po kolei do nauczonego modelu, a z niego wychodzą gotowe mapy do folderu mapy oraz raport CSV"></svg>
+    <figcaption>Jeden model, wiele zdjęć: każde zdjęcie z folderu jest
+    klasyfikowane osobno, a wyniki trafiają do folderu z mapami.</figcaption>
+  </figure>
+
+  <ol class="kroki">
+    <li><strong>Naucz model raz</strong>
+      Na jednym zdjęciu, które dobrze reprezentuje całą serię. W wierszu
+      poleceń służy do tego polecenie <code>ucz</code>, w programie dla
+      Windows zakładka nauki. Model zapisuje się do pliku
+      <code>.geoai</code>.</li>
+    <li><strong>Wskaż folder ze zdjęciami</strong>
+      W wierszu poleceń polecenie <code>klasyfikuj --folder</code>,
+      w programie dla Windows zakładka klasyfikacji całego folderu.
+      Program może szukać zdjęć także w podfolderach.</li>
+    <li><strong>Odbierz wyniki</strong>
+      Dla każdego zdjęcia mapę GeoTIFF z plikiem stylu <code>.qml</code>,
+      a w folderze wyników plik <code>raport.csv</code> (średnik jako
+      separator, kodowanie pod Excela) z powierzchnią każdej klasy na
+      każdym zdjęciu.</li>
+  </ol>
+
+  <pre><code>python geoai.py ucz --zdjecie naloty/nalot_01.tif --probki przyklady.gpkg ^
+    --nmpt nmpt/nalot_01_nmpt.tif --model moj_model.geoai
+
+python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
+    --wyjscie mapy --nmpt-folder nmpt</code></pre>
+
+  <div class="tabela-przewin"><table>
+    <thead><tr><th>Opcja</th><th>Co robi</th></tr></thead>
+    <tbody>
+      <tr><td><code>--rekurencyjnie</code></td><td>szuka zdjęć także w podfolderach</td></tr>
+      <tr><td><code>--nmpt-folder</code></td><td>folder z modelami wysokości; do zdjęcia <code>nalot_01.tif</code> program dobiera plik <code>nalot_01_nmpt.tif</code> (przyrostek zmienisz opcją <code>--nmpt-przyrostek</code>)</td></tr>
+      <tr><td><code>--mmu 10</code></td><td>usuwa płaty mniejsze niż 10 m²</td></tr>
+      <tr><td><code>--nadpisuj</code></td><td>liczy ponownie także zdjęcia, które mają już wynik</td></tr>
+      <tr><td><code>--przerwij-na-bledzie</code></td><td>zatrzymuje się przy pierwszym problemie; bez tej opcji program zgłasza błąd przy danym zdjęciu i liczy dalej</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="siatka dwa">
+    <div class="karta">
+      <h4>Przerwane? Uruchom jeszcze raz</h4>
+      <p>Bez opcji <code>--nadpisuj</code> program pomija zdjęcia, które
+      mają już wynik, więc przerwany przebieg po prostu wznawiasz tym
+      samym poleceniem.</p>
+    </div>
+    <div class="karta">
+      <h4>Jeden model, podobne zdjęcia</h4>
+      <p>Model działa dla zdjęć podobnych do tych, na których się uczył:
+      ta sama kamera, podobna pora roku i oświetlenie. Nalot czerwcowy
+      i wrześniowy to dwa modele.</p>
+    </div>
+  </div>
+
+  <p>Klasyfikację całych folderów mają program wiersza poleceń i program
+  dla Windows. Wtyczka QGIS pracuje na jednym zdjęciu naraz; wszystkie
+  trzy wersje liczą tym samym silnikiem.</p>
+</div></section>
+
+<script>
+(function () {
+  "use strict";
+  var svg = document.getElementById("folder-anim");
+  if (!svg) { return; }
+  var NS = "http://www.w3.org/2000/svg";
+  function el(nazwa, atr, rodzic) {
+    var e = document.createElementNS(NS, nazwa);
+    for (var k in atr) { e.setAttribute(k, atr[k]); }
+    (rodzic || svg).appendChild(e);
+    return e;
+  }
+  function tekst(x, y, t, atr) {
+    var e = el("text", Object.assign({ x: x, y: y, "font-size": 13, fill: "#1a2628",
+      "font-family": "-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif" }, atr || {}));
+    e.textContent = t;
+    return e;
+  }
+  // Losowanie z ziarnem, żeby kafelki wyglądały zawsze tak samo.
+  var a = 3;
+  function los() { a = (a * 16807) % 2147483647; return a / 2147483647; }
+
+  var N = 6, W = 44, H = 32;
+  var ZIEL = ["#7da843", "#8fb24f", "#6b9a3a", "#a08455", "#b39265", "#4f7d35", "#c9b98f"];
+  var KL = ["#8bc34a", "#b07a4a", "#d1495b", "#6b7b80", "#1f6b35"];
+  // Każde zdjęcie: siatka 4 na 3 płatów; mapa ma te same płaty w barwach klas.
+  var plyty = [];
+  for (var i = 0; i < N; i++) {
+    var p = [];
+    for (var c = 0; c < 12; c++) { p.push(Math.floor(los() * 5)); }
+    plyty.push(p);
+  }
+  function kafel(rodzic, x, y, i, mapa) {
+    var g = el("g", { transform: "translate(" + x + "," + y + ")" }, rodzic);
+    for (var c = 0; c < 12; c++) {
+      var k = plyty[i][c];
+      var kolor = mapa ? KL[k] : ZIEL[(k + c) % ZIEL.length];
+      el("rect", { x: (c % 4) * 11, y: Math.floor(c / 4) * (H / 3), width: 11, height: H / 3, fill: kolor }, g);
+    }
+    el("rect", { x: 0, y: 0, width: W, height: H, fill: "none", stroke: "#fff", "stroke-width": 1.5 }, g);
+    return g;
+  }
+  function folder(x, y, w, h, nazwa) {
+    el("path", { d: "M" + x + " " + (y + 12) + " v" + (h - 12) + " h" + w + " v" + (h - 12) * -1 +
+      " h" + (-(w - 70)) + " l-10 -12 h-60 z", fill: "#fff8e9", stroke: "#e0a030", "stroke-width": 2 });
+    tekst(x + 10, y + h + 20, nazwa, { "font-weight": 600 });
+  }
+
+  // Folder ze zdjęciami, model, folder z mapami.
+  folder(20, 60, 190, 140, "naloty/  (6 zdjęć)");
+  folder(550, 60, 190, 140, "mapy/");
+  el("rect", { x: 300, y: 95, width: 160, height: 80, rx: 12, fill: "#00749c" });
+  tekst(380, 128, "model.geoai", { fill: "#fff", "font-weight": 700, "text-anchor": "middle", "font-size": 15 });
+  tekst(380, 150, "nauczony raz", { fill: "#eafaff", "text-anchor": "middle" });
+  tekst(380, 225, "Random Forest, ten sam dla każdego zdjęcia", { "text-anchor": "middle", fill: "#5d7076", "font-size": 12 });
+  el("path", { d: "M220 135 h68", stroke: "#00bde7", "stroke-width": 2.5, "marker-end": "url(#fa-grot)" });
+  el("path", { d: "M470 135 h68", stroke: "#00bde7", "stroke-width": 2.5, "marker-end": "url(#fa-grot)" });
+  var defs = el("defs", {});
+  var m = el("marker", { id: "fa-grot", markerWidth: 8, markerHeight: 8, refX: 7, refY: 4, orient: "auto" }, defs);
+  el("path", { d: "M0 0l8 4-8 4z", fill: "#00bde7" }, m);
+
+  // Przekreślona mozaika: pokazuje, czego robić nie trzeba.
+  var moz = el("g", { transform: "translate(318,10)" });
+  for (var r = 0; r < 2; r++) { for (var s = 0; s < 3; s++) {
+    el("rect", { x: s * 14, y: r * 11, width: 14, height: 11, fill: ZIEL[(r * 3 + s) % ZIEL.length], stroke: "#fff" }, moz);
+  } }
+  el("path", { d: "M-3 -3 L45 25 M45 -3 L-3 25", stroke: "#d1495b", "stroke-width": 3 }, moz);
+  tekst(370, 26, "łączenie w mozaikę: niepotrzebne", { fill: "#d1495b", "font-size": 12, "font-weight": 600 });
+
+  // Miejsca na zdjęcia i na mapy.
+  function slot(i, x0) { return [x0 + 14 + (i % 3) * 56, 85 + Math.floor(i / 3) * 52]; }
+  var zrodla = [], wyniki = [];
+  for (var j = 0; j < N; j++) {
+    var sp = slot(j, 20); zrodla.push(kafel(svg, sp[0], sp[1], j, false));
+    var sw = slot(j, 550); var gw = kafel(svg, sw[0], sw[1], j, true); gw.style.opacity = 0; wyniki.push(gw);
+  }
+  var lecace = kafel(svg, 0, 0, 0, false); lecace.style.opacity = 0;
+  var licznik = tekst(380, 80, "", { "text-anchor": "middle", "font-weight": 600, fill: "#00749c" });
+
+  // Raport CSV na końcu.
+  var rap = el("g", { transform: "translate(552,272)" }); rap.style.opacity = 0;
+  el("rect", { x: 0, y: -15, width: 196, height: 24, rx: 5, fill: "#eafaff", stroke: "#00749c" }, rap);
+  var tr = tekst(10, 2, "raport.csv: powierzchnie klas", { "font-size": 12, fill: "#00749c", "font-weight": 600 });
+  rap.appendChild(tr);
+
+  function przesun(g, x, y) { g.setAttribute("transform", "translate(" + x + "," + y + ")"); }
+  function plyn(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+  var CYKL = 11, START = 0.8, KROK = 1.3, LOT = 1.1;
+  var centrum = [380 - W / 2, 135 - H / 2];
+
+  function klatka(t) {
+    var aktywne = -1;
+    for (var i = 0; i < N; i++) {
+      var t0 = START + i * KROK;
+      zrodla[i].style.opacity = t >= t0 ? 0.25 : 1;
+      wyniki[i].style.opacity = t >= t0 + LOT ? 1 : 0;
+      if (t >= t0 && t < t0 + LOT) { aktywne = i; }
+    }
+    if (aktywne >= 0) {
+      var f = (t - (START + aktywne * KROK)) / LOT;
+      var s0 = slot(aktywne, 20), s1 = slot(aktywne, 550);
+      var x, y;
+      if (f < 0.5) { var q = plyn(f * 2); x = s0[0] + (centrum[0] - s0[0]) * q; y = s0[1] + (centrum[1] - s0[1]) * q; }
+      else { var q2 = plyn((f - 0.5) * 2); x = centrum[0] + (s1[0] - centrum[0]) * q2; y = centrum[1] + (s1[1] - centrum[1]) * q2; }
+      svg.removeChild(lecace);
+      lecace = kafel(svg, x, y, aktywne, f >= 0.5);
+      licznik.textContent = "zdjęcie " + (aktywne + 1) + " z " + N;
+    } else {
+      lecace.style.opacity = 0;
+      licznik.textContent = t >= START + N * KROK ? "gotowe: " + N + " map" : "";
+    }
+    rap.style.opacity = t >= START + (N - 1) * KROK + LOT + 0.3 ? 1 : 0;
+  }
+
+  var bezRuchu = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (bezRuchu) { klatka(CYKL - 0.5); return; }
+  var poczatek = null, widoczna = true;
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (w) { widoczna = w[0].isIntersecting; }).observe(svg);
+  }
+  function petla(ts) {
+    if (poczatek === null) { poczatek = ts; }
+    if (widoczna) { klatka(((ts - poczatek) / 1000) % CYKL); } else { poczatek = ts - 0; }
+    requestAnimationFrame(petla);
+  }
+  requestAnimationFrame(petla);
+})();
+</script>
 
 <section id="sentinel"><div class="owijka">
   <h2>Zdjęcia z satelity Sentinel-2</h2>

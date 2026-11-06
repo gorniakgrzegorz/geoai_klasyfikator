@@ -73,6 +73,23 @@ python geoai.py klasyfikuj --folder ./naloty --model model.geoai \
                            --wyjscie ./mapy --nmpt-folder ./nmpt
 ```
 
+## Wiele zdjęć naraz: wskaż folder, nie łącz
+
+Masz dziesiątki albo setki nalotów? **Nie musisz łączyć ich w jedną
+mozaikę.** Model uczysz raz, na jednym reprezentatywnym zdjęciu, a potem
+wskazujesz folder: program bierze zdjęcia po kolei, każde liczy osobno
+i zapisuje osobną mapę GeoTIFF ze stylem `.qml`. Na końcu zapisuje
+`raport.csv` z powierzchnią każdej klasy na każdym zdjęciu.
+
+- **wiersz poleceń:** `python geoai.py klasyfikuj --folder naloty --model moj_model.geoai --wyjscie mapy`
+  (opcjonalnie `--nmpt-folder nmpt`, `--rekurencyjnie`, `--mmu 10`);
+- **program dla Windows:** zakładka klasyfikacji całego folderu.
+
+Przerwany przebieg wznawiasz tym samym poleceniem: zdjęcia z gotowym
+wynikiem są pomijane. Szczegóły w [program_cli/README.md](program_cli/README.md),
+animacja na [stronie programu](https://gorniakgrzegorz.github.io/geoai_klasyfikator/#folder).
+Wtyczka QGIS pracuje na jednym zdjęciu naraz.
+
 ## Szybki start: program dla Windows
 
 Gotowego pliku nie trzymamy w repozytorium, bo powstaje przy każdej
