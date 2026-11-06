@@ -1473,66 +1473,107 @@ python geoai.py klasyfikuj --folder flights --model my_model.geoai ^
     }
     ctx.globalAlpha = 1;
   }
-  // Gotowa mapa z wygładzonymi krawędziami: dla każdej klasy rozmyty
-  // wskaźnik przynależności, interpolowany do rozdzielczości płótna;
-  // piksel płótna dostaje klasę o największej wartości. Granice płatów
-  // przestają iść schodkami po pikselach zdjęcia, a drobne ząbki znikają.
-  function gladkaMapa(klasaPix) {
-    var Wc = plotno.width, Hc = plotno.height, nk = KLASY.length;
-    var jadro = [0.25, 0.5, 0.25], r = 1;
-    var pola = [];
-    for (var c = 0; c < nk; c++) {
-      var a = new Float32Array(W * H), b = new Float32Array(W * H);
-      for (var p = 0; p < W * H; p++) { a[p] = klasaPix[p] === c ? 1 : 0; }
-      for (var y = 0; y < H; y++) { for (var x = 0; x < W; x++) {
-        var s = 0;
-        for (var i = -r; i <= r; i++) { var xx = Math.min(W - 1, Math.max(0, x + i)); s += a[y * W + xx] * jadro[i + r]; }
-        b[y * W + x] = s;
-      } }
-      for (var y2 = 0; y2 < H; y2++) { for (var x2 = 0; x2 < W; x2++) {
-        var s2 = 0;
-        for (var j = -r; j <= r; j++) { var yy = Math.min(H - 1, Math.max(0, y2 + j)); s2 += b[yy * W + x2] * jadro[j + r]; }
-        a[y2 * W + x2] = s2;
-      } }
-      pola.push(a);
-    }
-    var rgbK = KLASY.map(function (k) {
-      return [parseInt(k.kolor.substr(1, 2), 16), parseInt(k.kolor.substr(3, 2), 16), parseInt(k.kolor.substr(5, 2), 16)];
-    });
-    var kl = new Uint8Array(Wc * Hc);
-    for (var v = 0; v < Hc; v++) {
-      var gy = Math.min(H - 1, Math.max(0, (v + 0.5) * H / Hc - 0.5));
-      var y0 = Math.floor(gy), y1 = Math.min(H - 1, y0 + 1), fy = gy - y0;
-      for (var u = 0; u < Wc; u++) {
-        var gx = Math.min(W - 1, Math.max(0, (u + 0.5) * W / Wc - 0.5));
-        var x0 = Math.floor(gx), x1 = Math.min(W - 1, x0 + 1), fx = gx - x0;
-        var naj = 0, najW = -1;
-        for (var c2 = 0; c2 < nk; c2++) {
-          var P = pola[c2];
-          var w = (P[y0 * W + x0] * (1 - fx) + P[y0 * W + x1] * fx) * (1 - fy) +
-                  (P[y1 * W + x0] * (1 - fx) + P[y1 * W + x1] * fx) * fy;
-          if (w > najW) { najW = w; naj = c2; }
+  // Gotowa mapa uogólniona jak na mapie topograficznej: kształty
+  // dopasowane do płatów z klasyfikacji. Budynki i pole jako prostokąty
+  // (z kolumn i wierszy zajętych co najmniej w połowie), droga jako prosty pas wzdłuż głównej osi jej pikseli,
+  // drzewa jako okrągłe korony wpisane w płat. Bez obwódek między klasami.
+  function uogolnionaMapa(klasaPix) {
+    var TRAWA = 0, POLE = 1, DACH = 2, DROGA = 3, DRZEWA = 4;
+    function skladowe(klasa) {
+      var etyk = new Int32Array(W * H).fill(-1), wynik = [];
+      for (var p = 0; p < W * H; p++) {
+        if (klasaPix[p] !== klasa || etyk[p] >= 0) { continue; }
+        var stos = [p], piksele = []; etyk[p] = wynik.length;
+        while (stos.length) {
+          var q = stos.pop(); piksele.push(q);
+          var x = q % W, y = (q - x) / W;
+          [[1, 0], [-1, 0], [0, 1], [0, -1]].forEach(function (s) {
+            var xx = x + s[0], yy = y + s[1];
+            if (xx < 0 || yy < 0 || xx >= W || yy >= H) { return; }
+            var r = yy * W + xx;
+            if (klasaPix[r] === klasa && etyk[r] < 0) { etyk[r] = wynik.length; stos.push(r); }
+          });
         }
-        kl[v * Wc + u] = naj;
+        wynik.push(piksele);
       }
+      return wynik;
     }
-    var img = ctx.createImageData(Wc, Hc), d = img.data;
-    var grub = Math.max(1, Math.round(Wc / 576 * 1.3));
-    for (var q = 0; q < Wc * Hc; q++) {
-      var k2 = rgbK[kl[q]]; d[q * 4] = k2[0]; d[q * 4 + 1] = k2[1]; d[q * 4 + 2] = k2[2]; d[q * 4 + 3] = 255;
+    function prostokat(piksele) {
+      // kolumny i wiersze zajęte w co najmniej połowie: pojedyncze ząbki
+      // nie poszerzają obrysu, a pełne boki zostają na swoim miejscu
+      var kol = new Int32Array(W), wie = new Int32Array(H);
+      piksele.forEach(function (q) { kol[q % W]++; wie[Math.floor(q / W)]++; });
+      var mk = Math.max.apply(null, kol), mw = Math.max.apply(null, wie);
+      var x0 = W, x1 = 0, y0 = H, y1 = 0, xmin = W, xmax = -1, ymin = H, ymax = -1;
+      for (var x = 0; x < W; x++) {
+        if (kol[x] > 0) { xmin = Math.min(xmin, x); xmax = Math.max(xmax, x); }
+        if (kol[x] >= mk * 0.5) { x0 = Math.min(x0, x); x1 = Math.max(x1, x + 1); }
+      }
+      for (var y = 0; y < H; y++) {
+        if (wie[y] > 0) { ymin = Math.min(ymin, y); ymax = Math.max(ymax, y); }
+        if (wie[y] >= mw * 0.5) { y0 = Math.min(y0, y); y1 = Math.max(y1, y + 1); }
+      }
+      // płat dotykający brzegu zdjęcia ciągnie się do brzegu
+      if (xmin === 0) { x0 = 0; }
+      if (xmax === W - 1) { x1 = W; }
+      if (ymin === 0) { y0 = 0; }
+      if (ymax === H - 1) { y1 = H; }
+      ctx.fillRect(x0 * SKALA, y0 * SKALA, (x1 - x0) * SKALA, (y1 - y0) * SKALA);
     }
-    for (var v2 = 0; v2 < Hc; v2++) { for (var u2 = 0; u2 < Wc; u2++) {
-      var q2 = v2 * Wc + u2;
-      var granica = (u2 + 1 < Wc && kl[q2] !== kl[q2 + 1]) || (v2 + 1 < Hc && kl[q2] !== kl[q2 + Wc]);
-      if (!granica) { continue; }
-      for (var dy = 0; dy < grub; dy++) { for (var dx = 0; dx < grub; dx++) {
-        var uu = u2 + dx - (grub >> 1), vv = v2 + dy - (grub >> 1);
-        if (uu < 0 || vv < 0 || uu >= Wc || vv >= Hc) { continue; }
-        var t = (vv * Wc + uu) * 4;
-        d[t] = 255; d[t + 1] = 255; d[t + 2] = 255;
-      } }
-    } }
-    ctx.putImageData(img, 0, 0);
+    // tło: trawa
+    ctx.fillStyle = KLASY[TRAWA].kolor; ctx.fillRect(0, 0, W * SKALA, H * SKALA);
+    // pole uprawne: prostokąty dopasowane do płatów
+    ctx.fillStyle = KLASY[POLE].kolor;
+    skladowe(POLE).forEach(function (s) { if (s.length >= 12) { prostokat(s); } });
+    // droga: główna oś pikseli drogi (PCA), szerokość = powierzchnia / długość
+    var dr = skladowe(DROGA).filter(function (s) { return s.length >= 12; });
+    dr.forEach(function (s) {
+      var n = s.length, mx = 0, my = 0;
+      s.forEach(function (q) { mx += q % W + 0.5; my += Math.floor(q / W) + 0.5; });
+      mx /= n; my /= n;
+      var sxx = 0, syy = 0, sxy = 0;
+      s.forEach(function (q) { var dx = q % W + 0.5 - mx, dy = Math.floor(q / W) + 0.5 - my; sxx += dx * dx; syy += dy * dy; sxy += dx * dy; });
+      var kat = 0.5 * Math.atan2(2 * sxy, sxx - syy), ux = Math.cos(kat), uy = Math.sin(kat);
+      var tmin = Infinity, tmax = -Infinity;
+      s.forEach(function (q) { var t = (q % W + 0.5 - mx) * ux + (Math.floor(q / W) + 0.5 - my) * uy; tmin = Math.min(tmin, t); tmax = Math.max(tmax, t); });
+      var szer = n / Math.max(1, tmax - tmin);
+      ctx.strokeStyle = KLASY[DROGA].kolor; ctx.lineWidth = szer * SKALA; ctx.lineCap = "butt";
+      ctx.beginPath();
+      ctx.moveTo((mx + ux * (tmin - 3)) * SKALA, (my + uy * (tmin - 3)) * SKALA);
+      ctx.lineTo((mx + ux * (tmax + 3)) * SKALA, (my + uy * (tmax + 3)) * SKALA);
+      ctx.stroke();
+    });
+    // budynki: prostokąty
+    ctx.fillStyle = KLASY[DACH].kolor;
+    skladowe(DACH).forEach(function (s) { if (s.length >= 6) { prostokat(s); } });
+    // drzewa: okrągłe korony wpisane w płat, od największej
+    ctx.fillStyle = KLASY[DRZEWA].kolor;
+    skladowe(DRZEWA).forEach(function (s) {
+      if (s.length < 5) { return; }
+      var w = {}; s.forEach(function (q) { w[q] = true; });
+      var brzeg = [];
+      s.forEach(function (q) {
+        var x = q % W, y = Math.floor(q / W);
+        if (!w[q - 1] || !w[q + 1] || !w[q - W] || !w[q + W] || x === 0 || x === W - 1) { brzeg.push(q); }
+      });
+      var odl = s.map(function (q) {
+        var x = q % W, y = Math.floor(q / W), m = Infinity;
+        brzeg.forEach(function (b) { var dx = b % W - x, dy = Math.floor(b / W) - y; m = Math.min(m, dx * dx + dy * dy); });
+        return Math.sqrt(m) + 1;
+      });
+      var pokryte = {}, zostalo = s.length;
+      for (var proba = 0; proba < 40 && zostalo > s.length * 0.06; proba++) {
+        var naj = -1, najR = 0;
+        s.forEach(function (q, i) { if (!pokryte[q] && odl[i] > najR) { najR = odl[i]; naj = q; } });
+        if (naj < 0 || najR < 1.2) { break; }
+        var cx = naj % W + 0.5, cy = Math.floor(naj / W) + 0.5;
+        ctx.beginPath(); ctx.arc(cx * SKALA, cy * SKALA, najR * SKALA, 0, 2 * Math.PI); ctx.fill();
+        s.forEach(function (q) {
+          var dx = q % W + 0.5 - cx, dy = Math.floor(q / W) + 0.5 - cy;
+          if (!pokryte[q] && dx * dx + dy * dy <= najR * najR) { pokryte[q] = true; zostalo--; }
+        });
+      }
+    });
   }
   function wszystkie() { var a = []; for (var o = 0; o < NOB; o++) { a.push(o); } return a; }
   function obrys(o, kolor, grubosc) {
@@ -1672,7 +1713,7 @@ python geoai.py klasyfikuj --folder flights --model my_model.geoai ^
         // gotowa mapa: pełne barwy klas, granice tylko między klasami
         var klasaPix = new Int32Array(W * H);
         for (var p = 0; p < W * H; p++) { klasaPix[p] = mapa2[OB[p]].klasa; }
-        gladkaMapa(klasaPix);
+        uogolnionaMapa(klasaPix);
         pokazLegende(true);
         // pojedyncze drzewo: najdalej od pozostałych; reszta to las
         var samotne = 0, najdalej = -1;
@@ -1706,10 +1747,11 @@ python geoai.py klasyfikuj --folder flights --model my_model.geoai ^
         napis("grass", 52, 26);
         var udzial = [0, 0, 0, 0, 0];
         for (var q = 0; q < W * H; q++) { udzial[klasaPix[q]] += 1 / (W * H); }
-        opis.innerHTML = "<p>The finished land cover map after the correction. Objects of the same class have merged into patches, and only " +
-          "the boundaries between classes remain. The map shows two houses and a farm building (roof class), a field, a road, " +
-          "a forest, a single tree and the grass around them.</p><p class=\"maly\">In the program this map is saved to a " +
-          "GeoTIFF file together with a colour style (.qml). Class shares on this map:</p>";
+        opis.innerHTML = "<p>The finished land cover map after the correction. It shows two houses and a farm building (roof class), " +
+          "a field, a road, a forest, a single tree and the grass around them.</p><p class=\"maly\">For display the patches are " +
+          "generalised as on a topographic map: buildings and the field as rectangles, the road as a straight strip, trees as round " +
+          "crowns. The program saves a raster map with the object shapes, as a GeoTIFF with a colour style (.qml). Class shares from " +
+          "the classification:</p>";
         wykres.innerHTML = slupki(KLASY.map(function (kl, i) {
           return [kl.nazwa, udzial[i], kl.kolor, procent(udzial[i])];
         }), 1);
