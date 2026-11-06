@@ -63,8 +63,9 @@ from ..core import classifier as CLF
 from ..core import features as FEAT
 from ..core import qgis_io as IO
 from ..core import refine as REF
-from ..core.compat import make_field
-from ..core.deps import INSTALL_HINT, engine_report, missing_packages
+from ..core.compat import liczba, lokalizacja_liczb, make_field
+from ..core.deps import (HAS_SKIMAGE, INSTALL_HINT, engine_report,
+                         missing_packages)
 from ..core.slic import DEFAULT_COMPACTNESS, DEFAULT_SIGMA, slic_segments
 from .maptools import PointLabelTool, SegmentLabelTool
 
@@ -139,9 +140,14 @@ PODPOWIEDZI_KOLOROW = {
 }
 
 
+# Bez scikit-image wbudowany SLIC jest praktyczny do ok. pół miliona
+# pikseli (tak też podaje strona programu); powyżej pytamy przed startem.
+PROG_BEZ_SKIMAGE = 500_000
+
+
 def _liczba(wartosc, miejsca=2):
     """Liczba z przecinkiem dziesiętnym, jak się pisze po polsku."""
-    return ("{0:." + str(miejsca) + "f}").format(wartosc).replace(".", ",")
+    return liczba(wartosc, miejsca)
 
 
 def _odmiana(liczba, jeden, kilka, wiele):
@@ -198,6 +204,9 @@ class PanelKlasyfikatora(QDockWidget):
                              | Qt.DockWidgetArea.RightDockWidgetArea)
         self.setStyleSheet(STYLE)
         self._build_ui()
+        # pola liczbowe przyjmują i pokazują przecinek dziesiętny
+        for pole in self.findChildren(QDoubleSpinBox) + self.findChildren(QSpinBox):
+            pole.setLocale(lokalizacja_liczb())
         self._refresh_class_list()
         self._update_buttons()
 
@@ -215,9 +224,6 @@ class PanelKlasyfikatora(QDockWidget):
         layout.addWidget(self._step_classify())
         layout.addWidget(self._step_accuracy())
 
-        self.progress = QProgressBar()
-        self.progress.setVisible(False)
-        layout.addWidget(self.progress)
 
         self.log = QTextEdit()
         self.log.setReadOnly(True)
@@ -241,7 +247,17 @@ class PanelKlasyfikatora(QDockWidget):
         scroll.setWidgetResizable(True)
         scroll.setFrameShape(QScrollArea.Shape.NoFrame)
         scroll.setWidget(inner)
-        self.setWidget(scroll)
+        # pasek postępu poza przewijanym obszarem: widać go zawsze,
+        # niezależnie od tego, który krok jest akurat na ekranie
+        self.progress = QProgressBar()
+        self.progress.setVisible(False)
+        calosc = QWidget()
+        uklad = QVBoxLayout(calosc)
+        uklad.setContentsMargins(0, 0, 0, 4)
+        uklad.setSpacing(4)
+        uklad.addWidget(scroll, 1)
+        uklad.addWidget(self.progress)
+        self.setWidget(calosc)
 
     def _header(self):
         header = QWidget()
@@ -305,7 +321,7 @@ class PanelKlasyfikatora(QDockWidget):
             "W jakiej rozdzielczości liczymy (w jednostkach mapy, "
             "zwykle w metrach). Dla zdjęć z drona zwykle 0,05 m. "
             "Zostaw „jak w pliku”, jeśli nie wiesz.")
-        form.addRow("Rozdzielczość robocza:", self.spin_resolution)
+        form.addRow("Rozdzielczość robocza (m):", self.spin_resolution)
 
         self.spin_object_size = QDoubleSpinBox()
         self.spin_object_size.setRange(0.5, 10000.0)
@@ -825,12 +841,36 @@ class PanelKlasyfikatora(QDockWidget):
                 if odpowiedz == QMessageBox.StandardButton.Yes:
                     zadana = 0.0
                     self.spin_resolution.setValue(0.0)
-            self.grid = IO.read_rgb(layer, zadana, extent)
-            height, width = self.grid.shape
-            self.say("Siatka robocza: {0} na {1} pikseli, po {2:.4f} "
-                     "jednostki mapy. Powierzchnia: {3:.2f} ha."
-                     .format(width, height, self.grid.pixel_size,
-                             self._area_of_scene() / 10000.0))
+            siatka = IO.read_rgb(layer, zadana, extent)
+            height, width = siatka.shape
+            if not HAS_SKIMAGE and height * width > PROG_BEZ_SKIMAGE:
+                obecna = siatka.pixel_size
+                proponowana = obecna * np.sqrt(
+                    height * width / PROG_BEZ_SKIMAGE)
+                proponowana = np.ceil(proponowana * 100) / 100
+                odpowiedz = QMessageBox.question(
+                    self, "To może potrwać bardzo długo",
+                    "Siatka robocza ma {0} mln pikseli, a biblioteka "
+                    "scikit-image nie jest zainstalowana. Wbudowany "
+                    "podział na obiekty radzi sobie sprawnie do około "
+                    "pół miliona pikseli; przy większej siatce liczy "
+                    "bardzo długo. Postęp widać na pasku na dole panelu, "
+                    "a QGIS może w tym czasie reagować z opóźnieniem."
+                    "\n\nSzybciej: ustaw rozdzielczość roboczą "
+                    "co najmniej {1} m albo zainstaluj scikit-image "
+                    "(przepis jest w Instrukcji).\n\nLiczyć mimo to?"
+                    .format(_liczba(height * width / 1e6, 1),
+                            _liczba(proponowana, 2)))
+                if odpowiedz != QMessageBox.StandardButton.Yes:
+                    self.progress.setVisible(False)
+                    self.say("Przerwane przed podziałem: siatka za duża "
+                             "dla wbudowanego podziału.")
+                    return
+            self.grid = siatka
+            self.say("Siatka robocza: {0} na {1} pikseli, rozdzielczość "
+                     "{2} m. Powierzchnia: {3} ha."
+                     .format(width, height, _liczba(self.grid.pixel_size, 4),
+                             _liczba(self._area_of_scene() / 10000.0, 2)))
 
             dsm = None
             dsm_layer = self.cmb_dsm.currentLayer()
@@ -857,10 +897,16 @@ class PanelKlasyfikatora(QDockWidget):
                 self._sync_segments(self.spin_object_size.value())
             requested = self.spin_segments.value()
             self.step(25, "Dzielę zdjęcie na obiekty...")
+
+            def postep_podzialu(ulamek):
+                self.step(25 + 10 * ulamek,
+                          "Dzielę zdjęcie na obiekty: {0}".format(
+                              _procent(ulamek, 0)))
+
             self.labels = slic_segments(
                 self.grid.array, requested,
                 self.spin_compactness.value(), self.spin_sigma.value(),
-                mask=self.grid.mask)
+                mask=self.grid.mask, progress=postep_podzialu)
             realised = int(self.labels.max())
             rozmiary = np.bincount(self.labels.ravel())[1:]
             rozmiary = rozmiary[rozmiary > 0] * (self.grid.pixel_size ** 2)
@@ -923,11 +969,12 @@ class PanelKlasyfikatora(QDockWidget):
             QMessageBox.warning(
                 self, "Za duże jak na pamięć komputera",
                 "{0}\n\nCo możesz zrobić:\n"
-                "  • ustaw grubszą rozdzielczość roboczą "
-                "(np. 0,10 zamiast 0,05),\n"
+                "  • wpisz w polu „Rozdzielczość robocza (m)” co "
+                "najmniej tę wartość,\n"
                 "  • zaznacz „Policz tylko to, co widać na "
                 "ekranie”,\n"
-                "  • zamknij inne programy.".format(error))
+                "  • podziel zdjęcie na kafle (np. narzędziem GDAL "
+                "Retile) i licz je po kolei.".format(error))
         except Exception as error:
             self.progress.setVisible(False)
             self.say("Przerwane: {0}".format(error))
@@ -1345,9 +1392,9 @@ class PanelKlasyfikatora(QDockWidget):
             leading = ", ".join(self._feature_label(name)
                                 for name, _ in pair["leading"][:3])
             lines.append(
-                "<tr><td>{0} — {1}</td><td align='right'>{2:.2f}</td>"
+                "<tr><td>{0} — {1}</td><td align='right'>{2}</td>"
                 "<td>{3}</td><td>{4}</td></tr>".format(
-                    pair["a"], pair["b"], pair["jm"],
+                    pair["a"], pair["b"], _liczba(pair["jm"], 2),
                     oceny.get(pair["verdict"], pair["verdict"]), leading))
         lines.append("</table>")
 
@@ -1475,8 +1522,9 @@ class PanelKlasyfikatora(QDockWidget):
             count = float(np.count_nonzero(self.classified == entry["value"]))
             if count and total:
                 area = count * (self.grid.pixel_size ** 2) / 10000.0
-                shares.append("{0} {1:.1f} proc. ({2:.2f} ha)".format(
-                    entry["name"], 100.0 * count / total, area))
+                shares.append("{0} {1} ({2} ha)".format(
+                    entry["name"], _procent(count / total, 1),
+                    _liczba(area, 2)))
         self.say("Mapa: " + ", ".join(shares))
 
         uncertain = int(np.count_nonzero(confidence < 0.5))
@@ -1562,8 +1610,8 @@ class PanelKlasyfikatora(QDockWidget):
         cutoff = REF.cutoff_from_samples(np.concatenate(green_values),
                                          np.concatenate(other_values))
         self.spin_cutoff.setValue(cutoff)
-        self.say("Próg zieloności wyliczony z przykładów: {0:.4f}."
-                 .format(cutoff))
+        self.say("Próg zieloności wyliczony z przykładów: {0}."
+                 .format(_liczba(cutoff, 4)))
 
     def export_map(self):
         if self.classified is None or self.grid is None:
@@ -1950,12 +1998,13 @@ class PanelKlasyfikatora(QDockWidget):
                 "<th>Szacowana (ha)</th><th>Niepewność (ha)</th></tr>")
             for index, name in enumerate(names):
                 lines.append(
-                    "<tr><td>{0}</td><td align='right'>{1:.3f}</td>"
-                    "<td align='right'>{2:.3f}</td>"
-                    "<td align='right'>± {3:.3f}</td></tr>".format(
-                        name, weighted["mapped_area"][index] / 10000.0,
-                        weighted["estimated_area"][index] / 10000.0,
-                        weighted["estimated_area_ci"][index] / 10000.0))
+                    "<tr><td>{0}</td><td align='right'>{1}</td>"
+                    "<td align='right'>{2}</td>"
+                    "<td align='right'>± {3}</td></tr>".format(
+                        name,
+                        _liczba(weighted["mapped_area"][index] / 10000.0, 3),
+                        _liczba(weighted["estimated_area"][index] / 10000.0, 3),
+                        _liczba(weighted["estimated_area_ci"][index] / 10000.0, 3)))
             lines.append("</table>")
             lines.append(
                 "<p style='color:#607d8b'>Jeśli podajesz powierzchnie "
@@ -2004,8 +2053,20 @@ class PanelKlasyfikatora(QDockWidget):
             "Plik CSV (*.csv)")
         if not path:
             return
+        przecinek = lokalizacja_liczb().decimalPoint()
+
+        class _Pisarz:
+            """Ułamki z przecinkiem, żeby Excel czytał je jako liczby."""
+            def __init__(self, baza):
+                self.baza = baza
+
+            def writerow(self, wiersz):
+                self.baza.writerow([
+                    str(w).replace(".", przecinek) if isinstance(w, float)
+                    else w for w in wiersz])
+
         with open(path, "w", newline="", encoding="utf-8-sig") as handle:
-            writer = csv.writer(handle, delimiter=";")
+            writer = _Pisarz(csv.writer(handle, delimiter=";"))
             for row in ACC.report_rows(report):
                 writer.writerow(row)
             weighted = report.get("weighted")

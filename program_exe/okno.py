@@ -275,7 +275,7 @@ class Aplikacja(tk.Tk):
                                     padding=8)
         ustawienia.pack(fill="x", pady=(0, 8))
         self.p_rozdzielczosc = self._wiersz_liczby(
-            ustawienia, "Rozdzielczość robocza (m):", "0.05",
+            ustawienia, "Rozdzielczość robocza (m):", "0,05",
             "Zostaw 0, żeby pracować w rozdzielczości pliku.")
         self.p_wielkosc = self._wiersz_liczby(
             ustawienia, "Wielkość obiektu (m²):", "10",
@@ -516,7 +516,7 @@ class Aplikacja(tk.Tk):
         if nmpt:
             argumenty += ["--nmpt-folder", nmpt]
         try:
-            mmu = float(self.k_mmu.get().strip() or "0")
+            mmu = float(self.k_mmu.get().strip().replace(",", ".") or "0")
         except ValueError:
             mmu = 0.0
         if mmu > 0:

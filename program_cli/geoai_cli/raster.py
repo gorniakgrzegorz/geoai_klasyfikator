@@ -93,13 +93,19 @@ def wczytaj_rgb(sciezka: str, docelowy_piksel: float = 0.0) -> Siatka:
         wysokosc = max(1, int(round(plik.height * skala)))
 
         if szerokosc * wysokosc > MAKS_PIKSELI:
+            # 2 proc. zapasu na zaokrąglanie liczby pikseli
             sugestia = wlasny * np.sqrt(
-                plik.width * plik.height / MAKS_PIKSELI)
+                plik.width * plik.height / MAKS_PIKSELI) * 1.02
+            miejsca = 2 if sugestia >= 0.1 else 3
+            sugestia = np.ceil(sugestia * 10 ** miejsca) / 10 ** miejsca
             raise MemoryError(
                 "Siatka robocza {0} na {1} pikseli nie zmieści się "
-                "w pamięci. Podaj grubszą rozdzielczość, np. "
-                "--rozdzielczosc {2:.3f}.".format(szerokosc, wysokosc,
-                                                  sugestia))
+                "w pamięci (najwyżej 15 mln pikseli). Podaj grubszą "
+                "rozdzielczość, co najmniej --rozdzielczosc {2} "
+                "(w metrach).".format(
+                    szerokosc, wysokosc,
+                    ("{0:." + str(miejsca) + "f}").format(sugestia)
+                    .replace(".", ",")))
 
         dane = plik.read(
             indexes=[1, 2, 3],

@@ -178,11 +178,14 @@ def slic_segments(rgb: np.ndarray,
                   compactness: float = DEFAULT_COMPACTNESS,
                   sigma: float = DEFAULT_SIGMA,
                   mask: np.ndarray | None = None,
-                  prefer_skimage: bool = True) -> np.ndarray:
+                  prefer_skimage: bool = True,
+                  progress=None) -> np.ndarray:
     """Split *rgb* into roughly *n_segments* objects.
 
     ``rgb`` is a float array in 0..1 of shape (rows, cols, 3).
     ``mask`` marks the pixels to segment (True = inside).
+    ``progress`` is an optional callable(fraction 0..1), called by the
+    built-in implementation so the interface can stay responsive.
     Returns an int32 label image, 1..N, with 0 for pixels left out.
     """
     rgb = np.asarray(rgb, dtype=np.float64)
@@ -214,7 +217,8 @@ def slic_segments(rgb: np.ndarray,
             labels[~mask] = 0
         return labels
 
-    return _slic_builtin(rgb, n_segments, compactness, sigma, mask)
+    return _slic_builtin(rgb, n_segments, compactness, sigma, mask,
+                         progress)
 
 
 def _fill_unassigned(labels: np.ndarray,
@@ -252,7 +256,8 @@ def _fill_unassigned(labels: np.ndarray,
     return labels
 
 
-def _slic_builtin(rgb, n_segments, compactness, sigma, mask):
+def _slic_builtin(rgb, n_segments, compactness, sigma, mask,
+                  progress=None):
     height, width = rgb.shape[:2]
     smoothed = gaussian_blur(rgb, sigma)
     lab = rgb_to_lab(np.clip(smoothed, 0.0, 1.0))
@@ -281,11 +286,16 @@ def _slic_builtin(rgb, n_segments, compactness, sigma, mask):
     window = int(np.ceil(spacing))
     factor = (compactness ** 2) / (spacing ** 2)
 
-    for _ in range(MAX_ITERATIONS):
+    # meldunek co ok. 2 proc. jednej iteracji: pasek postępu się rusza,
+    # a QGIS nie wygląda na zawieszony
+    co_ile = max(1, n_centres // 50)
+    for iteration in range(MAX_ITERATIONS):
         distances[:] = np.inf
         labels[:] = -1
 
         for index in range(n_centres):
+            if progress is not None and index % co_ile == 0:
+                progress((iteration + index / n_centres) / MAX_ITERATIONS)
             centre_r, centre_c = centres_rc[index]
             r0 = max(0, int(centre_r) - window)
             r1 = min(height, int(centre_r) + window + 1)

@@ -1709,13 +1709,13 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
 
   <h3>Od czego zacząć</h3>
   <div class="tabela-przewin"><table>
-    <thead><tr><th>Co kartujesz</th><th>Rozdzielczość robocza</th>
+    <thead><tr><th>Co kartujesz</th><th>Rozdzielczość robocza (m)</th>
       <th>Wielkość obiektu</th></tr></thead>
     <tbody>
-      <tr><td>Pola, zagony, dachy</td><td>5–10 cm</td><td>5–20 m²</td></tr>
-      <tr><td>Pojedyncze drzewa, krzewy</td><td>3–5 cm</td><td>2–5 m²</td></tr>
-      <tr><td>Luki w drzewostanie, korony</td><td>10–25 cm</td><td>10–30 m²</td></tr>
-      <tr><td>Duże naloty, setki hektarów</td><td>20–25 cm</td><td>20–50 m²</td></tr>
+      <tr><td>Pola, zagony, dachy</td><td>0,05–0,10</td><td>5–20 m²</td></tr>
+      <tr><td>Pojedyncze drzewa, krzewy</td><td>0,03–0,05</td><td>2–5 m²</td></tr>
+      <tr><td>Luki w drzewostanie, korony</td><td>0,10–0,25</td><td>10–30 m²</td></tr>
+      <tr><td>Duże naloty, setki hektarów</td><td>0,20–0,25</td><td>20–50 m²</td></tr>
     </tbody>
   </table></div>
 
@@ -1998,10 +1998,11 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
         <td>liczysz na małym wycinku, węższym niż 40 m</td>
         <td>policz całe zdjęcie, bo grunt szacuje się z szerokiego
             otoczenia</td></tr>
-      <tr><td><code>Nie zmieści się w pamięci</code></td>
-        <td>siatka robocza za gęsta</td>
-        <td>podaj grubszą rozdzielczość (0,10 zamiast 0,05) albo
-            policz tylko widoczny fragment</td></tr>
+      <tr><td><code>Za duże jak na pamięć komputera</code></td>
+        <td>siatka robocza ma ponad 15 mln pikseli</td>
+        <td>wpisz w polu Rozdzielczość robocza (m) co najmniej wartość
+            podaną w komunikacie albo policz tylko widoczny
+            fragment</td></tr>
       <tr><td>Klasa wyszła bez ani jednego obiektu uczącego</td>
         <td>poligony mniejsze niż obiekty</td>
         <td>narysuj większe poligony albo zmniejsz wielkość obiektu</td></tr>

@@ -1737,13 +1737,13 @@ python geoai.py klasyfikuj --folder flights --model my_model.geoai ^
 
   <h3>Where to start</h3>
   <div class="tabela-przewin"><table>
-    <thead><tr><th>What you map</th><th>Working resolution</th>
+    <thead><tr><th>What you map</th><th>Working resolution (m)</th>
       <th>Object size</th></tr></thead>
     <tbody>
-      <tr><td>Fields, plots, roofs</td><td>5–10 cm</td><td>5–20 m²</td></tr>
-      <tr><td>Single trees, shrubs</td><td>3–5 cm</td><td>2–5 m²</td></tr>
-      <tr><td>Canopy gaps, crowns</td><td>10–25 cm</td><td>10–30 m²</td></tr>
-      <tr><td>Large flights, hundreds of hectares</td><td>20–25 cm</td><td>20–50 m²</td></tr>
+      <tr><td>Fields, plots, roofs</td><td>0.05–0.10</td><td>5–20 m²</td></tr>
+      <tr><td>Single trees, shrubs</td><td>0.03–0.05</td><td>2–5 m²</td></tr>
+      <tr><td>Canopy gaps, crowns</td><td>0.10–0.25</td><td>10–30 m²</td></tr>
+      <tr><td>Large flights, hundreds of hectares</td><td>0.20–0.25</td><td>20–50 m²</td></tr>
     </tbody>
   </table></div>
 
@@ -2029,10 +2029,10 @@ python geoai.py klasyfikuj --folder flights --model my_model.geoai ^
         <td>you are processing a small extent, narrower than 40 m</td>
         <td>process the whole image, because the ground is estimated from
             wide surroundings</td></tr>
-      <tr><td>Out-of-memory message</td>
-        <td>working grid too dense</td>
-        <td>use a coarser resolution (0.10 instead of 0.05) or process
-            only the visible part</td></tr>
+      <tr><td>"Too large for the computer's memory"</td>
+        <td>the working grid has more than 15 million pixels</td>
+        <td>enter in Working resolution (m) at least the value given in
+            the message, or process only the visible part</td></tr>
       <tr><td>A class ended up without a single training object</td>
         <td>polygons smaller than objects</td>
         <td>draw larger polygons or reduce the object size</td></tr>

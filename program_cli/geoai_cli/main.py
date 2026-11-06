@@ -91,6 +91,15 @@ class Dziennik:
         print("=" * len(tekst), flush=True)
 
 
+def liczba(tekst) -> float:
+    """Liczba z wiersza poleceń; przyjmuje przecinek (0,05) i kropkę (0.05)."""
+    try:
+        return float(str(tekst).strip().replace(",", "."))
+    except ValueError:
+        raise argparse.ArgumentTypeError(
+            "to nie jest liczba: {0!r} (wpisz na przykład 0,05)".format(tekst))
+
+
 def _czas(sekundy: float) -> str:
     if sekundy < 60:
         return "{0:.0f} s".format(sekundy)
@@ -500,7 +509,10 @@ def _zapisz_raport(sciezka, wiersze):
         pisarz = csv.DictWriter(plik, fieldnames=kolumny, delimiter=";")
         pisarz.writeheader()
         for wiersz in wiersze:
-            pisarz.writerow(wiersz)
+            # ułamki z przecinkiem: polski Excel czyta je wtedy jako liczby
+            pisarz.writerow({k: (str(w).replace(".", ",")
+                                 if isinstance(w, float) else w)
+                             for k, w in wiersz.items()})
 
 
 # ── polecenie: info ──────────────────────────────────────────────────
@@ -583,20 +595,20 @@ def zbuduj_parser():
     ucz.add_argument("--nmpt", default=None,
                      help="model wysokości pokrycia terenu (opcjonalny, "
                           "ale bardzo pomaga)")
-    ucz.add_argument("--rozdzielczosc", type=float, default=0.0,
+    ucz.add_argument("--rozdzielczosc", type=liczba, default=0.0,
                      help="rozdzielczość robocza w jednostkach mapy; "
                           "0 oznacza rozdzielczość pliku")
     ucz.add_argument("--wielkosc-obiektu", dest="wielkosc_obiektu",
-                     type=float, default=10.0,
+                     type=liczba, default=10.0,
                      help="wielkość jednego obiektu w metrach kwadratowych")
     ucz.add_argument("--liczba-obiektow", dest="liczba_obiektow",
                      type=int, default=0,
                      help="zamiast wielkości: ile obiektów ma powstać")
-    ucz.add_argument("--zwartosc", type=float, default=0.15,
+    ucz.add_argument("--zwartosc", type=liczba, default=0.15,
                      help="zwartość obiektów przy podziale")
-    ucz.add_argument("--wygladzenie", type=float, default=2.5,
+    ucz.add_argument("--wygladzenie", type=liczba, default=2.5,
                      help="rozmycie zdjęcia przed podziałem")
-    ucz.add_argument("--pokrycie", type=float, default=0.5,
+    ucz.add_argument("--pokrycie", type=liczba, default=0.5,
                      help="jaka część obiektu musi być przykryta "
                           "przykładem, żeby się liczył")
     ucz.add_argument("--separowalnosc", action="store_true",
@@ -627,9 +639,9 @@ def zbuduj_parser():
     klas.add_argument("--nmpt-przyrostek", dest="nmpt_przyrostek",
                       default="_nmpt",
                       help="jak odróżnić plik wysokości po nazwie")
-    klas.add_argument("--rozdzielczosc", type=float, default=0.0,
+    klas.add_argument("--rozdzielczosc", type=liczba, default=0.0,
                       help="nadpisz rozdzielczość zapisaną w modelu")
-    klas.add_argument("--mmu", type=float, default=0.0,
+    klas.add_argument("--mmu", type=liczba, default=0.0,
                       help="najmniejszy zachowany płat w metrach "
                            "kwadratowych; 0 wyłącza czyszczenie")
     klas.add_argument("--klasa-zielona", dest="klasa_zielona", default=None,
@@ -638,7 +650,7 @@ def zbuduj_parser():
                       help="dociąganie po zieloności: klasa, z której "
                            "odzyskujemy piksele")
     klas.add_argument("--prog-zielonosci", dest="prog_zielonosci",
-                      type=float, default=0.05,
+                      type=liczba, default=0.05,
                       help="próg zieloności przy dociąganiu")
     klas.add_argument("--okno", type=int, default=3,
                       help="okno uśredniania zieloności w pikselach")

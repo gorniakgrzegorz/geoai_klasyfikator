@@ -18,6 +18,8 @@ from qgis.core import (
     QgsVectorLayer,
 )
 
+from .compat import liczba
+
 gdal.UseExceptions()
 
 # Jeden piksel siatki roboczej kosztuje ok. 100 bajtów we wszystkich
@@ -119,9 +121,22 @@ def read_rgb(layer, target_pixel_size: float = 0.0,
     out_height = max(1, int(round(height * scale)))
 
     if out_width * out_height > MAX_WORKING_PIXELS:
+        obecna = target_pixel_size if target_pixel_size > 0 else native
+        # najdrobniejsza rozdzielczość, przy której siatka mieści się
+        # w limicie; 2 proc. zapasu na zaokrąglanie liczby pikseli
+        potrzebna = obecna * np.sqrt(
+            out_width * out_height / MAX_WORKING_PIXELS) * 1.02
+        miejsca = 2 if potrzebna >= 0.1 else 3
+        potrzebna = np.ceil(potrzebna * 10 ** miejsca) / 10 ** miejsca
         raise MemoryError(
-            f"Siatka robocza {out_width} na {out_height} pikseli nie "
-            f"zmieści się w pamięci komputera.")
+            "Przy rozdzielczości roboczej {0} m siatka ma {1} na {2} "
+            "pikseli, czyli {3} mln, a program przyjmuje najwyżej "
+            "{4} mln pikseli. Najdrobniejsza rozdzielczość, która się "
+            "zmieści: {5} m.".format(
+                liczba(obecna, 3), out_width, out_height,
+                liczba(out_width * out_height / 1e6, 1),
+                liczba(MAX_WORKING_PIXELS / 1e6, 0),
+                liczba(potrzebna, miejsca)))
 
     bands = []
     for index in range(1, 4):

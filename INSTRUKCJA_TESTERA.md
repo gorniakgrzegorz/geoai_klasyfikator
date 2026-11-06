@@ -40,7 +40,7 @@ Jeśli jest w stopniach geograficznych (EPSG:4326), przelicz je:
    **„Policz tylko to, co widać na ekranie"** i przybliż się do
    fragmentu, który dobrze znasz, na pierwszy raz to oszczędza
    kwadrans. Ustaw:
-   - *Rozdzielczość robocza*: **0,05** (albo zostaw „jak w pliku")
+   - *Rozdzielczość robocza (m)*: **0,05** (albo zostaw „jak w pliku")
    - *Wielkość obiektu*: **10 m²**
 
    Kliknij **PODZIEL NA OBIEKTY I ZMIERZ**.

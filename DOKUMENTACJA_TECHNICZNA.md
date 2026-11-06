@@ -675,7 +675,7 @@ działało u osoby, która nie potrafi doinstalować bibliotek, a nie temu,
 |---|---|---|---|
 | Wielkość obiektu | 10 m² | 0,5 do 10 000 | panel krok 1, zakładka Nauka |
 | Liczba obiektów | 10 000 | 100 do 2 000 000 | to samo, wyrażone inaczej |
-| Rozdzielczość robocza | jak w pliku | 0 do 100 | panel krok 1 |
+| Rozdzielczość robocza (m) | jak w pliku | 0 do 100 | panel krok 1 |
 | Zwartość SLIC | 0,15 | 0,01 do 1,0 | panel krok 1, ustawienia zaawansowane |
 | Wygładzanie sigma | 2,5 | 0 do 10 | to samo |
 | Tylko widok ekranu | wyłączone | tak, nie | panel krok 1 |
@@ -810,7 +810,7 @@ dwoma niezależnymi przebiegami.
 | Wersja scikit-learn | domyślne wartości `RandomForestClassifier` nie są w kodzie ustawione jawnie |
 | Wersja scikit-image | drobne zmiany w implementacji SLIC między wydaniami |
 | Brak bibliotek opcjonalnych | uruchomienie implementacji zapasowych (rozdział 7) |
-| Rozdzielczość robocza | inna siatka daje inne obiekty i inne wartości cech; siatka powyżej 15 mln pikseli jest odrzucana |
+| Rozdzielczość robocza (m) | inna siatka daje inne obiekty i inne wartości cech; siatka powyżej 15 mln pikseli jest odrzucana |
 | Rozmiar sceny mniejszy niż 80 m | ogranicza okno otwarcia przy szacowaniu gruntu |
 
 ### Minimum, które trzeba podać w artykule

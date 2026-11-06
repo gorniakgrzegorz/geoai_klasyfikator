@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 from qgis.core import QgsField
+from qgis.PyQt.QtCore import QLocale
 
 _MODERN = None
 _LEGACY = None
@@ -42,3 +43,20 @@ def make_field(name: str, kind: str = "string", length: int = 0,
     raise RuntimeError(
         f"Nie udało się utworzyć kolumny '{name}': "
         + "; ".join(problems))
+
+
+# Zapis liczb w polach i komunikatach. Wersja polska zawsze używa
+# przecinka dziesiętnego, niezależnie od ustawień systemu; angielska
+# (pusty napis) idzie za ustawieniami regionalnymi QGIS.
+LOKALE_LICZB = "pl_PL"
+
+
+def lokalizacja_liczb() -> QLocale:
+    """Lokalizacja dla pól liczbowych i liczb w komunikatach."""
+    return QLocale(LOKALE_LICZB) if LOKALE_LICZB else QLocale()
+
+
+def liczba(wartosc, miejsca=2) -> str:
+    """Liczba z separatorem dziesiętnym zgodnym z polami wtyczki."""
+    tekst = ("{0:." + str(miejsca) + "f}").format(wartosc)
+    return tekst.replace(".", lokalizacja_liczb().decimalPoint())

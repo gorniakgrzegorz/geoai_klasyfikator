@@ -492,7 +492,7 @@ ostrzeżenia.
 |---|---|
 | **Zdjęcie (RGB)** | warstwa rastrowa wczytana w QGIS |
 | **Model wysokości (opcjonalnie)** | warstwa NMPT, jeśli masz |
-| **Rozdzielczość robocza** | zostaw **jak w pliku**, jeśli nie wiesz. Dla drona typowo 0,05 m |
+| **Rozdzielczość robocza (m)** | zostaw **jak w pliku**, jeśli nie wiesz. Dla drona typowo 0,05 m |
 | **Wielkość obiektu (m²)** | **najważniejsze ustawienie**, domyślnie 10 |
 | **albo liczba obiektów** | to samo wyrażone inaczej, domyślnie 10 000 |
 
@@ -734,7 +734,7 @@ Sekcja **Ustawienia podziału**:
 
 | Pole | Domyślnie | Uwaga |
 |---|---|---|
-| **Rozdzielczość robocza (m)** | 0.05 | wpisz 0, żeby pracować w rozdzielczości pliku |
+| **Rozdzielczość robocza (m)** | 0,05 | wpisz 0, żeby pracować w rozdzielczości pliku |
 | **Wielkość obiektu (m²)** | 10 | ta sama zasada co we wtyczce: mniejszy niż najwęższa rzecz na mapie |
 
 Na końcu **Zapisz model jako**, domyślnie `model.geoai`. To plik, który
@@ -845,7 +845,7 @@ i kiedy.
 | Ustawienie | Domyślnie | Kiedy zmieniać |
 |---|---|---|
 | Wielkość obiektu | 10 m² | **zawsze przemyśl**: musi być mniejsza od najwęższej rzeczy na mapie |
-| Rozdzielczość robocza | jak w pliku (wtyczka), 0.05 (program) | gdy zdjęcie jest bardzo duże, a komputer słaby |
+| Rozdzielczość robocza (m) | jak w pliku (wtyczka), 0,05 (program) | gdy zdjęcie jest bardzo duże, a komputer słaby |
 | Zwartość | 0,15 | praktycznie nigdy |
 | Wygładzanie | 2,5 | praktycznie nigdy |
 | Okno uśredniania zieloności | 3 piksele | gdy pasy trawy są bardzo cienkie, zmniejsz |

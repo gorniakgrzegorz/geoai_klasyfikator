@@ -91,7 +91,7 @@ python geoai.py ucz ^
     --zdjecie naloty/nalot_01.tif ^
     --probki przyklady.gpkg ^
     --nmpt nmpt/nalot_01_nmpt.tif ^
-    --rozdzielczosc 0.05 ^
+    --rozdzielczosc 0,05 ^
     --wielkosc-obiektu 10 ^
     --separowalnosc ^
     --model moj_model.geoai
@@ -193,7 +193,7 @@ zgłosi błąd i poleci dalej, a brakujące wypisze w raporcie.
 |---|---|
 | `ModuleNotFoundError: No module named 'rasterio'` | nie zainstalowano bibliotek: `python -m pip install -r requirements.txt` |
 | `Nie znalazłem modułów obliczeniowych wtyczki` | katalog `geoai_klasyfikator` musi leżeć obok; albo ustaw zmienną `GEOAI_KLASYFIKATOR` na jego ścieżkę |
-| `Siatka robocza ... nie zmieści się w pamięci` | podaj grubszą `--rozdzielczosc` (np. 0.10 zamiast 0.05) |
+| `Siatka robocza ... nie zmieści się w pamięci` | podaj `--rozdzielczosc` co najmniej taką, jaką program wypisze w komunikacie (w metrach, z przecinkiem albo kropką) |
 | `Potrzebne jest zdjęcie trójkanałowe (RGB)` | podajesz NMPT albo maskę zamiast zdjęcia |
 | `Plik ... nie ma kolumny „klasa"` | podaj właściwą przez `--pole` (program wypisze, jakie są) |
 | `Klasy bez ani jednego obiektu uczącego` | poligony są za małe wobec wielkości obiektu — narysuj większe albo zmniejsz `--wielkosc-obiektu` |
