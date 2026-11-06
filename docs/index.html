@@ -61,6 +61,9 @@
 }
 </script>
 <meta name="description" content="Obiektowa klasyfikacja pokrycia terenu ze zdjęć z UAV i satelity. Wtyczka QGIS, program dla Windows i wiersz poleceń. Instrukcja krok po kroku.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root{
   --marka:#00bde7; --marka-ciemna:#00749c; --marka-glebia:#005f80; --marka-jasna:#eafaff;
@@ -69,7 +72,7 @@
   --cien:0 1px 3px rgba(16,42,50,.07), 0 8px 24px rgba(16,42,50,.05);
 }
 *{box-sizing:border-box}
-body{margin:0;font:16px/1.65 -apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+body{margin:0;font:16.5px/1.65 Figtree,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
      color:var(--tekst);background:var(--tlo);-webkit-font-smoothing:antialiased}
 a{color:var(--marka-ciemna)}
 .owijka{max-width:980px;margin:0 auto;padding:0 20px}
@@ -89,7 +92,7 @@ nav .linki a:hover{color:var(--marka-ciemna)}
 header{background:linear-gradient(160deg,var(--marka-ciemna) 0%,var(--marka-glebia) 100%);color:#fff;
        padding:58px 0 64px;position:relative;overflow:hidden}
 header::after{content:"";position:absolute;inset:auto 0 -1px 0;height:40px;
-  background:var(--tlo);clip-path:polygon(0 100%,100% 0,100% 100%)}
+  background:var(--marka-glebia);clip-path:polygon(0 100%,100% 0,100% 100%)}
 header h1{margin:0 0 10px;font-size:2.7rem;letter-spacing:-.02em;line-height:1.1}
 header h1 .wiersz{display:block;white-space:nowrap}
 header p.lead{margin:0 0 26px;font-size:1.18rem;max-width:620px;color:#fff}
@@ -233,6 +236,44 @@ a.cyt:hover{text-decoration:underline}
 @media(max-width:820px){.anim{grid-template-columns:1fr}.anim-panel{min-height:0}
   .anim-etapy button{min-height:44px;padding:8px 11px;font-size:13px}
   .anim-przyciski button{min-height:44px}}
+
+/* ── nagłówek z mapą ──────────────────────────────────────────── */
+.naglowek{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:44px;align-items:center}
+.naglowek-mapa{margin:0}
+.naglowek-mapa canvas{width:100%;height:auto;display:block;border-radius:14px;
+  border:6px solid rgba(255,255,255,.92);box-shadow:0 18px 40px rgba(0,30,45,.35);cursor:pointer}
+.naglowek-mapa figcaption{font-size:13.5px;color:#e6f4f8;margin-top:10px}
+header h1{font-weight:800}
+@media(max-width:900px){.naglowek{grid-template-columns:1fr;gap:28px}.naglowek-mapa{max-width:520px}}
+
+/* ── części strony ────────────────────────────────────────────── */
+.rozdzial{background:var(--marka-glebia);color:#fff;padding:40px 0 34px;scroll-margin-top:56px}
+.rozdzial h2{color:#fff;font-size:2rem;margin:0 0 6px;font-weight:800}
+.rozdzial p{margin:0;color:#e3f2f7;max-width:640px}
+.rozdzial .rozdzial-nr{font-size:14px;color:#a9dcec;margin:0 0 6px;font-weight:600}
+.rozdzial-spis{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.rozdzial-spis a{color:#fff;text-decoration:none;font-size:14.5px;font-weight:500;
+  border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:7px 15px}
+.rozdzial-spis a:hover,.rozdzial-spis a:focus-visible{background:rgba(255,255,255,.16)}
+section.tlo{background:#f3f9fb}
+section.tlo .karta,section.tlo .anim-panel,section.tlo table{background:#fff}
+
+/* ── rozwijane szczegóły ──────────────────────────────────────── */
+details.rozwin{border:1px solid var(--linia);border-radius:10px;margin:12px 0;background:#fff}
+details.rozwin>summary{cursor:pointer;list-style:none;padding:13px 18px;font-weight:600;
+  display:flex;justify-content:space-between;align-items:center;gap:16px}
+details.rozwin>summary::-webkit-details-marker{display:none}
+details.rozwin>summary::after{content:"Pokaż";font-weight:500;font-size:14px;color:var(--marka-ciemna);flex:none}
+details.rozwin[open]>summary::after{content:"Zwiń"}
+details.rozwin[open]>summary{border-bottom:1px solid var(--linia)}
+details.rozwin>:not(summary){margin-left:18px;margin-right:18px}
+details.rozwin>p:last-child,details.rozwin>ol:last-child,details.rozwin>.tabela-przewin:last-child{margin-bottom:16px}
+details.rozwin>p:first-of-type,details.rozwin>ol:first-of-type,details.rozwin>.tabela-przewin:first-of-type{margin-top:14px}
+
+/* ── karta wtyczki QGIS ───────────────────────────────────────── */
+#wersja-qgis{border-top:5px solid #3f6f23}
+.wersja .pob a.qgis{background:#3f6f23;color:#fff}
+.wersja .pob a.qgis:hover{background:#2f5419;color:#fff}
 @media(max-width:640px){
   header h1{font-size:clamp(1.2rem,7.4vw,2rem)}
   nav .linki{display:none}
@@ -263,13 +304,10 @@ a.cyt:hover{text-decoration:underline}
   </a>
   <div class="linki">
     <a href="#wersje">Pobierz</a>
-    <a href="#sentinel">Sentinel-2</a>
-    <a href="#jak">Jak to działa</a>
-    <a href="#algorytm">Algorytm</a>
-    <a href="#krok1">Krok po kroku</a>
+    <a href="#r-jak">Jak to działa</a>
+    <a href="#r-kroki">Krok po kroku</a>
     <a href="#dokladnosc">Dokładność</a>
-    <a href="#klopoty">Kłopoty</a>
-    <a href="#metoda">Metodyka</a>
+    <a href="#r-nauka">Dla naukowców</a>
   </div>
   <details class="menu">
     <summary>Spis treści</summary>
@@ -290,7 +328,8 @@ a.cyt:hover{text-decoration:underline}
   </details>
 </div></nav>
 
-<header><div class="owijka">
+<header><div class="owijka naglowek">
+ <div class="naglowek-tekst">
   <h1><span class="wiersz">Mapa pokrycia terenu</span><span class="wiersz">ze zdjęć z UAV i satelity</span></h1>
   <p class="lead">Program dzieli zdjęcie na obiekty, uczy się Twoich klas
   z kilkunastu przykładów, a na końcu uczciwie mówi, ile ta mapa jest warta.</p>
@@ -305,7 +344,20 @@ a.cyt:hover{text-decoration:underline}
     <a class="przycisk glowny" href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/releases/latest/download/GeoAI_Klasyfikator_Setup.exe"><svg class="ik" aria-hidden="true"><use href="#i-pobierz"/></svg>Pobierz program dla Windows</a>
     <a class="przycisk" href="#wersje">Wtyczka QGIS i inne wersje</a>
   </div>
+ </div>
+ <figure class="naglowek-mapa">
+  <canvas id="hero-mapa" width="720" height="520" role="img"
+          aria-label="Zdjęcie dzieli się na obiekty, a obiekty dostają klasy pokrycia terenu"></canvas>
+  <figcaption>Zdjęcie, obiekty, mapa klas. Kliknij, aby zobaczyć jeszcze raz.</figcaption>
+ </figure>
 </div></header>
+
+<div class="rozdzial" id="r-start"><div class="owijka">
+  <p class="rozdzial-nr">Część 1 z 4</p>
+  <h2>Zacznij pracę</h2>
+  <p>Pobierz wersję dla siebie i sprawdź, czy Twoje zdjęcia i komputer się nadają.</p>
+  <div class="rozdzial-spis" role="navigation" aria-label="Zacznij pracę"><a href="#wersje">Pobierz</a><a href="#folder">Wiele zdjęć naraz</a><a href="#komputer">Komputer i szybkość</a><a href="#sentinel">Sentinel-2</a></div>
+</div></div>
 
 <section id="wersje"><div class="owijka">
   <h2>Trzy wersje, jeden silnik</h2>
@@ -321,6 +373,7 @@ a.cyt:hover{text-decoration:underline}
       losowanie punktów, macierz błędów i powierzchnie z przedziałami
       ufności.</p>
       <div class="pob">
+        <a class="qgis" href="https://plugins.qgis.org/plugins/geoai_klasyfikator/">Strona wtyczki w repozytorium QGIS</a>
         <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/releases/latest/download/geoai_klasyfikator.zip"><svg class="ik" aria-hidden="true"><use href="#i-pobierz"/></svg>Wtyczka (ZIP)</a>
       </div>
     </div>
@@ -348,8 +401,11 @@ a.cyt:hover{text-decoration:underline}
   </div>
 
   <div class="ramka">
-    <p><strong>Instalacja wtyczki:</strong> QGIS, Wtyczki, Zarządzanie
-    wtyczkami, Zainstaluj z pliku ZIP.</p>
+    <p><strong>Instalacja wtyczki:</strong> wtyczka jest w
+    <a href="https://plugins.qgis.org/plugins/geoai_klasyfikator/">oficjalnym repozytorium wtyczek QGIS</a>. W QGIS otwórz
+    Wtyczki, Zarządzanie wtyczkami i wyszukaj „GeoAI Klasyfikator”. Jeśli
+    wyszukiwarka jeszcze jej nie znajduje (nowe wtyczki czekają na
+    zatwierdzenie), pobierz plik ZIP i wybierz Zainstaluj z pliku ZIP.</p>
     <p><strong>Ostrzeżenie przeglądarki</strong> przy pliku programu
     oznacza brak podpisu wydawcy, a nie wykrytego wirusa. Pliki nie są
     jeszcze podpisane; projekt przygotowuje wniosek do programu SignPath
@@ -420,6 +476,8 @@ a.cyt:hover{text-decoration:underline}
 python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
     --wyjscie mapy --nmpt-folder nmpt</code></pre>
 
+  <details class="rozwin">
+  <summary>Wszystkie opcje klasyfikacji folderu</summary>
   <div class="tabela-przewin"><table>
     <thead><tr><th>Opcja</th><th>Co robi</th></tr></thead>
     <tbody>
@@ -430,6 +488,7 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
       <tr><td><code>--przerwij-na-bledzie</code></td><td>zatrzymuje się przy pierwszym problemie; bez tej opcji program zgłasza błąd przy danym zdjęciu i liczy dalej</td></tr>
     </tbody>
   </table></div>
+  </details>
 
   <div class="siatka dwa">
     <div class="karta">
@@ -611,7 +670,8 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
     rozdzielczość roboczą.</p>
   </div>
 
-  <h3>Co decyduje o czasie obliczeń</h3>
+  <details class="rozwin">
+  <summary>Co decyduje o czasie obliczeń</summary>
   <div class="tabela-przewin"><table>
     <thead><tr><th>Czynnik</th><th>Dlaczego</th></tr></thead>
     <tbody>
@@ -636,6 +696,7 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
         wszystkie rdzenie procesora</td></tr>
     </tbody>
   </table></div>
+  </details>
 
   <h3>Jak przyspieszyć pracę bez nowego komputera</h3>
   <div class="siatka dwa">
@@ -765,7 +826,14 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
   </div>
 </div></section>
 
-<section id="jak"><div class="owijka">
+<div class="rozdzial" id="r-jak"><div class="owijka">
+  <p class="rozdzial-nr">Część 2 z 4</p>
+  <h2>Jak to działa</h2>
+  <p>Dlaczego program pracuje na obiektach i jak uczy się klas z Twoich przykładów.</p>
+  <div class="rozdzial-spis" role="navigation" aria-label="Jak to działa"><a href="#jak">Obiekty zamiast pikseli</a><a href="#algorytm">Algorytm z animacją</a></div>
+</div></div>
+
+<section id="jak" class="tlo"><div class="owijka">
   <h2>Dlaczego obiekty, a nie piksele</h2>
   <p class="podtytul">Na tym stoi cała metoda, więc warto zrozumieć ją raz.</p>
 
@@ -920,7 +988,7 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
   </div>
 </div></section>
 
-<section id="algorytm"><div class="owijka">
+<section id="algorytm" class="tlo"><div class="owijka">
   <h2>Jak program się uczy</h2>
   <p class="podtytul">Cały algorytm na jednym małym obrazku. Animacja liczy
   naprawdę, a nie odtwarza nagrania.</p>
@@ -949,7 +1017,8 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
   udaje losowanie obiektów o znanej klasie. Liczby w panelu pochodzą
   z tego obrazka, nie z prawdziwych zdjęć.</p>
 
-  <h3>Algorytm krok po kroku</h3>
+  <details class="rozwin">
+  <summary>Algorytm krok po kroku, ze wszystkimi ustawieniami</summary>
   <ol class="kroki">
     <li><strong>Wczytanie i wygładzenie</strong>
       Program czyta trzy pierwsze kanały zdjęcia jako czerwień, zieleń
@@ -1000,6 +1069,7 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
       model zapisuje się do pliku <code>.geoai</code> i można go stosować
       do kolejnych, podobnych zdjęć.</li>
   </ol>
+  </details>
   <p>Wzory, wszystkie stałe i literaturę opisuje plik
   <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/blob/main/UWARUNKOWANIA_NAUKOWE.md"><code>UWARUNKOWANIA_NAUKOWE.md</code></a>,
   rozdziały 3, 5 i 6.</p>
@@ -1554,6 +1624,13 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
 })();
 </script>
 
+<div class="rozdzial" id="r-kroki"><div class="owijka">
+  <p class="rozdzial-nr">Część 3 z 4</p>
+  <h2>Krok po kroku</h2>
+  <p>Od podziału zdjęcia przez naukę po ocenę dokładności mapy.</p>
+  <div class="rozdzial-spis" role="navigation" aria-label="Krok po kroku"><a href="#krok1">Podział na obiekty</a><a href="#krok2">Przykłady</a><a href="#krok3">Nauka i poprawianie</a><a href="#dokladnosc">Ocena dokładności</a><a href="#klopoty">Gdy coś nie wychodzi</a></div>
+</div></div>
+
 <section id="krok1"><div class="owijka">
   <h2><span class="numer">1</span>Podział na obiekty</h2>
   <p class="podtytul">Jedno ustawienie decyduje o wszystkim.</p>
@@ -1929,12 +2006,20 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
   </table></div>
 </div></section>
 
-<section id="metoda"><div class="owijka">
+<div class="rozdzial" id="r-nauka"><div class="owijka">
+  <p class="rozdzial-nr">Część 4 z 4</p>
+  <h2>Dla naukowców</h2>
+  <p>Metoda ze źródłami, sposób cytowania programu i bibliografia.</p>
+  <div class="rozdzial-spis" role="navigation" aria-label="Dla naukowców"><a href="#metoda">Metodyka</a><a href="#cytowanie">Jak cytować</a><a href="#bibliografia">Bibliografia</a></div>
+</div></div>
+
+<section id="metoda" class="tlo"><div class="owijka">
   <h2>Metodyka</h2>
   <p class="podtytul">Wszystko, co program robi, ma źródło w literaturze
-  albo w dokumentacji użytych bibliotek.</p>
+  albo w dokumentacji użytych bibliotek. Rozwiń wybrany podrozdział.</p>
 
-  <h3>Jednostka analizy</h3>
+  <details class="rozwin">
+  <summary>Jednostka analizy</summary>
   <p>Program realizuje klasyfikację obiektową (GEOBIA) [<a class="cyt" href="#ref-blaschke">13</a>]:
   jednostką decyzji nie jest piksel, lecz obiekt, czyli spójna grupa
   sąsiadujących pikseli o zbliżonej barwie. Obiekt niesie informację
@@ -1944,7 +2029,10 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
   tematyczna jest jednak ograniczona wielkością obiektu: element węższy
   niż obiekt nie zostanie wykartowany.</p>
 
-  <h3>Dane wejściowe</h3>
+  </details>
+
+  <details class="rozwin">
+  <summary>Dane wejściowe</summary>
   <p>Program interpretuje trzy pierwsze kanały zdjęcia jako czerwony,
   zielony i niebieski i wymaga metrycznego układu współrzędnych.
   Jasności są skalowane do przedziału 0–1 według typu danych pliku
@@ -1961,7 +2049,10 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
   w surowym produkcie wielokanałowym trzy pierwsze kanały nie
   odpowiadają barwom czerwonej, zielonej i niebieskiej.</p>
 
-  <h3>Segmentacja</h3>
+  </details>
+
+  <details class="rozwin">
+  <summary>Segmentacja</summary>
   <p>Podział na obiekty wykonuje algorytm SLIC [<a class="cyt" href="#ref-achanta">5</a>], czyli
   lokalne grupowanie metodą k-średnich w pięciowymiarowej przestrzeni
   złożonej z trzech składowych barwy w przestrzeni CIELAB i dwóch
@@ -1981,7 +2072,10 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
   dwu- do trzykrotnie mniejsza od zamówionej. Program raportuje więc
   rzeczywistą liczbę obiektów oraz medianę i maksimum ich powierzchni.</p>
 
-  <h3>Przestrzeń cech</h3>
+  </details>
+
+  <details class="rozwin">
+  <summary>Przestrzeń cech</summary>
   <p>Każdy obiekt opisuje wektor 19 cech, a przy dostępnym NMPT
   24 cech. Grupa barwy obejmuje średnie i odchylenia standardowe trzech
   kanałów oraz średnią jasność (7 cech). Wskaźniki roślinności
@@ -2007,7 +2101,10 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
   przestrzeń cech progami i jest niewrażliwy na monotoniczne
   przekształcenia pojedynczej cechy.</p>
 
-  <h3>Klasyfikacja</h3>
+  </details>
+
+  <details class="rozwin">
+  <summary>Klasyfikacja</summary>
   <p>Regułę decyzyjną stanowi Random Forest [<a class="cyt" href="#ref-breiman">7</a>], klasyfikator
   szeroko stosowany w teledetekcji [<a class="cyt" href="#ref-belgiu">8</a>]. Model składa się
   ze 100 drzew. Każde drzewo uczy się na próbie bootstrapowej, a w każdym
@@ -2025,7 +2122,10 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
   [<a class="cyt" href="#ref-sklearn">15</a>], używana jest jej implementacja z tymi parametrami,
   w przeciwnym razie implementacja własna.</p>
 
-  <h3>Rozróżnialność klas</h3>
+  </details>
+
+  <details class="rozwin">
+  <summary>Rozróżnialność klas</summary>
   <p>Przed uczeniem program szacuje rozróżnialność każdej pary klas
   odległością Jeffriesa i Matusity, JM = 2(1 − e<sup>−<em>B</em></sup>),
   gdzie <em>B</em> jest odległością Bhattacharyyi. Klasyczna JM liczona
@@ -2041,7 +2141,10 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
   a najbardziej użyteczna jest kolejność par klas i ranking cech, które
   je rozdzielają.</p>
 
-  <h3>Korekty po klasyfikacji</h3>
+  </details>
+
+  <details class="rozwin">
+  <summary>Korekty po klasyfikacji</summary>
   <p>Dwie opcjonalne korekty naruszają czysto obiektowy charakter mapy
   i jeśli zostały użyte, należy je raportować. Pierwsza rozstrzyga
   przynależność pojedynczych pikseli dla dwóch wskazanych klas na
@@ -2054,7 +2157,10 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
   w sąsiedztwie czterospójnym. Próg sita powinien wynikać
   z przeznaczenia mapy, a nie z optymalizacji wyniku oceny dokładności.</p>
 
-  <h3>Ocena dokładności i estymacja powierzchni</h3>
+  </details>
+
+  <details class="rozwin">
+  <summary>Ocena dokładności i estymacja powierzchni</summary>
   <p>Ocena dokładności opiera się na losowaniu warstwowym według klas
   mapy: każda klasa otrzymuje co najmniej 50 punktów (wartość
   domyślna), a pozostałe punkty są przydzielane proporcjonalnie do
@@ -2072,7 +2178,10 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
   0,9449 przy wartości opublikowanej 0,944. Współczynnik kappa nie jest
   liczony [<a class="cyt" href="#ref-pontius">12</a>].</p>
 
-  <h3>Implementacja i odtwarzalność</h3>
+  </details>
+
+  <details class="rozwin">
+  <summary>Implementacja i odtwarzalność</summary>
   <p>Program jest napisany w języku Python i korzysta z bibliotek NumPy
   [<a class="cyt" href="#ref-numpy">20</a>] i SciPy [<a class="cyt" href="#ref-scipy">21</a>]. Odczyt i zapis danych
   przestrzennych realizuje GDAL [<a class="cyt" href="#ref-gdal">18</a>] we wtyczce QGIS oraz
@@ -2087,7 +2196,10 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
   ziarno losowe oraz wartości wszystkich parametrów ustawionych przez
   użytkownika.</p>
 
-  <h3>Ograniczenia</h3>
+  </details>
+
+  <details class="rozwin">
+  <summary>Ograniczenia</summary>
   <p>Metoda korzysta wyłącznie z zakresu widzialnego, dlatego nie
   wykorzystuje bliskiej podczerwieni ani wskaźników takich jak NDVI.
   Model nie przenosi się między nalotami bez ponownego uczenia,
@@ -2100,6 +2212,8 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
   głębokie sieci neuronowe, dlatego klasy różniące się wyłącznie
   wzorem przestrzennym, a nie materiałem, mogą pozostać
   nierozdzielone.</p>
+  </details>
+
 
   <h3>Zestawienie źródeł</h3>
   <div class="tabela-przewin"><table>
@@ -2120,7 +2234,7 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
   </table></div>
 </div></section>
 
-<section id="cytowanie"><div class="owijka">
+<section id="cytowanie" class="tlo"><div class="owijka">
   <h2>Jak cytować</h2>
   <p class="podtytul">Program jest zarchiwizowany w Zenodo i ma trwałe
   identyfikatory DOI.</p>
@@ -2159,7 +2273,7 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
   bibliografii poniżej.</p>
 </div></section>
 
-<section id="bibliografia"><div class="owijka">
+<section id="bibliografia" class="tlo"><div class="owijka">
   <h2>Bibliografia</h2>
   <ol class="bibliografia">
     <li id="ref-drusch">M. Drusch <em>et al.</em>, „Sentinel-2: ESA’s optical high-resolution mission for GMES operational services,” <em>Remote Sens. Environ.</em>, vol. 120, pp. 25–36, 2012, doi: <a href="https://doi.org/10.1016/j.rse.2011.11.026">10.1016/j.rse.2011.11.026</a>.</li>
@@ -2196,6 +2310,108 @@ python geoai.py klasyfikuj --folder naloty --model moj_model.geoai ^
   document.querySelectorAll(".menu .lista a").forEach(function (a) {
     a.addEventListener("click", function () { a.closest("details").removeAttribute("open"); });
   });
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  // Rozwijane szczegóły: odnośnik do miejsca w środku (np. przypis)
+  // otwiera zwinięty fragment, żeby cel był widoczny.
+  function otworz() {
+    var id = decodeURIComponent(location.hash.slice(1));
+    var cel = id && document.getElementById(id);
+    for (var e = cel; e; e = e.parentElement) {
+      if (e.tagName === "DETAILS") { e.open = true; }
+    }
+    if (cel) { cel.scrollIntoView(); }
+  }
+  window.addEventListener("hashchange", otworz);
+  if (location.hash) { otworz(); }
+})();
+
+(function () {
+  "use strict";
+  // Animacja w nagłówku: zdjęcie, obiekty, mapa klas. Odgrywa się raz.
+  var c = document.getElementById("hero-mapa");
+  if (!c || !c.getContext) { return; }
+  var ctx = c.getContext("2d"), W = 180, H = 130, S = 4;
+  var a = 11;
+  function los() { a = (a * 16807) % 2147483647; return a / 2147483647; }
+  var FOTO = [[118, 158, 74], [150, 116, 78], [176, 82, 70], [108, 108, 112], [44, 92, 40]];
+  var KLASA = [[139, 195, 74], [176, 122, 74], [209, 73, 91], [107, 123, 128], [31, 107, 53]];
+  function scena(x, y) {
+    if (Math.abs((y - 98) + (x - 90) * 0.42) < 6) { return 3; }
+    if (x > 112 && y < 66 && Math.pow(x - 150, 2) / 1600 + Math.pow(y - 32, 2) / 900 < 1) { return 4; }
+    if ((x - 46) * (x - 46) + (y - 30) * (y - 30) < 180) { return 4; }
+    if (x > 20 && x < 52 && y > 64 && y < 90) { return 2; }
+    if (x < 96 && y > 100) { return 1; }
+    return 0;
+  }
+  var klasa = new Int8Array(W * H), foto = new Float32Array(W * H * 3);
+  for (var y = 0; y < H; y++) { for (var x = 0; x < W; x++) {
+    var k = scena(x, y), p = y * W + x; klasa[p] = k;
+    var szum = (los() - 0.5) * (k === 4 ? 46 : 22), pas = (k === 1 && y % 6 < 3) ? -12 : 0;
+    for (var b = 0; b < 3; b++) { foto[p * 3 + b] = FOTO[k][b] + szum + pas; }
+  } }
+  // Zarodki na siatce z odchyleniem; piksel trafia do najbliższego
+  // zarodka tej samej klasy, więc granice obiektów idą po granicach terenu.
+  var ziarna = [], KS = 15;
+  for (var gy = KS / 2; gy < H; gy += KS) { for (var gx = KS / 2; gx < W; gx += KS) {
+    var sx = gx + (los() - 0.5) * KS * 0.7, sy = gy + (los() - 0.5) * KS * 0.7;
+    ziarna.push([sx, sy, scena(Math.round(Math.min(W - 1, Math.max(0, sx))), Math.round(Math.min(H - 1, Math.max(0, sy))))]);
+  } }
+  var et = new Int32Array(W * H);
+  for (var p2 = 0; p2 < W * H; p2++) {
+    var px = p2 % W, py = Math.floor(p2 / W), naj = -1, d = 1e9, najO = -1, dO = 1e9;
+    for (var i = 0; i < ziarna.length; i++) {
+      var dx = px - ziarna[i][0], dy = py - ziarna[i][1], dd = dx * dx + dy * dy;
+      if (dd < dO) { dO = dd; najO = i; }
+      if (ziarna[i][2] === klasa[p2] && dd < d) { d = dd; naj = i; }
+    }
+    et[p2] = (naj >= 0 && d < 9 * KS * KS) ? naj : najO;
+  }
+  // Klasa obiektu: większość pikseli; opóźnienie zmiany barwy według x.
+  var licz = ziarna.map(function () { return [0, 0, 0, 0, 0]; });
+  for (var p3 = 0; p3 < W * H; p3++) { licz[et[p3]][klasa[p3]]++; }
+  var kl = licz.map(function (l) { var m = 0; for (var q = 1; q < 5; q++) { if (l[q] > l[m]) { m = q; } } return m; });
+  var granica = new Uint8Array(W * H);
+  for (var p4 = 0; p4 < W * H; p4++) {
+    var x4 = p4 % W, y4 = Math.floor(p4 / W);
+    if ((x4 + 1 < W && et[p4] !== et[p4 + 1]) || (y4 + 1 < H && et[p4] !== et[p4 + W])) { granica[p4] = 1; }
+  }
+  var img = ctx.createImageData(W * S, H * S);
+  function rysuj(t) {
+    // t w sekundach: 0-0.7 zdjęcie, 0.7-1.3 granice, 1.3-2.5 barwy klas falą od lewej
+    var g = Math.min(1, Math.max(0, (t - 0.7) / 0.6));
+    for (var y = 0; y < H; y++) { for (var x = 0; x < W; x++) {
+      var p = y * W + x, o = et[p];
+      var f = Math.min(1, Math.max(0, (t - 1.3 - ziarna[o][0] / W * 0.8) / 0.4));
+      var r = foto[p * 3] * (1 - f) + KLASA[kl[o]][0] * f;
+      var gg = foto[p * 3 + 1] * (1 - f) + KLASA[kl[o]][1] * f;
+      var bb = foto[p * 3 + 2] * (1 - f) + KLASA[kl[o]][2] * f;
+      if (granica[p]) { r = r + (255 - r) * g * 0.85; gg = gg + (255 - gg) * g * 0.85; bb = bb + (255 - bb) * g * 0.85; }
+      for (var j = 0; j < S; j++) { for (var i = 0; i < S; i++) {
+        var q = ((y * S + j) * W * S + (x * S + i)) * 4;
+        img.data[q] = r; img.data[q + 1] = gg; img.data[q + 2] = bb; img.data[q + 3] = 255;
+      } }
+    } }
+    ctx.putImageData(img, 0, 0);
+  }
+  var bezRuchu = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var start = null, KONIEC = 2.6;
+  function krok(ts) {
+    if (start === null) { start = ts; }
+    var t = (ts - start) / 1000;
+    rysuj(Math.min(t, KONIEC));
+    if (t < KONIEC) { requestAnimationFrame(krok); }
+  }
+  function odegraj() {
+    if (bezRuchu) { rysuj(KONIEC); return; }
+    start = null; requestAnimationFrame(krok);
+  }
+  rysuj(0);
+  setTimeout(odegraj, 350);
+  c.addEventListener("click", odegraj);
 })();
 </script>
 <footer><div class="owijka">

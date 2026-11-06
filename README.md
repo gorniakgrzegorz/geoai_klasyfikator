@@ -53,6 +53,10 @@ i wysokość.
 
 ## Szybki start: wtyczka QGIS
 
+Wtyczka jest w [oficjalnym repozytorium wtyczek QGIS](https://plugins.qgis.org/plugins/geoai_klasyfikator/):
+w QGIS otwórz Wtyczki, Zarządzanie wtyczkami i wyszukaj „GeoAI Klasyfikator”.
+Dopóki repozytorium jej nie zatwierdzi, zainstaluj ją z pliku ZIP:
+
 1. QGIS →Wtyczki →Zarządzanie wtyczkami →**Zainstaluj z pliku ZIP**
 2. Wskaż `geoai_klasyfikator.zip`
 3. Na pasku pojawi się przycisk **GeoAI Klasyfikator**
