@@ -3,7 +3,7 @@
 **Co dokładnie decyduje o tym, że obiekt trafia do danej klasy**
 
 Dokument opisuje metodę zaimplementowaną w programie GeoAI
-Klasyfikator w wersji 1.0.1: wzory, stałe, progi i reguły decyzyjne
+Klasyfikator w wersji 1.0.2: wzory, stałe, progi i reguły decyzyjne
 w takiej postaci, w jakiej występują w kodzie. Powstał po to, by
 wyniki dało się opisać w artykule i powtórzyć.
 
@@ -1073,7 +1073,7 @@ residue, and lighting conditions. *Transactions of the ASAE*, 38(1),
 
 ## Jak cytować program
 
-> Górniak, G. (2026). *GeoAI Klasyfikator* (wersja 1.0.1)
+> Górniak, G. (2026). *GeoAI Klasyfikator* (wersja 1.0.2)
 > [oprogramowanie]. https://github.com/gorniakgrzegorz/geoai_klasyfikator
 
 

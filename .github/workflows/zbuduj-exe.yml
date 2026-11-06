@@ -4,10 +4,15 @@ name: Zbuduj program Windows
 # a obok niego instalator Inno Setup.
 #
 # Kiedy się uruchamia:
-#   - po każdym wypchnięciu zmian na gałąź główną,
-#   - po ręcznym kliknięciu "Run workflow" w zakładce Actions,
-#   - po wypchnięciu znacznika wersji (na przykład v1.0.0): wtedy dodatkowo
-#     tworzy Release i podpina do niego gotowe pliki do pobrania.
+#   - po każdym wypchnięciu zmian na gałąź główną: tylko buduje,
+#   - po ręcznym kliknięciu "Run workflow" w zakładce Actions: buduje, a gdy
+#     w polu "wersja" wpiszesz numer (na przykład 1.0.2), dodatkowo publikuje
+#     wydanie v1.0.2 z kompletem plików.
+#
+# Wydania w tym repozytorium są niezmienne (immutable releases): po
+# opublikowaniu nie da się do nich dołączyć plików, a znacznika nie da się
+# użyć ponownie. Dlatego workflow sam zakłada wydanie jako szkic, dołącza
+# pliki i dopiero na końcu publikuje. Nie zakładaj wydań ręcznie na stronie.
 #
 # Gotowe pliki znajdziesz zawsze w zakładce Actions, w podsumowaniu przebiegu,
 # w sekcji Artifacts. Zachowywane są przez 90 dni.
@@ -15,8 +20,12 @@ name: Zbuduj program Windows
 on:
   push:
     branches: [main, master]
-  create:
   workflow_dispatch:
+    inputs:
+      wersja:
+        description: "Numer wydania do opublikowania, np. 1.0.2 (puste: tylko zbuduj)"
+        required: false
+        default: ""
 
 permissions:
   contents: write
@@ -28,6 +37,39 @@ jobs:
     steps:
       - name: Pobierz repozytorium
         uses: actions/checkout@v4
+
+      - name: Sprawdz numer wersji przed wydaniem
+        if: github.event_name == 'workflow_dispatch' && inputs.wersja != ''
+        shell: pwsh
+        env:
+          WERSJA: ${{ inputs.wersja }}
+        run: |
+          # Szybka kontrola, zanim zacznie sie kilkuminutowe budowanie:
+          # numer musi miec postac X.Y.Z, zgadzac sie z numerem wpisanym
+          # w pliki programu, a znacznik nie moze jeszcze istniec.
+          if ($env:WERSJA -notmatch '^\d+\.\d+\.\d+$') {
+            throw "Numer wersji musi miec postac X.Y.Z, np. 1.0.2"
+          }
+          $w = $env:WERSJA
+          $sprawdz = @(
+            @("program_exe/okno.py", "WERSJA = `"$w`""),
+            @("geoai_klasyfikator/metadata.txt", "version=$w"),
+            @("program_exe/instalator.iss", "`"$w`""),
+            @("program_exe/wersja.txt", "'ProductVersion', '$w.0'"),
+            @("program_cli/geoai_cli/__init__.py", "__version__ = `"$w`""),
+            @("CITATION.cff", "version: `"$w`"")
+          )
+          foreach ($s in $sprawdz) {
+            if (-not (Select-String -Path $s[0] -SimpleMatch -Pattern $s[1] -Quiet)) {
+              throw ("W pliku " + $s[0] + " nie ma wersji " + $w)
+            }
+          }
+          $tag = "v$w"
+          $istnieje = git ls-remote --tags origin "refs/tags/$tag"
+          if ($istnieje) {
+            throw "Znacznik $tag juz istnieje. Wydania sa niezmienne, podaj nowy numer."
+          }
+          Write-Host "Wersja $w gotowa do wydania jako $tag"
 
       - name: Zainstaluj Pythona
         uses: actions/setup-python@v5
@@ -169,11 +211,12 @@ jobs:
           if-no-files-found: error
           retention-days: 90
 
-      - name: Podepnij pliki do wydania
-        if: startsWith(github.ref, 'refs/tags/v')
+      - name: Opublikuj wydanie
+        if: github.event_name == 'workflow_dispatch' && inputs.wersja != ''
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          WERSJA: ${{ inputs.wersja }}
         run: |
           $pliki = @("program_exe/dist/GeoAI_Klasyfikator_win.zip",
                      "program_exe/dist/geoai_klasyfikator.zip",
@@ -210,21 +253,16 @@ jobs:
           $opis += (Get-Content "program_exe/SUMY-KONTROLNE.txt")
           $opis += $ramka
           $opis | Set-Content -Path opis-wydania.md -Encoding utf8
-          # Wydanie moze juz istniec, jesli zalozono je na stronie GitHuba
-          # (Releases, Draft a new release). Wtedy tylko podpinamy pliki
-          # i podmieniamy opis, zamiast zakladac wydanie drugi raz.
-          gh release view $env:GITHUB_REF_NAME --repo $env:GITHUB_REPOSITORY *> $null
-          if ($LASTEXITCODE -eq 0) {
-            gh release upload $env:GITHUB_REF_NAME @pliki --clobber `
-              --repo $env:GITHUB_REPOSITORY
-            if ($LASTEXITCODE -ne 0) { throw "Nie udalo sie podpiac plikow" }
-            gh release edit $env:GITHUB_REF_NAME `
-              --notes-file opis-wydania.md `
-              --repo $env:GITHUB_REPOSITORY
-          } else {
-            gh release create $env:GITHUB_REF_NAME @pliki `
-              --title "GeoAI Klasyfikator $env:GITHUB_REF_NAME" `
-              --notes-file opis-wydania.md `
-              --repo $env:GITHUB_REPOSITORY
-          }
-          if ($LASTEXITCODE -ne 0) { throw "Nie udalo sie przygotowac wydania" }
+          # Kolejnosc wymagana przez niezmienne wydania: szkic, pliki,
+          # publikacja. Znacznik powstaje przy publikacji, na dokladnie
+          # tym commicie, z ktorego zbudowano pliki.
+          $tag = "v$env:WERSJA"
+          gh release create $tag @pliki --draft `
+            --target $env:GITHUB_SHA `
+            --title "GeoAI Klasyfikator $tag" `
+            --notes-file opis-wydania.md `
+            --repo $env:GITHUB_REPOSITORY
+          if ($LASTEXITCODE -ne 0) { throw "Nie udalo sie zalozyc szkicu wydania" }
+          gh release edit $tag --draft=false --latest --repo $env:GITHUB_REPOSITORY
+          if ($LASTEXITCODE -ne 0) { throw "Nie udalo sie opublikowac wydania" }
+          Write-Host "Opublikowano $tag"

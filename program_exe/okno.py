@@ -53,7 +53,7 @@ def _ostry_tekst() -> float:
         return 1.0
 
 NAZWA = "GeoAI Klasyfikator"
-WERSJA = "1.0.1"
+WERSJA = "1.0.2"
 AUTOR = "Grzegorz Górniak"
 POCZTA = "gorniakgrzegorz@gmail.com"
 

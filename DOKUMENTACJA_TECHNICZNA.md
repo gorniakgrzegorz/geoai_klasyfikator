@@ -1,6 +1,6 @@
 # Dokumentacja techniczna
 
-**GeoAI Klasyfikator, wersja 1.0.1.** Opis dla pracy naukowej: co
+**GeoAI Klasyfikator, wersja 1.0.2.** Opis dla pracy naukowej: co
 narzędzie robi, jakimi algorytmami, na jakich bibliotekach, z jakimi
 ustawieniami i co z tego wynika dla odtwarzalności.
 
@@ -711,7 +711,7 @@ działało u osoby, która nie potrafi doinstalować bibliotek, a nie temu,
 | `OSTRZEZENIE_PIKSELE` | 6 000 000 | qgis_io.py | próg ostrzeżenia o czasie |
 
 Zmiana którejkolwiek z tych stałych wymaga edycji kodu i unieważnia
-porównywalność z wynikami uzyskanymi na wersji 1.0.1.
+porównywalność z wynikami uzyskanymi na wersji 1.0.2.
 
 ---
 
@@ -815,7 +815,7 @@ dwoma niezależnymi przebiegami.
 
 ### Minimum, które trzeba podać w artykule
 
-1. Wersja narzędzia (1.0.1) i identyfikator rewizji w repozytorium.
+1. Wersja narzędzia (1.0.2) i identyfikator rewizji w repozytorium.
 2. Wersje Pythona, NumPy, SciPy, scikit-learn, scikit-image, rasterio,
    Fiona i GDAL-a, najlepiej jako wynik `pip freeze`.
 3. Wersja QGIS, jeśli badanie prowadzono wtyczką.
@@ -872,7 +872,7 @@ na jasność oświetlenia.
 
 **Narzędzie:**
 
-> Górniak, G. (2026). *GeoAI Klasyfikator* (wersja 1.0.1) [oprogramowanie
+> Górniak, G. (2026). *GeoAI Klasyfikator* (wersja 1.0.2) [oprogramowanie
 > komputerowe]. <https://github.com/gorniakgrzegorz/geoai_klasyfikator>
 
 Metadane do cytowania są w pliku [CITATION.cff](CITATION.cff), a GitHub

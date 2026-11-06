@@ -179,7 +179,7 @@ z nimi liczy kilkakrotnie szybciej.
 
 ## Jak cytować
 
-> Górniak, G. (2026). *GeoAI Klasyfikator* (wersja 1.0.1) [oprogramowanie
+> Górniak, G. (2026). *GeoAI Klasyfikator* (wersja 1.0.2) [oprogramowanie
 > komputerowe]. https://github.com/gorniakgrzegorz/geoai_klasyfikator
 
 Metadane do cytowania są w pliku [CITATION.cff](CITATION.cff); GitHub
