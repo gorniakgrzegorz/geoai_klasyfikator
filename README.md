@@ -8,6 +8,7 @@
 [⬇️ Pobierz program dla Windows](https://github.com/gorniakgrzegorz/geoai_klasyfikator/releases) ·
 [GPL-3.0](LICENSE)
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24005560.svg)](https://doi.org/10.5281/zenodo.24005560)
 [![Zbuduj program Windows](https://github.com/gorniakgrzegorz/geoai_klasyfikator/actions/workflows/zbuduj-exe.yml/badge.svg)](https://github.com/gorniakgrzegorz/geoai_klasyfikator/actions/workflows/zbuduj-exe.yml)
 
 </div>
@@ -180,12 +181,17 @@ z nimi liczy kilkakrotnie szybciej.
 ## Jak cytować
 
 > Górniak, G. (2026). *GeoAI Klasyfikator* (wersja 1.0.2) [oprogramowanie
-> komputerowe]. https://github.com/gorniakgrzegorz/geoai_klasyfikator
+> komputerowe]. Zenodo. https://doi.org/10.5281/zenodo.24005561
+
+| Identyfikator | DOI | Kiedy używać |
+|---|---|---|
+| wszystkie wersje | [10.5281/zenodo.24005560](https://doi.org/10.5281/zenodo.24005560) | odwołanie do programu w ogóle; zawsze prowadzi do najnowszej wersji |
+| wersja 1.0.2 | [10.5281/zenodo.24005561](https://doi.org/10.5281/zenodo.24005561) | wynik policzony dokładnie tą wersją, np. w artykule |
 
 Metadane do cytowania są w pliku [CITATION.cff](CITATION.cff); GitHub
 pokazuje je pod przyciskiem **Cite this repository** w prawej kolumnie.
-Każde wydanie jest archiwizowane w Zenodo, które nadaje mu trwały
-identyfikator DOI.
+Każde wydanie jest archiwizowane w
+[Zenodo](https://doi.org/10.5281/zenodo.24005560), które nadaje mu własny DOI.
 
 ## Struktura repozytorium
 

@@ -30,6 +30,10 @@
     {
       "identifier": "https://gorniakgrzegorz.github.io/geoai_klasyfikator/",
       "relation": "isDocumentedBy"
+    },
+    {
+      "identifier": "https://github.com/gorniakgrzegorz/geoai_klasyfikator",
+      "relation": "isSupplementTo"
     }
   ],
   "references": [

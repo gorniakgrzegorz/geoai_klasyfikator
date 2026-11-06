@@ -873,12 +873,11 @@ na jasność oświetlenia.
 **Narzędzie:**
 
 > Górniak, G. (2026). *GeoAI Klasyfikator* (wersja 1.0.2) [oprogramowanie
-> komputerowe]. <https://github.com/gorniakgrzegorz/geoai_klasyfikator>
+> komputerowe]. Zenodo. <https://doi.org/10.5281/zenodo.24005561>
 
 Metadane do cytowania są w pliku [CITATION.cff](CITATION.cff), a GitHub
 pokazuje je pod przyciskiem *Cite this repository*. Każde wydanie jest
-archiwizowane w Zenodo, które nadaje mu DOI; **[DO UZUPEŁNIENIA: DOI
-po pierwszej archiwizacji]**.
+archiwizowane w Zenodo: DOI wszystkich wersji [10.5281/zenodo.24005560](https://doi.org/10.5281/zenodo.24005560), DOI wersji 1.0.2 [10.5281/zenodo.24005561](https://doi.org/10.5281/zenodo.24005561). W artykule podaje się DOI wersji, której faktycznie użyto..
 
 **Metody**, które trzeba zacytować niezależnie od narzędzia, bo
 narzędzie jest tylko ich implementacją: Achanta i in. (2012) przy

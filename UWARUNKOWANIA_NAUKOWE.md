@@ -1074,7 +1074,9 @@ residue, and lighting conditions. *Transactions of the ASAE*, 38(1),
 ## Jak cytować program
 
 > Górniak, G. (2026). *GeoAI Klasyfikator* (wersja 1.0.2)
-> [oprogramowanie]. https://github.com/gorniakgrzegorz/geoai_klasyfikator
+> [oprogramowanie]. Zenodo. https://doi.org/10.5281/zenodo.24005561
+
+DOI wszystkich wersji: https://doi.org/10.5281/zenodo.24005560
 
 
 ---
