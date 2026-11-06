@@ -5,6 +5,7 @@
 **Mapa pokrycia terenu ze zdjęć z UAV i satelity, w trzech wersjach, na jednym silniku.**
 
 [📖 Instrukcja z rysunkami](https://gorniakgrzegorz.github.io/geoai_klasyfikator/) ·
+[🇬🇧 English guide](https://gorniakgrzegorz.github.io/geoai_klasyfikator/en/) ·
 [⬇️ Pobierz program dla Windows](https://github.com/gorniakgrzegorz/geoai_klasyfikator/releases) ·
 [GPL-3.0](LICENSE)
 
@@ -29,6 +30,7 @@ warta.
 | Wersja | Dla kogo | Gdzie |
 |---|---|---|
 | 🗺️ **Wtyczka QGIS** | gdy chcesz widzieć, co się dzieje, i ocenić dokładność | [`geoai_klasyfikator/`](geoai_klasyfikator/) |
+| 🇬🇧 **Wtyczka QGIS po angielsku** (GeoAI Classification) | ta sama wtyczka z interfejsem angielskim | [`GeoAI_Classification/`](GeoAI_Classification/) |
 | 🪟 **Program dla Windows** | gdy nie chcesz instalować QGIS | [`program_exe/`](program_exe/) |
 | ⌨️ **Wiersz poleceń** | gdy zdjęć są setki | [`program_cli/`](program_cli/) |
 
@@ -225,10 +227,13 @@ Każde wydanie jest archiwizowane w
 geoai_klasyfikator/        wtyczka QGIS (ten folder instalujesz w QGIS)
   core/                    silnik wspólny dla wszystkich wersji
   dialogs/                 panel wtyczki i narzędzia na mapie
+GeoAI_Classification/      angielska wersja wtyczki, generowana z polskiej
+narzedzia/                 wersja_angielska.py i tłumaczenia napisów (tlumaczenia_en.json)
 program_cli/               wersja dla wiersza poleceń
 program_exe/               zestaw do zbudowania programu .exe dla Windows
 GeoAI_Klasyfikator_win/    zestaw instalacyjny dla Windows: skad pobrac i jak zainstalowac
-docs/                      instrukcja publikowana na GitHub Pages
+docs/                      instrukcja publikowana na GitHub Pages (en/: wersja angielska)
+  bibliografia.bib         bibliografia do zaimportowania w Zotero
   ryciny/                  schemat logiki artykułu, cztery formaty
 .github/workflows/         budowanie programu Windows w chmurze
 INSTRUKCJA_TESTERA.md      instalacja i pierwszy przebieg
@@ -239,6 +244,19 @@ CITATION.cff               metadane do cytowania (GitHub, Zenodo)
 SZKIC_MANUSKRYPTU.md       szkielet artykułu, rozdziały 4 do 6 do wypełnienia
 ```
 
+
+### Wersja angielska wtyczki
+
+Folder `GeoAI_Classification/` nie jest edytowany ręcznie. Po każdej
+zmianie w `geoai_klasyfikator/` uruchom:
+
+```
+python narzedzia/wersja_angielska.py zbuduj
+```
+
+Nowy napis w kodzie wymaga tłumaczenia w
+`narzedzia/tlumaczenia_en.json`; bez niego polecenie wypisze brak.
+Workflow sprawdza to samo (`sprawdz`) przed każdym budowaniem.
 
 ---
 

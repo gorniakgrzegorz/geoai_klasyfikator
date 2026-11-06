@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <rect x="8" y="8" width="240" height="240" rx="46" fill="#00bde7"/>
+  <!-- objects: a patchwork of segments, three of them classified -->
+  <g stroke="#ffffff" stroke-width="7" stroke-linejoin="round">
+    <path d="M44 56 L116 44 L132 96 L96 128 L46 112 Z" fill="#2e9e4f"/>
+    <path d="M132 96 L116 44 L206 54 L212 104 Z" fill="#ffffff" fill-opacity="0.95"/>
+    <path d="M46 112 L96 128 L88 190 L44 178 Z" fill="#ffffff" fill-opacity="0.35"/>
+    <path d="M96 128 L132 96 L212 104 L204 164 L140 176 Z" fill="#e0a030"/>
+    <path d="M88 190 L140 176 L204 164 L212 210 L96 214 Z" fill="#ffffff" fill-opacity="0.6"/>
+  </g>
+</svg>

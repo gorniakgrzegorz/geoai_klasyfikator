@@ -54,6 +54,7 @@ jobs:
           $sprawdz = @(
             @("program_exe/okno.py", "WERSJA = `"$w`""),
             @("geoai_klasyfikator/metadata.txt", "version=$w"),
+            @("narzedzia/wersja_angielska/metadata.txt", "version=$w"),
             @("program_exe/instalator.iss", "`"$w`""),
             @("program_exe/wersja.txt", "'ProductVersion', '$w.0'"),
             @("program_cli/geoai_cli/__init__.py", "__version__ = `"$w`""),
@@ -88,8 +89,13 @@ jobs:
         run: |
           # Szybkie sprawdzenie skladni calego kodu. Taniej wylapac blad
           # tutaj niz po kilku minutach pakowania.
-          python -m compileall -q program_exe program_cli geoai_klasyfikator
+          python -m compileall -q program_exe program_cli geoai_klasyfikator GeoAI_Classification
           if ($LASTEXITCODE -ne 0) { throw "Blad skladni w kodzie" }
+          # Wersja angielska wtyczki jest generowana z polskiej. Jesli ktos
+          # zmienil polska i nie przebudowal angielskiej (albo zostawil
+          # napis bez tlumaczenia), zatrzymujemy sie tutaj.
+          python narzedzia/wersja_angielska.py sprawdz
+          if ($LASTEXITCODE -ne 0) { throw "Wersja angielska wtyczki jest nieaktualna" }
           python -c "import tkinter; print('tkinter', tkinter.TkVersion)"
 
       - name: Zbuduj plik wykonywalny
@@ -159,13 +165,14 @@ jobs:
           # Compress-Archive. Pomijamy __pycache__ z kroku sprawdzania kodu.
           $skrypt = @(
             "import pathlib, zipfile",
-            "zrodlo = pathlib.Path('geoai_klasyfikator')",
-            "cel = 'program_exe/dist/geoai_klasyfikator.zip'",
-            "with zipfile.ZipFile(cel, 'w', zipfile.ZIP_DEFLATED) as z:",
-            "    for p in sorted(zrodlo.rglob('*')):",
-            "        if p.is_file() and '__pycache__' not in p.parts and p.suffix != '.pyc':",
-            "            z.write(p, p.as_posix())",
-            "print('wtyczka spakowana:', cel)"
+            "for nazwa in ('geoai_klasyfikator', 'GeoAI_Classification'):",
+            "    zrodlo = pathlib.Path(nazwa)",
+            "    cel = 'program_exe/dist/' + nazwa + '.zip'",
+            "    with zipfile.ZipFile(cel, 'w', zipfile.ZIP_DEFLATED) as z:",
+            "        for p in sorted(zrodlo.rglob('*')):",
+            "            if p.is_file() and '__pycache__' not in p.parts and p.suffix != '.pyc':",
+            "                z.write(p, p.as_posix())",
+            "    print('wtyczka spakowana:', cel)"
           )
           $skrypt | Set-Content -Path spakuj_wtyczke.py -Encoding utf8
           python spakuj_wtyczke.py
@@ -181,6 +188,7 @@ jobs:
           $pliki = @()
           $pliki += Get-ChildItem "program_exe/dist/GeoAI_Klasyfikator_win.zip"
           $pliki += Get-ChildItem "program_exe/dist/geoai_klasyfikator.zip"
+          $pliki += Get-ChildItem "program_exe/dist/GeoAI_Classification.zip"
           $pliki += Get-ChildItem "program_exe/instalator" -Filter *.exe -ErrorAction SilentlyContinue
           $linie = foreach ($p in $pliki) {
             $h = (Get-FileHash $p.FullName -Algorithm SHA256).Hash.ToLower()
@@ -206,6 +214,7 @@ jobs:
           path: |
             program_exe/dist/GeoAI_Klasyfikator_win.zip
             program_exe/dist/geoai_klasyfikator.zip
+            program_exe/dist/GeoAI_Classification.zip
             program_exe/instalator/*.exe
             program_exe/SUMY-KONTROLNE.txt
           if-no-files-found: error
@@ -220,6 +229,7 @@ jobs:
         run: |
           $pliki = @("program_exe/dist/GeoAI_Klasyfikator_win.zip",
                      "program_exe/dist/geoai_klasyfikator.zip",
+                     "program_exe/dist/GeoAI_Classification.zip",
                      "program_exe/SUMY-KONTROLNE.txt")
           $inst = Get-ChildItem -Path "program_exe/instalator" -Filter *.exe -ErrorAction SilentlyContinue
           if ($inst) { $pliki += $inst.FullName }
@@ -229,7 +239,7 @@ jobs:
           $plot = [char]0x60
           $ramka = "$plot$plot$plot"
           $opis = @(
-            "Program dla Windows: instalator (plik Setup.exe) albo wersja przenosna (GeoAI_Klasyfikator_win.zip). Wtyczka QGIS: geoai_klasyfikator.zip, instalacja przez Wtyczki, Zarzadzanie wtyczkami, Zainstaluj z pliku ZIP.",
+            "Program dla Windows: instalator (plik Setup.exe) albo wersja przenosna (GeoAI_Klasyfikator_win.zip). Wtyczka QGIS: geoai_klasyfikator.zip, instalacja przez Wtyczki, Zarzadzanie wtyczkami, Zainstaluj z pliku ZIP. English edition of the QGIS plugin: GeoAI_Classification.zip.",
             "",
             "## Ostrzezenie przegladarki",
             "",

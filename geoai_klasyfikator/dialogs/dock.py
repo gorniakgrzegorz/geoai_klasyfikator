@@ -119,6 +119,15 @@ KOLORY = [
 
 # podpowiedzi kolorów po nazwie klasy, jak w typowych opracowaniach
 PODPOWIEDZI_KOLOROW = {
+    # nazwy angielskie najpierw: "lake" zawiera polskie "lak"
+    "forest": "#1f6b2f", "tree": "#1f6b2f", "wood": "#2f8f3e",
+    "grass": "#7bbf4a", "lawn": "#7bbf4a", "meadow": "#c9d84a",
+    "crop": "#e0c060", "field": "#e0c060", "arable": "#e0c060",
+    "water": "#2f7fd1", "river": "#2f7fd1", "lake": "#2f7fd1",
+    "pond": "#2f7fd1",
+    "built": "#d1495b", "building": "#d1495b", "roof": "#d1495b",
+    "road": "#9e9e9e", "asphalt": "#707070", "paved": "#808080",
+    "soil": "#8c6d4f", "bare": "#8c6d4f", "sand": "#d8c9a0",
     "las": "#1f6b2f", "drzew": "#1f6b2f", "zadrzew": "#2f8f3e",
     "traw": "#7bbf4a", "łąk": "#c9d84a", "lak": "#c9d84a",
     "roln": "#e0c060", "upraw": "#e0c060", "pole": "#e0c060",

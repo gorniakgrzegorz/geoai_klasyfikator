@@ -1,0 +1,59 @@
+[general]
+name=GeoAI Classification
+qgisMinimumVersion=3.22
+qgisMaximumVersion=4.99
+description=Object-based land cover classification (GEOBIA) of drone, aerial and Sentinel-2 RGB imagery: SLIC segmentation, Random Forest and design-based accuracy assessment with area estimates. English user interface.
+about=The plugin makes a land cover map from an RGB image and tells you straight away how good that map is. It does not classify single pixels. It cuts the image into objects (pieces of a field, a roof, a tree crown) and learns from your examples what is what. This is the English edition of GeoAI Klasyfikator; both editions share the same code and give the same results.
+
+    DATA
+    - a drone orthomosaic, an aerial photo or an RGB composite of a Sentinel-2 scene; the first three bands are read as red, green and blue, so do not load a raw multiband scene,
+    - an optional digital surface model (DSM) in the same coordinate reference system,
+    - a mode that processes only what is visible on screen, for quick trials.
+
+    STEP 1. OBJECTS
+    SLIC segmentation in CIELAB colour space; object size is given in square metres or as a number of objects.
+
+    STEP 2. FEATURES
+    19 features from the image alone, 24 with a DSM, all stored in the attribute table of the object layer:
+    - colour: mean and variability of the three bands, and brightness,
+    - visible-band greenness indices ExG, VARI and NGRDI (drone cameras do not record near infrared, so there is no NDVI),
+    - GLCM texture: contrast, homogeneity, energy and entropy,
+    - shape: area, perimeter, circularity and convexity,
+    - context: object brightness relative to its neighbours,
+    - height from the DSM: mean, variability, slope, height relative to neighbours and height above ground.
+
+    STEP 3. TRAINING AND MAP
+    - pick examples by clicking objects on the map or by painting with Ctrl held down,
+    - before training, check whether the classes can be told apart (cross-validated Jeffries-Matusita distance) and which features separate them,
+    - Random Forest classification (100 trees, fixed random seed, so the result is repeatable),
+    - optional greenness refinement for strips narrower than an object, and removal of small patches,
+    - export to GeoTIFF together with a .qml style.
+
+    STEP 4. HOW GOOD IS THIS MAP
+    - simple random or stratified sampling of check points by map class, never on objects used for training,
+    - labelling of points with the classification hidden,
+    - error matrix, user's and producer's accuracy, area-weighted overall accuracy and estimated class areas with 95 per cent confidence intervals (Olofsson et al. 2014, Stehman 2014); the kappa coefficient is deliberately not computed.
+
+    MANY IMAGES AT ONCE
+    The plugin works on one image at a time. When you have dozens or hundreds of images, do not mosaic them: the repository also has a command-line program and a Windows application with the same computational core (Polish interface), which train a model once and classify a whole folder of images, each separately, writing a GeoTIFF map per image and a summary report of class areas. An interrupted run can be resumed.
+
+    REQUIREMENTS
+    QGIS 3.22 or newer and nothing else. When scikit-image and scikit-learn are available in the QGIS Python, the plugin uses them; otherwise it uses its own implementations of the same algorithms.
+
+    Guide: https://gorniakgrzegorz.github.io/geoai_klasyfikator/en/
+    How to cite: DOI 10.5281/zenodo.24005560
+version=1.0.2
+author=Grzegorz Górniak
+email=gorniakgrzegorz@gmail.com
+category=Raster
+changelog=1.0.2
+    - First release of the English edition, built from GeoAI Klasyfikator 1.0.2 with the same computational core
+tags=classification,land cover,land use,obia,geobia,segmentation,slic,random forest,machine learning,geoai,drone,uav,orthomosaic,aerial imagery,sentinel-2,remote sensing,raster,gis,texture,glcm,vegetation index,exg,dsm,accuracy assessment,error matrix,area estimation,olofsson,agriculture,forestry,spatial planning
+homepage=https://gorniakgrzegorz.github.io/geoai_klasyfikator/en/
+tracker=https://github.com/gorniakgrzegorz/geoai_klasyfikator/issues
+repository=https://github.com/gorniakgrzegorz/geoai_klasyfikator
+icon=icon.png
+experimental=False
+deprecated=False
+license=GPL-3.0-or-later
+hasProcessingProvider=no

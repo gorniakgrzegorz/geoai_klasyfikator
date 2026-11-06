@@ -1,0 +1,2456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GeoAI Classification</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link rel="icon" href="../favicon-32.png" sizes="32x32" type="image/png">
+<link rel="apple-touch-icon" href="../apple-touch-icon.png">
+<link rel="canonical" href="https://gorniakgrzegorz.github.io/geoai_klasyfikator/en/">
+<link rel="alternate" hreflang="pl" href="https://gorniakgrzegorz.github.io/geoai_klasyfikator/">
+<link rel="alternate" hreflang="en" href="https://gorniakgrzegorz.github.io/geoai_klasyfikator/en/">
+<link rel="alternate" hreflang="x-default" href="https://gorniakgrzegorz.github.io/geoai_klasyfikator/en/">
+<meta name="author" content="Grzegorz Górniak">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="en_GB">
+<meta property="og:locale:alternate" content="pl_PL">
+<meta property="og:site_name" content="GeoAI Classification">
+<meta property="og:title" content="GeoAI Classification">
+<meta property="og:description" content="Object-based land cover classification of UAV and satellite images. QGIS plugin, Windows application and command line. Step-by-step guide.">
+<meta property="og:url" content="https://gorniakgrzegorz.github.io/geoai_klasyfikator/en/">
+<meta property="og:image" content="https://gorniakgrzegorz.github.io/geoai_klasyfikator/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="GeoAI Classification: object-based land cover classification of UAV and satellite images">
+<meta name="twitter:card" content="summary_large_image">
+<script type="application/ld+json">
+{
+ "@context": "https://schema.org",
+ "@type": "SoftwareApplication",
+ "name": "GeoAI Classification",
+ "alternateName": "GeoAI Klasyfikator",
+ "description": "Open-source object-based land cover classification (GEOBIA) of RGB images from UAVs, aerial photography and Sentinel-2 composites: SLIC segmentation, Random Forest, and accuracy assessment with class area estimates and 95% confidence intervals.",
+ "url": "https://gorniakgrzegorz.github.io/geoai_klasyfikator/en/",
+ "applicationCategory": "ScientificApplication",
+ "operatingSystem": "Windows; QGIS 3.22 or newer",
+ "softwareVersion": "1.0.2",
+ "inLanguage": "en",
+ "isAccessibleForFree": true,
+ "license": "https://spdx.org/licenses/GPL-3.0-or-later.html",
+ "author": {
+  "@type": "Person",
+  "name": "Grzegorz Górniak",
+  "affiliation": {
+   "@type": "CollegeOrUniversity",
+   "name": "Nicolaus Copernicus University in Toruń"
+  }
+ },
+ "identifier": {
+  "@type": "PropertyValue",
+  "propertyID": "DOI",
+  "value": "10.5281/zenodo.24005560"
+ },
+ "sameAs": [
+  "https://doi.org/10.5281/zenodo.24005560",
+  "https://github.com/gorniakgrzegorz/geoai_klasyfikator",
+  "https://plugins.qgis.org/plugins/GeoAI_Classification/"
+ ],
+ "downloadUrl": "https://plugins.qgis.org/plugins/GeoAI_Classification/",
+ "offers": {
+  "@type": "Offer",
+  "price": "0",
+  "priceCurrency": "EUR"
+ },
+ "image": "https://gorniakgrzegorz.github.io/geoai_klasyfikator/og.png",
+ "keywords": "GEOBIA, object-based image analysis, land cover classification, Random Forest, SLIC, UAV, drone, Sentinel-2, QGIS plugin, accuracy assessment, area estimation, remote sensing"
+}
+</script>
+<meta name="description" content="Object-based land cover classification of UAV and satellite images. QGIS plugin, Windows application and command line. Step-by-step guide.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --marka:#00bde7; --marka-ciemna:#00749c; --marka-glebia:#005f80; --marka-jasna:#eafaff;
+  /* --marka: akcent (logo, obramowania, strzałki); tekst i wypełnienia z białym tekstem: --marka-ciemna (5,3:1 z bielą) */
+  --tekst:#1a2628; --szary:#5d7076; --linia:#d7e3e8; --tlo:#ffffff;
+  --cien:0 1px 3px rgba(16,42,50,.07), 0 8px 24px rgba(16,42,50,.05);
+}
+*{box-sizing:border-box}
+body{margin:0;font:16.5px/1.65 Figtree,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+     color:var(--tekst);background:var(--tlo);-webkit-font-smoothing:antialiased}
+a{color:var(--marka-ciemna)}
+.owijka{max-width:980px;margin:0 auto;padding:0 20px}
+
+/* ── pasek nawigacji ─────────────────────────────────────────── */
+nav{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.93);
+    backdrop-filter:blur(10px);border-bottom:1px solid var(--linia)}
+nav .owijka{display:flex;align-items:center;gap:22px;height:56px}
+nav .znak{display:flex;align-items:center;gap:9px;font-weight:700;
+          text-decoration:none;color:var(--tekst);white-space:nowrap}
+nav .znak svg{width:26px;height:26px;border-radius:6px}
+nav .linki{display:flex;gap:18px;margin-left:auto;flex-wrap:wrap}
+nav .linki a{color:var(--szary);text-decoration:none;font-size:14px;font-weight:500}
+nav .linki a:hover{color:var(--marka-ciemna)}
+nav .jezyk{flex:none;font-size:13px;font-weight:700;letter-spacing:.04em;color:var(--marka-ciemna);text-decoration:none;border:1.5px solid var(--marka);border-radius:7px;padding:3px 8px;line-height:1.3}
+nav .jezyk:hover{background:var(--marka-jasna)}
+@media(max-width:420px){nav .owijka{gap:10px}nav .znak{font-size:15px;gap:7px}.menu summary{padding:10px 10px}nav .jezyk{padding:3px 6px}}
+@media(max-width:360px){nav .znak .nazwa{display:none}}
+
+/* ── nagłówek ─────────────────────────────────────────────────── */
+header{background:linear-gradient(160deg,var(--marka-ciemna) 0%,var(--marka-glebia) 100%);color:#fff;
+       padding:58px 0 64px;position:relative;overflow:hidden}
+header::after{content:"";position:absolute;inset:auto 0 -1px 0;height:40px;
+  background:var(--marka-glebia);clip-path:polygon(0 100%,100% 0,100% 100%)}
+header h1{margin:0 0 10px;font-size:2.25rem;letter-spacing:-.02em;line-height:1.1}
+header h1 .wiersz{display:block;white-space:nowrap}
+header p.lead{margin:0 0 26px;font-size:1.18rem;max-width:620px;color:#fff}
+.odznaki{display:flex;gap:9px;flex-wrap:wrap}
+.odznaka{background:rgba(255,255,255,.17);border:1px solid rgba(255,255,255,.3);
+         padding:4px 11px;border-radius:999px;font-size:13px;font-weight:500}
+
+/* ── sekcje ───────────────────────────────────────────────────── */
+section{padding:46px 0;border-bottom:1px solid var(--linia)}
+section:last-of-type{border-bottom:none}
+h2{font-size:1.75rem;margin:0 0 6px;letter-spacing:-.015em}
+h2 .numer{display:inline-flex;align-items:center;justify-content:center;
+  width:34px;height:34px;border-radius:9px;background:var(--marka-ciemna);color:#fff;
+  font-size:1rem;margin-right:11px;vertical-align:3px}
+h3{font-size:1.14rem;margin:28px 0 8px}
+.podtytul{color:var(--szary);margin:0 0 22px;font-size:1.02rem}
+p{margin:0 0 14px}
+
+/* ── karty i siatki ───────────────────────────────────────────── */
+.siatka{display:grid;gap:16px;margin:22px 0}
+.siatka.dwa{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.siatka.trzy{grid-template-columns:repeat(auto-fit,minmax(215px,1fr))}
+.karta{border:1px solid var(--linia);border-radius:11px;padding:17px 19px;
+       background:#fff;box-shadow:var(--cien)}
+.karta h4{margin:0 0 7px;font-size:1rem}
+.karta p{margin:0;font-size:14.5px;color:var(--szary)}
+.karta .ikona{width:34px;height:34px;margin-bottom:9px}
+
+.ramka{border-left:4px solid var(--marka);background:var(--marka-jasna);
+       padding:14px 18px;border-radius:0 9px 9px 0;margin:20px 0}
+.ramka.uwaga{border-left-color:#e0a030;background:#fff8e9}
+.ramka.wazne{border-left-color:#d1495b;background:#fdeef0}
+.ramka p:last-child{margin-bottom:0}
+.ramka strong{color:var(--tekst)}
+
+table{width:100%;border-collapse:collapse;margin:18px 0;font-size:14.5px}
+th,td{text-align:left;padding:9px 12px;border-bottom:1px solid var(--linia);
+      vertical-align:top}
+th{background:var(--marka-jasna);font-weight:600;font-size:13.5px;
+   letter-spacing:.01em}
+tbody tr:hover{background:#fafdfe}
+code{background:#f1f6f8;padding:1px 6px;border-radius:4px;
+     font:13.5px/1.5 "SF Mono",Consolas,monospace;color:#0a5468}
+pre{background:#102a32;color:#dff4fa;padding:15px 18px;border-radius:9px;
+    overflow-x:auto;font:13.5px/1.6 "SF Mono",Consolas,monospace;margin:14px 0}
+pre code{background:none;color:inherit;padding:0}
+
+.rysunek{margin:26px 0;text-align:center}
+.rysunek svg{max-width:100%;height:auto}
+.rysunek figcaption{color:var(--szary);font-size:13.5px;margin-top:9px}
+
+.kroki{counter-reset:krok;list-style:none;padding:0;margin:20px 0}
+.kroki li{counter-increment:krok;position:relative;padding:0 0 16px 44px;
+          border-left:2px solid var(--linia);margin-left:14px}
+.kroki li:last-child{border-left-color:transparent;padding-bottom:0}
+.kroki li::before{content:counter(krok);position:absolute;left:-15px;top:-2px;
+  width:28px;height:28px;border-radius:50%;background:var(--marka-ciemna);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+  font-weight:600}
+.kroki li strong{display:block;margin-bottom:3px}
+
+footer{padding:34px 0;color:var(--szary);font-size:14px}
+footer a{color:var(--szary)}
+.wersje{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+        margin:22px 0}
+.wersja{border:2px solid var(--linia);border-radius:11px;padding:18px;
+        transition:border-color .15s}
+.wersja:hover{border-color:var(--marka)}
+.wersja .tytul{font-weight:700;margin-bottom:4px;display:flex;align-items:center;gap:8px}
+.wersja .dla{font-size:13px;color:var(--szary);margin-bottom:10px}
+.pobierz{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.przycisk{display:inline-block;padding:11px 20px;border-radius:9px;font-weight:600;
+          text-decoration:none;border:1px solid rgba(255,255,255,.55);color:#fff}
+.przycisk:hover{background:rgba(255,255,255,.12)}
+.przycisk.glowny{background:#fff;color:var(--marka-ciemna);border-color:#fff}
+.przycisk.glowny:hover{background:var(--marka-jasna)}
+.wersja{display:flex;flex-direction:column}
+.wersja .pob{margin-top:auto;padding-top:14px;display:flex;gap:8px;flex-wrap:wrap}
+.wersja .pob a{font-size:14px;font-weight:600;padding:7px 12px;border-radius:7px;
+               background:var(--marka-jasna);color:var(--marka-ciemna);text-decoration:none}
+.wersja .pob a:hover{background:var(--marka-ciemna);color:#fff}
+a.odznaka{color:#fff;text-decoration:none}
+a.odznaka:hover,a.odznaka:focus-visible{background:rgba(255,255,255,.3)}
+.ik{width:1.05em;height:1.05em;vertical-align:-.15em;flex:none}
+.wersja .tytul .ik{width:22px;height:22px;color:var(--marka-ciemna)}
+.przycisk .ik,.wersja .pob .ik{margin-right:6px}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--marka);outline-offset:2px}
+.menu{display:none;margin-left:auto;position:relative}
+.menu summary{list-style:none;cursor:pointer;font-weight:600;font-size:15px;color:var(--marka-ciemna);
+      padding:10px 14px;min-height:44px;border:1px solid var(--linia);border-radius:9px}
+.menu summary::-webkit-details-marker{display:none}
+.menu[open] summary{background:var(--marka-jasna)}
+.menu .lista{position:absolute;right:0;top:52px;background:#fff;border:1px solid var(--linia);
+      border-radius:11px;box-shadow:var(--cien);padding:6px;min-width:230px;display:flex;flex-direction:column}
+.menu .lista a{padding:12px 14px;color:var(--tekst);text-decoration:none;font-weight:500;border-radius:7px}
+.menu .lista a:hover{background:var(--marka-jasna)}
+.do-gory{position:fixed;right:16px;bottom:16px;width:48px;height:48px;border-radius:50%;
+      background:var(--marka-ciemna);color:#fff;display:flex;align-items:center;justify-content:center;
+      text-decoration:none;font-size:22px;box-shadow:var(--cien);opacity:0;pointer-events:none;
+      transition:opacity .2s;z-index:60}
+.do-gory.widoczny{opacity:1;pointer-events:auto}
+html{scroll-behavior:smooth}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.do-gory{transition:none}}
+section{scroll-margin-top:60px}
+a.cyt{text-decoration:none;font-weight:600}
+a.cyt:hover{text-decoration:underline}
+.bibliografia{list-style:none;padding-left:0;margin-top:14px;font-size:14.5px;line-height:1.55}
+.bibliografia li{margin:0 0 10px;padding-left:2em;text-indent:-2em;scroll-margin-top:70px;overflow-wrap:anywhere}
+.bibliografia li:target{background:var(--marka-jasna);border-radius:6px}
+.anim{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:20px;
+      margin:22px 0 8px;align-items:start}
+.anim-ekran canvas{width:100%;height:auto;display:block;border-radius:10px;
+      box-shadow:var(--cien);image-rendering:pixelated}
+.anim-legenda{display:flex;flex-wrap:wrap;gap:12px;margin-top:9px;font-size:13px;color:var(--szary)}
+.anim-legenda span{display:inline-flex;align-items:center;gap:5px}
+.anim-legenda i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.anim-panel{border:1px solid var(--linia);border-radius:11px;padding:15px 17px;background:#fff;
+      box-shadow:var(--cien);min-height:384px;display:flex;flex-direction:column}
+.anim-panel h3{margin:10px 0 6px}
+.anim-panel p{font-size:14.5px;margin:0 0 10px}
+.anim-panel p.maly{font-size:13px;color:var(--szary)}
+.anim-etapy{display:flex;flex-wrap:wrap;gap:5px}
+.anim-etapy button{font:inherit;font-size:12px;padding:4px 8px;border-radius:6px;cursor:pointer;
+      border:1px solid var(--linia);background:#fff;color:var(--szary)}
+.anim-etapy button[aria-selected="true"]{background:var(--marka-ciemna);border-color:var(--marka-ciemna);color:#fff}
+.anim-przyciski{display:flex;gap:8px;margin-top:auto;padding-top:12px}
+.anim-przyciski button{font:inherit;font-size:14px;font-weight:600;padding:7px 14px;border-radius:7px;
+      cursor:pointer;border:1px solid var(--marka-ciemna);background:var(--marka-jasna);color:var(--marka-ciemna)}
+.anim-przyciski button:hover{background:var(--marka-ciemna);color:#fff}
+.anim-wykres .slupek{display:grid;grid-template-columns:118px 1fr 52px;gap:8px;align-items:center;
+      font-size:12.5px;margin:3px 0}
+.anim-wykres .et{font-family:"SF Mono",Consolas,monospace;color:#0a5468;overflow:hidden;text-overflow:ellipsis}
+.anim-wykres .tor{background:#eef4f6;border-radius:4px;height:10px;overflow:hidden}
+.anim-wykres .tor span{display:block;height:100%;border-radius:4px}
+.anim-wykres .war{text-align:right;font-variant-numeric:tabular-nums}
+.kratki{display:grid;grid-template-columns:repeat(20,1fr);gap:2px;margin:4px 0 10px}
+.kratki i{display:block;aspect-ratio:1;border-radius:2px}
+.anim-podpis{font-size:13.5px;color:var(--szary)}
+.tabela-przewin{overflow-x:auto}
+@media(max-width:820px){.anim{grid-template-columns:1fr}.anim-panel{min-height:0}
+  .anim-etapy button{min-height:44px;padding:8px 11px;font-size:13px}
+  .anim-przyciski button{min-height:44px}}
+
+/* ── nagłówek z mapą ──────────────────────────────────────────── */
+.naglowek{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr);gap:44px;align-items:center}
+.naglowek-mapa{margin:0}
+.naglowek-mapa canvas{width:100%;height:auto;display:block;border-radius:14px;
+  border:6px solid rgba(255,255,255,.92);box-shadow:0 18px 40px rgba(0,30,45,.35);cursor:pointer}
+.naglowek-mapa figcaption{font-size:13.5px;color:#e6f4f8;margin-top:10px}
+header h1{font-weight:800}
+@media(max-width:900px){.naglowek{grid-template-columns:1fr;gap:28px}.naglowek-mapa{max-width:520px}}
+
+/* ── części strony ────────────────────────────────────────────── */
+.rozdzial{background:var(--marka-glebia);color:#fff;padding:40px 0 34px;scroll-margin-top:56px}
+.rozdzial h2{color:#fff;font-size:2rem;margin:0 0 6px;font-weight:800}
+.rozdzial p{margin:0;color:#e3f2f7;max-width:640px}
+.rozdzial .rozdzial-nr{font-size:14px;color:#a9dcec;margin:0 0 6px;font-weight:600}
+.rozdzial-spis{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.rozdzial-spis a{color:#fff;text-decoration:none;font-size:14.5px;font-weight:500;
+  border:1px solid rgba(255,255,255,.45);border-radius:999px;padding:7px 15px}
+.rozdzial-spis a:hover,.rozdzial-spis a:focus-visible{background:rgba(255,255,255,.16)}
+section.tlo{background:#f3f9fb}
+section.tlo .karta,section.tlo .anim-panel,section.tlo table{background:#fff}
+
+/* ── rozwijane szczegóły ──────────────────────────────────────── */
+details.rozwin{border:1px solid var(--linia);border-radius:10px;margin:12px 0;background:#fff}
+details.rozwin>summary{cursor:pointer;list-style:none;padding:13px 18px;font-weight:600;
+  display:flex;justify-content:space-between;align-items:center;gap:16px}
+details.rozwin>summary::-webkit-details-marker{display:none}
+details.rozwin>summary::after{content:"Show";font-weight:500;font-size:14px;color:var(--marka-ciemna);flex:none}
+details.rozwin[open]>summary::after{content:"Hide"}
+details.rozwin[open]>summary{border-bottom:1px solid var(--linia)}
+details.rozwin>:not(summary){margin-left:18px;margin-right:18px}
+details.rozwin>p:last-child,details.rozwin>ol:last-child,details.rozwin>.tabela-przewin:last-child{margin-bottom:16px}
+details.rozwin>p:first-of-type,details.rozwin>ol:first-of-type,details.rozwin>.tabela-przewin:first-of-type{margin-top:14px}
+
+/* ── karta wtyczki QGIS ───────────────────────────────────────── */
+#version-qgis{border-top:5px solid #3f6f23}
+.wersja .pob a.qgis{background:#3f6f23;color:#fff}
+.wersja .pob a.qgis:hover{background:#2f5419;color:#fff}
+@media(max-width:640px){
+  header h1{font-size:clamp(1.05rem,6.1vw,2rem)}
+  nav .linki{display:none}
+  .menu{display:block}
+  h2 .numer{width:28px;height:28px;font-size:.9rem}
+}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-pobierz" viewBox="0 0 24 24"><path d="M12 3v12m0 0l-5-5m5 5l5-5M4 20h16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-mapa" viewBox="0 0 24 24"><path d="M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2z M9 4v14 M15 6v14" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-okno" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 9h18" stroke="currentColor" stroke-width="2"/><circle cx="6.5" cy="6.5" r=".9" fill="currentColor"/><circle cx="9.5" cy="6.5" r=".9" fill="currentColor"/></symbol>
+  <symbol id="i-terminal" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M7 10l3 2.5L7 15M12 15h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<nav><div class="owijka">
+  <a class="znak" href="#">
+    <svg viewBox="0 0 256 256" aria-hidden="true"><rect width="256" height="256" rx="46" fill="#00bde7"/>
+      <g stroke="#fff" stroke-width="7" stroke-linejoin="round">
+      <path d="M44 56 L116 44 L132 96 L96 128 L46 112 Z" fill="#2e9e4f"/>
+      <path d="M132 96 L116 44 L206 54 L212 104 Z" fill="#fff" fill-opacity=".95"/>
+      <path d="M46 112 L96 128 L88 190 L44 178 Z" fill="#fff" fill-opacity=".35"/>
+      <path d="M96 128 L132 96 L212 104 L204 164 L140 176 Z" fill="#e0a030"/>
+      <path d="M88 190 L140 176 L204 164 L212 210 L96 214 Z" fill="#fff" fill-opacity=".6"/>
+      </g></svg>
+    <span class="nazwa">GeoAI Classification</span>
+  </a>
+  <div class="linki">
+    <a href="#download">Download</a>
+    <a href="#part-how">How it works</a>
+    <a href="#part-steps">Step by step</a>
+    <a href="#accuracy">Accuracy</a>
+    <a href="#part-science">For researchers</a>
+  </div>
+  <details class="menu">
+    <summary>Contents</summary>
+    <div class="lista">
+      <a href="#download">Download</a>
+      <a href="#folder">Many images at once</a>
+      <a href="#computer">Computer and speed</a>
+      <a href="#sentinel">Sentinel-2</a>
+      <a href="#how">How it works</a>
+      <a href="#algorithm">Algorithm</a>
+      <a href="#step1">Step by step</a>
+      <a href="#accuracy">Accuracy</a>
+      <a href="#troubleshooting">Troubleshooting</a>
+      <a href="#methods">Methods</a>
+      <a href="#citation">How to cite</a>
+      <a href="#references">References</a>
+    </div>
+  </details>
+  <a class="jezyk" href="../" hreflang="pl" lang="pl" title="Wersja polska">PL</a>
+</div></nav>
+
+<header><div class="owijka naglowek">
+ <div class="naglowek-tekst">
+  <h1><span class="wiersz">Land cover maps</span><span class="wiersz">from UAV and satellite images</span></h1>
+  <p class="lead">The program cuts an image into objects, learns your classes
+  from a dozen or so examples, and at the end tells you honestly how good
+  the map is.</p>
+  <div class="odznaki">
+    <a class="odznaka" href="#version-qgis">QGIS plugin</a>
+    <a class="odznaka" href="#version-windows">Windows application</a>
+    <a class="odznaka" href="#version-cli">Command line</a>
+    <a class="odznaka" href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/blob/main/LICENSE">GPL-3.0 licence</a>
+    <a class="odznaka" href="#citation">DOI 10.5281/zenodo.24005560</a>
+  </div>
+  <div class="pobierz">
+    <a class="przycisk glowny" href="https://plugins.qgis.org/plugins/GeoAI_Classification/"><svg class="ik" aria-hidden="true"><use href="#i-pobierz"/></svg>Get the QGIS plugin</a>
+    <a class="przycisk" href="#download">Windows app and other versions</a>
+  </div>
+ </div>
+ <figure class="naglowek-mapa">
+  <canvas id="hero-mapa" width="720" height="520" role="img"
+          aria-label="The image is cut into objects, and the objects receive land cover classes"></canvas>
+  <figcaption>Image, objects, class map. Click to play it again.</figcaption>
+ </figure>
+</div></header>
+
+<div class="rozdzial" id="part-start"><div class="owijka">
+  <p class="rozdzial-nr">Part 1 of 4</p>
+  <h2>Get started</h2>
+  <p>Download the version that suits you and check that your images and computer are up to it.</p>
+  <div class="rozdzial-spis" role="navigation" aria-label="Get started"><a href="#download">Download</a><a href="#folder">Many images at once</a><a href="#computer">Computer and speed</a><a href="#sentinel">Sentinel-2</a></div>
+</div></div>
+
+<section id="download"><div class="owijka">
+  <h2>Three versions, one engine</h2>
+  <p class="podtytul">Each computes exactly the same thing. Choose the one
+  that fits your work.</p>
+
+  <div class="wersje">
+    <div class="wersja" id="version-qgis">
+      <div class="tytul"><svg class="ik" aria-hidden="true"><use href="#i-mapa"/></svg>QGIS plugin</div>
+      <div class="dla">when you want to see what is happening</div>
+      <p style="font-size:14.5px;margin:0">You pick examples by clicking
+      on the map. Accuracy assessment is available <strong>only
+      here</strong>: point sampling, error matrix and areas with
+      confidence intervals. English interface.</p>
+      <div class="pob">
+        <a class="qgis" href="https://plugins.qgis.org/plugins/GeoAI_Classification/">Plugin page in the QGIS repository</a>
+        <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/releases/latest"><svg class="ik" aria-hidden="true"><use href="#i-pobierz"/></svg>GitHub releases (ZIP)</a>
+      </div>
+    </div>
+    <div class="wersja" id="version-windows">
+      <div class="tytul"><svg class="ik" aria-hidden="true"><use href="#i-okno"/></svg>Windows application</div>
+      <div class="dla">when you do not want to install QGIS</div>
+      <p style="font-size:14.5px;margin:0">A window with two tabs:
+      training and classification of a whole folder. The installer does
+      not need administrator rights. Polish interface.</p>
+      <div class="pob">
+        <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/releases/latest/download/GeoAI_Klasyfikator_Setup.exe"><svg class="ik" aria-hidden="true"><use href="#i-pobierz"/></svg>Installer</a>
+        <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/releases/latest/download/GeoAI_Klasyfikator_win.zip"><svg class="ik" aria-hidden="true"><use href="#i-pobierz"/></svg>Portable version</a>
+      </div>
+    </div>
+    <div class="wersja" id="version-cli">
+      <div class="tytul"><svg class="ik" aria-hidden="true"><use href="#i-terminal"/></svg>Command line</div>
+      <div class="dla">when you have hundreds of images</div>
+      <p style="font-size:14.5px;margin:0">Train a model once and run it
+      on a folder. It fits into a script and resumes after an
+      interruption. Polish commands and messages.
+      <a href="#folder">How to classify a whole folder</a>.</p>
+      <div class="pob">
+        <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/releases/latest"><svg class="ik" aria-hidden="true"><use href="#i-pobierz"/></svg>Source code</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="ramka">
+    <p><strong>Installing the plugin:</strong> the plugin is in the
+    <a href="https://plugins.qgis.org/plugins/GeoAI_Classification/">official QGIS plugin repository</a>.
+    In QGIS open Plugins, Manage and Install Plugins, search for
+    "GeoAI Classification" and click Install Plugin. QGIS will tell you
+    about new versions. You can also download the ZIP file and choose
+    Install from ZIP. The same plugin with a Polish interface is
+    <a href="https://plugins.qgis.org/plugins/geoai_klasyfikator/">GeoAI Klasyfikator</a>;
+    both give identical results.</p>
+    <p><strong>A browser warning</strong> for the program file means
+    the publisher's signature is missing, not that a virus was found.
+    The files are not signed yet; the project is preparing an
+    application to the SignPath Foundation programme (<em>Free code
+    signing provided by <a href="https://about.signpath.io">SignPath.io</a>,
+    certificate by <a href="https://signpath.org">SignPath Foundation</a></em>);
+    the rules are in the <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/blob/main/CODE_SIGNING_POLICY.md">code
+    signing policy</a>. SHA-256 checksums of all files are in the
+    <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/releases/latest">latest release</a>.</p>
+  </div>
+
+  <h3>What you need</h3>
+  <div class="tabela-przewin"><table>
+    <thead><tr><th>Item</th><th>Required?</th><th>What for</th></tr></thead>
+    <tbody>
+    <tr><td><strong>RGB image</strong></td><td>yes</td>
+      <td>A drone orthomosaic, an aerial photo or a satellite scene.
+      Three bands are enough.</td></tr>
+    <tr><td><strong>Examples</strong></td><td>yes</td>
+      <td>A dozen or so places per class that you recognise for
+      sure.</td></tr>
+    <tr><td><strong>Elevation model (DSM)</strong></td><td>no, but…</td>
+      <td>Without it 19 features, with it 24. It tells a roof from
+      asphalt and a tree from a lawn. If you have one, use it.</td></tr>
+    </tbody>
+  </table></div>
+</div></section>
+
+<section id="folder"><div class="owijka">
+  <h2>Many images? Do not merge them, point to the folder</h2>
+  <p class="podtytul">Dozens or hundreds of flights are classified with
+  one command, without stitching them into a mosaic.</p>
+
+  <div class="ramka">
+    <p><strong>You do not have to merge images into one mosaic.</strong>
+    You train the model once, on one representative image. Then you
+    point to a folder, and the program takes the images one by one,
+    classifies each separately and saves a separate map. At the end you
+    get a summary report with the area of each class in each image.</p>
+  </div>
+
+  <figure class="rysunek">
+    <svg id="folder-anim" viewBox="0 0 760 292" role="img"
+         aria-label="Animation: images from the flights folder go one by one into the trained model, which writes finished maps to the maps folder and a CSV report"></svg>
+    <figcaption>One model, many images: each image in the folder is
+    classified separately, and the results go to the maps folder.</figcaption>
+  </figure>
+
+  <p>Batch classification of folders is done by the command-line
+  program and the Windows application. Both have a Polish interface,
+  so the commands below keep their Polish names: <code>ucz</code>
+  means train and <code>klasyfikuj</code> means classify.</p>
+
+  <ol class="kroki">
+    <li><strong>Train the model once</strong>
+      On one image that represents the whole series well. On the
+      command line use the <code>ucz</code> command; in the Windows
+      application, the training tab. The model is saved to a
+      <code>.geoai</code> file.</li>
+    <li><strong>Point to the image folder</strong>
+      On the command line use <code>klasyfikuj --folder</code>; in the
+      Windows application, the tab for classifying a whole folder. The
+      program can also search subfolders.</li>
+    <li><strong>Collect the results</strong>
+      For each image a GeoTIFF map with a <code>.qml</code> style file,
+      and in the output folder a <code>raport.csv</code> file
+      (semicolon separator, Excel-friendly encoding) with the area of
+      each class in each image.</li>
+  </ol>
+
+  <pre><code>python geoai.py ucz --zdjecie flights/flight_01.tif --probki examples.gpkg ^
+    --nmpt dsm/flight_01_nmpt.tif --model my_model.geoai
+
+python geoai.py klasyfikuj --folder flights --model my_model.geoai ^
+    --wyjscie maps --nmpt-folder dsm</code></pre>
+
+  <details class="rozwin">
+  <summary>All folder classification options</summary>
+  <div class="tabela-przewin"><table>
+    <thead><tr><th>Option</th><th>What it does</th></tr></thead>
+    <tbody>
+      <tr><td><code>--zdjecie</code>, <code>--probki</code>, <code>--nmpt</code>, <code>--wyjscie</code></td><td>image, training samples (polygons with a <code>klasa</code> column), DSM, output folder</td></tr>
+      <tr><td><code>--rekurencyjnie</code></td><td>also searches subfolders for images</td></tr>
+      <tr><td><code>--nmpt-folder</code></td><td>folder with elevation models; for the image <code>flight_01.tif</code> the program picks the file <code>flight_01_nmpt.tif</code> (change the suffix with <code>--nmpt-przyrostek</code>)</td></tr>
+      <tr><td><code>--mmu 10</code></td><td>removes patches smaller than 10 m²</td></tr>
+      <tr><td><code>--nadpisuj</code></td><td>also reprocesses images that already have a result</td></tr>
+      <tr><td><code>--przerwij-na-bledzie</code></td><td>stops at the first problem; without this option the program reports the error for that image and carries on</td></tr>
+    </tbody>
+  </table></div>
+  </details>
+
+  <div class="siatka dwa">
+    <div class="karta">
+      <h4>Interrupted? Run it again</h4>
+      <p>Without the <code>--nadpisuj</code> option the program skips
+      images that already have a result, so you resume an interrupted
+      run with the same command.</p>
+    </div>
+    <div class="karta">
+      <h4>One model, similar images</h4>
+      <p>A model works for images similar to those it learned from: the
+      same camera, a similar season and lighting. A June flight and a
+      September flight need two models.</p>
+    </div>
+  </div>
+
+  <p>The QGIS plugin works on one image at a time; all three versions
+  compute with the same engine.</p>
+</div></section>
+
+<script>
+(function () {
+  "use strict";
+  var svg = document.getElementById("folder-anim");
+  if (!svg) { return; }
+  var NS = "http://www.w3.org/2000/svg";
+  function el(nazwa, atr, rodzic) {
+    var e = document.createElementNS(NS, nazwa);
+    for (var k in atr) { e.setAttribute(k, atr[k]); }
+    (rodzic || svg).appendChild(e);
+    return e;
+  }
+  function tekst(x, y, t, atr) {
+    var e = el("text", Object.assign({ x: x, y: y, "font-size": 13, fill: "#1a2628",
+      "font-family": "-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif" }, atr || {}));
+    e.textContent = t;
+    return e;
+  }
+  // Losowanie z ziarnem, żeby kafelki wyglądały zawsze tak samo.
+  var a = 3;
+  function los() { a = (a * 16807) % 2147483647; return a / 2147483647; }
+
+  var N = 6, W = 44, H = 32;
+  var ZIEL = ["#7da843", "#8fb24f", "#6b9a3a", "#a08455", "#b39265", "#4f7d35", "#c9b98f"];
+  var KL = ["#8bc34a", "#b07a4a", "#d1495b", "#6b7b80", "#1f6b35"];
+  // Każde zdjęcie: siatka 4 na 3 płatów; mapa ma te same płaty w barwach klas.
+  var plyty = [];
+  for (var i = 0; i < N; i++) {
+    var p = [];
+    for (var c = 0; c < 12; c++) { p.push(Math.floor(los() * 5)); }
+    plyty.push(p);
+  }
+  function kafel(rodzic, x, y, i, mapa) {
+    var g = el("g", { transform: "translate(" + x + "," + y + ")" }, rodzic);
+    for (var c = 0; c < 12; c++) {
+      var k = plyty[i][c];
+      var kolor = mapa ? KL[k] : ZIEL[(k + c) % ZIEL.length];
+      el("rect", { x: (c % 4) * 11, y: Math.floor(c / 4) * (H / 3), width: 11, height: H / 3, fill: kolor }, g);
+    }
+    el("rect", { x: 0, y: 0, width: W, height: H, fill: "none", stroke: "#fff", "stroke-width": 1.5 }, g);
+    return g;
+  }
+  function folder(x, y, w, h, nazwa) {
+    el("path", { d: "M" + x + " " + (y + 12) + " v" + (h - 12) + " h" + w + " v" + (h - 12) * -1 +
+      " h" + (-(w - 70)) + " l-10 -12 h-60 z", fill: "#fff8e9", stroke: "#e0a030", "stroke-width": 2 });
+    tekst(x + 10, y + h + 20, nazwa, { "font-weight": 600 });
+  }
+
+  // Folder ze zdjęciami, model, folder z mapami.
+  folder(20, 60, 190, 140, "flights/  (6 images)");
+  folder(550, 60, 190, 140, "maps/");
+  el("rect", { x: 300, y: 95, width: 160, height: 80, rx: 12, fill: "#00749c" });
+  tekst(380, 128, "model.geoai", { fill: "#fff", "font-weight": 700, "text-anchor": "middle", "font-size": 15 });
+  tekst(380, 150, "trained once", { fill: "#eafaff", "text-anchor": "middle" });
+  tekst(380, 225, "Random Forest, the same for every image", { "text-anchor": "middle", fill: "#5d7076", "font-size": 12 });
+  el("path", { d: "M220 135 h68", stroke: "#00bde7", "stroke-width": 2.5, "marker-end": "url(#fa-grot)" });
+  el("path", { d: "M470 135 h68", stroke: "#00bde7", "stroke-width": 2.5, "marker-end": "url(#fa-grot)" });
+  var defs = el("defs", {});
+  var m = el("marker", { id: "fa-grot", markerWidth: 8, markerHeight: 8, refX: 7, refY: 4, orient: "auto" }, defs);
+  el("path", { d: "M0 0l8 4-8 4z", fill: "#00bde7" }, m);
+
+  // Przekreślona mozaika: pokazuje, czego robić nie trzeba.
+  var moz = el("g", { transform: "translate(318,10)" });
+  for (var r = 0; r < 2; r++) { for (var s = 0; s < 3; s++) {
+    el("rect", { x: s * 14, y: r * 11, width: 14, height: 11, fill: ZIEL[(r * 3 + s) % ZIEL.length], stroke: "#fff" }, moz);
+  } }
+  el("path", { d: "M-3 -3 L45 25 M45 -3 L-3 25", stroke: "#d1495b", "stroke-width": 3 }, moz);
+  tekst(370, 26, "mosaicking: not needed", { fill: "#d1495b", "font-size": 12, "font-weight": 600 });
+
+  // Miejsca na zdjęcia i na mapy.
+  function slot(i, x0) { return [x0 + 14 + (i % 3) * 56, 85 + Math.floor(i / 3) * 52]; }
+  var zrodla = [], wyniki = [];
+  for (var j = 0; j < N; j++) {
+    var sp = slot(j, 20); zrodla.push(kafel(svg, sp[0], sp[1], j, false));
+    var sw = slot(j, 550); var gw = kafel(svg, sw[0], sw[1], j, true); gw.style.opacity = 0; wyniki.push(gw);
+  }
+  var lecace = kafel(svg, 0, 0, 0, false); lecace.style.opacity = 0;
+  var licznik = tekst(380, 80, "", { "text-anchor": "middle", "font-weight": 600, fill: "#00749c" });
+
+  // Raport CSV na końcu.
+  var rap = el("g", { transform: "translate(552,272)" }); rap.style.opacity = 0;
+  el("rect", { x: 0, y: -15, width: 196, height: 24, rx: 5, fill: "#eafaff", stroke: "#00749c" }, rap);
+  var tr = tekst(10, 2, "raport.csv: class areas", { "font-size": 12, fill: "#00749c", "font-weight": 600 });
+  rap.appendChild(tr);
+
+  function przesun(g, x, y) { g.setAttribute("transform", "translate(" + x + "," + y + ")"); }
+  function plyn(t) { return t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2; }
+  var CYKL = 11, START = 0.8, KROK = 1.3, LOT = 1.1;
+  var centrum = [380 - W / 2, 135 - H / 2];
+
+  function klatka(t) {
+    var aktywne = -1;
+    for (var i = 0; i < N; i++) {
+      var t0 = START + i * KROK;
+      zrodla[i].style.opacity = t >= t0 ? 0.25 : 1;
+      wyniki[i].style.opacity = t >= t0 + LOT ? 1 : 0;
+      if (t >= t0 && t < t0 + LOT) { aktywne = i; }
+    }
+    if (aktywne >= 0) {
+      var f = (t - (START + aktywne * KROK)) / LOT;
+      var s0 = slot(aktywne, 20), s1 = slot(aktywne, 550);
+      var x, y;
+      if (f < 0.5) { var q = plyn(f * 2); x = s0[0] + (centrum[0] - s0[0]) * q; y = s0[1] + (centrum[1] - s0[1]) * q; }
+      else { var q2 = plyn((f - 0.5) * 2); x = centrum[0] + (s1[0] - centrum[0]) * q2; y = centrum[1] + (s1[1] - centrum[1]) * q2; }
+      svg.removeChild(lecace);
+      lecace = kafel(svg, x, y, aktywne, f >= 0.5);
+      licznik.textContent = "image " + (aktywne + 1) + " of " + N;
+    } else {
+      lecace.style.opacity = 0;
+      licznik.textContent = t >= START + N * KROK ? "done: " + N + " maps" : "";
+    }
+    rap.style.opacity = t >= START + (N - 1) * KROK + LOT + 0.3 ? 1 : 0;
+  }
+
+  var bezRuchu = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (bezRuchu) { klatka(CYKL - 0.5); return; }
+  var poczatek = null, widoczna = true;
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (w) { widoczna = w[0].isIntersecting; }).observe(svg);
+  }
+  function petla(ts) {
+    if (poczatek === null) { poczatek = ts; }
+    if (widoczna) { klatka(((ts - poczatek) / 1000) % CYKL); } else { poczatek = ts - 0; }
+    requestAnimationFrame(petla);
+  }
+  requestAnimationFrame(petla);
+})();
+</script>
+
+<section id="computer"><div class="owijka">
+  <h2>Computer and speed</h2>
+  <p class="podtytul">What you need, what slows the computation down and
+  how to speed it up without buying a new computer.</p>
+
+  <h3>Requirements</h3>
+  <div class="tabela-przewin"><table>
+    <thead><tr><th>Version</th><th>What it needs</th></tr></thead>
+    <tbody>
+      <tr><td>QGIS plugin</td><td>QGIS 3.22 or newer and nothing else</td></tr>
+      <tr><td>Windows application</td><td>64-bit Windows; the installer
+        (about 96 MB) contains all libraries, including the ones that
+        speed things up</td></tr>
+      <tr><td>Command line</td><td>Python 3.9 or newer and the
+        <code>numpy</code>, <code>rasterio</code> and <code>fiona</code>
+        libraries; <code>scikit-image</code>, <code>scikit-learn</code>
+        and <code>scipy</code> are also recommended</td></tr>
+      <tr><td>Graphics card</td><td>not needed: the program does not use
+        neural networks</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="ramka">
+    <p><strong>Memory is the main limit.</strong> The computation takes
+    about 100 bytes per pixel of the working grid, so the largest
+    allowed grid, 15 million pixels, needs about 1.5 GB of memory for
+    the computation alone, on top of what the system and QGIS use. The
+    program refuses a larger grid and suggests a coarser working
+    resolution.</p>
+  </div>
+
+  <details class="rozwin">
+  <summary>What determines computation time</summary>
+  <div class="tabela-przewin"><table>
+    <thead><tr><th>Factor</th><th>Why</th></tr></thead>
+    <tbody>
+      <tr><td><strong>Number of pixels in the working grid</strong></td>
+        <td>every step goes through all pixels; a resolution twice as
+        coarse means four times fewer pixels</td></tr>
+      <tr><td><strong>Number of objects</strong></td>
+        <td>texture, shape and context are measured separately for each
+        object; smaller objects mean more objects</td></tr>
+      <tr><td><strong>Acceleration libraries</strong></td>
+        <td>with <code>scikit-image</code> and <code>scikit-learn</code>
+        the computation runs several times faster; without
+        <code>scikit-image</code> the practical limit is about half a
+        million pixels</td></tr>
+      <tr><td><strong>Elevation model (DSM)</strong></td>
+        <td>adds 5 features and estimation of the ground surface with a
+        morphological filter</td></tr>
+      <tr><td><strong>Extras</strong></td>
+        <td>the class separability check, greenness refinement and
+        removal of small patches are separate steps</td></tr>
+      <tr><td><strong>Processor</strong></td>
+        <td>Random Forest from <code>scikit-learn</code> spreads the
+        trees over all processor cores</td></tr>
+    </tbody>
+  </table></div>
+  </details>
+
+  <h3>How to work faster without a new computer</h3>
+  <div class="siatka dwa">
+    <div class="karta">
+      <h4>Match the resolution to the goal</h4>
+      <p>For fields, plots and roofs a 5 to 10 cm grid is enough. A
+      drone image with 2 cm pixels processed on an 8 cm grid has 16 times
+      fewer pixels. You need the finest grid, 3 to 5 cm, only for single
+      trees and shrubs.</p>
+    </div>
+    <div class="karta">
+      <h4>Try on a small part</h4>
+      <p>In the plugin, tick processing only what is visible on screen.
+      You can fine-tune the settings and examples in moments and process
+      the whole image at the end.</p>
+    </div>
+    <div class="karta">
+      <h4>Use the acceleration libraries</h4>
+      <p>The Windows application includes them. For the plugin and the
+      command line, install <code>scikit-image</code>,
+      <code>scikit-learn</code> and <code>scipy</code>. The computation
+      gets faster and the results match the reference implementation;
+      for research work the full setup is recommended anyway.</p>
+    </div>
+    <div class="karta">
+      <h4>Large objects where possible</h4>
+      <p>An object should be smaller than the narrowest thing you want to
+      show, but no smaller than that. When mapping fields, a 20 m²
+      object instead of 5 m² means four times fewer objects to
+      measure.</p>
+    </div>
+    <div class="karta">
+      <h4>Run in the background and in batches</h4>
+      <p>Run many images as a <a href="#folder">whole-folder
+      classification</a>, for example overnight. An interrupted run
+      resumes with the same command, and finished images are
+      skipped.</p>
+    </div>
+    <div class="karta">
+      <h4>Mosaic too large? Split it</h4>
+      <p>When a single image exceeds the limit even at a sensible
+      resolution, split it into tiles (for example with the GDAL Retile
+      tool in QGIS) and classify the folder of tiles with one model.</p>
+    </div>
+    <div class="karta">
+      <h4>Train once, apply many times</h4>
+      <p>Training takes seconds, but preparing examples takes time. In
+      the command-line program and the Windows application the model is
+      saved to a <code>.geoai</code> file, which you apply to further
+      similar images without training again.</p>
+    </div>
+    <div class="karta">
+      <h4>Free up memory</h4>
+      <p>Close other programs, especially a browser with many tabs. Close
+      to the memory limit, this can be the difference between a result
+      and an out-of-memory message.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="sentinel"><div class="owijka">
+  <h2>Sentinel-2 satellite images</h2>
+  <p class="podtytul">It works without a drone too: 10 metres, the whole
+  Earth, free of charge.</p>
+
+  <p>Sentinel-2 are satellites of the European Space Agency (<a class="cyt" href="#ref-drusch">Drusch et al., 2012</a>). They
+  image the same place every few days, and the archive goes back to
+  2015. A pixel is 10 metres, so one pixel covers 100 m² of ground.
+  That is too coarse for a single tree but just right for fields,
+  forests, water and built-up areas.</p>
+
+  <div class="ramka wazne">
+    <p><strong>The most common trap.</strong> The program reads the
+    first three bands of the file as red, green and blue. In a raw
+    Sentinel-2 scene band one is aerosol, band two is blue and band
+    three is green; red is not among them at all. The program will not
+    report an error; it will compute something that looks like a map
+    but is wrong. So always provide a <strong>ready RGB
+    composite</strong>.</p>
+  </div>
+
+  <h3>How to get a ready RGB image</h3>
+  <p>The easiest way is the
+  <a href="https://plugins.qgis.org/plugins/sentinel_download/">Sentinel
+  Download</a> plugin by the same author (Polish version:
+  <a href="https://plugins.qgis.org/plugins/pobieranie_sentinel/">Pobieranie
+  Sentinel</a>). It downloads Sentinel-2 (L2A and L1C) and Sentinel-1
+  (GRD) images from the Copernicus Data Space and assembles ready
+  products, including an RGB composite with the bands in the right
+  order.</p>
+  <ol class="kroki">
+    <li><strong>Install the plugin</strong>
+      In QGIS: Plugins, Manage and Install Plugins, type
+      <code>Sentinel Download</code> and click Install.</li>
+    <li><strong>Define the area</strong>
+      Load or draw a layer with the area you are interested in.</li>
+    <li><strong>Set dates and clouds</strong>
+      Open the plugin, choose the area, set the date range and the
+      maximum acceptable cloud cover.</li>
+    <li><strong>Choose the RGB product</strong>
+      Pick RGB from the product list, download the file and wait.</li>
+    <li><strong>Give the file to the classifier</strong>
+      Select the resulting RGB file in the Image (RGB) field.</li>
+  </ol>
+
+  <h3>What changes at 10 metres</h3>
+  <div class="tabela-przewin"><table>
+    <thead><tr><th>Aspect</th><th>Drone</th><th>Sentinel-2</th></tr></thead>
+    <tbody>
+    <tr><td>Pixel</td><td>2 to 10 cm</td><td>10 m</td></tr>
+    <tr><td>What can be recognised</td><td>single trees, field
+      margins, parts of a roof</td><td>large forms: fields, forest,
+      built-up areas, water</td></tr>
+    <tr><td>Elevation model</td><td>usually available (DSM from the
+      flight)</td>
+      <td>usually not, so 19 features instead of 24</td></tr>
+    <tr><td>Object size</td><td>square metres</td>
+      <td>a few dozen pixels are already thousands of square
+      metres</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="siatka dwa">
+    <div class="karta">
+      <h4>Watch the clouds</h4>
+      <p>A scene with 40 percent cloud cover can be useless even if your
+      area happens to be clear, because cloud shadows remain on the
+      ground.</p>
+    </div>
+    <div class="karta">
+      <h4>A separate model for satellite data</h4>
+      <p>A model trained on drone images is not suitable for Sentinel-2
+      and vice versa. A model works for data similar to what it learned
+      from, so train it from scratch for satellite scenes.</p>
+    </div>
+  </div>
+</div></section>
+
+<div class="rozdzial" id="part-how"><div class="owijka">
+  <p class="rozdzial-nr">Part 2 of 4</p>
+  <h2>How it works</h2>
+  <p>Why the program works on objects and how it learns classes from your examples.</p>
+  <div class="rozdzial-spis" role="navigation" aria-label="How it works"><a href="#how">Objects instead of pixels</a><a href="#algorithm">Animated algorithm</a></div>
+</div></div>
+
+<section id="how" class="tlo"><div class="owijka">
+  <h2>Why objects and not pixels</h2>
+  <p class="podtytul">The whole method rests on this, so it is worth
+  understanding once.</p>
+
+  <p>Classical classification looks at each pixel separately. A pixel
+  knows only its colour, and that is not enough to tell a grey roof from
+  grey asphalt. The result is a map sprinkled with single dots.</p>
+
+  <p>Here the image is first cut into <strong>objects</strong>: groups
+  of neighbouring pixels with similar colour. Such an object is a piece
+  of a field, part of a roof, a tree crown. And it knows much more about
+  itself: its colour, its texture, its shape, how high it is and what
+  surrounds it.</p>
+
+  <figure class="rysunek">
+  <svg viewBox="0 0 760 210" xmlns="http://www.w3.org/2000/svg" role="img"
+       aria-label="Three stages: pixels, segmentation into objects, finished map">
+    <defs>
+      <pattern id="szum" width="10" height="10" patternUnits="userSpaceOnUse">
+        <rect width="10" height="10" fill="#7d9a4e"/>
+        <rect width="5" height="5" fill="#8aa557"/>
+        <rect x="5" y="5" width="5" height="5" fill="#7d9a4e"/>
+      </pattern>
+    </defs>
+
+    <!-- 1: pixels -->
+    <text x="100" y="18" text-anchor="middle" font-size="13" font-weight="600"
+          fill="#1a2628">1 · Image</text>
+    <g>
+      <rect x="20" y="30" width="160" height="150" fill="#8aa557"/>
+      <g opacity=".55">
+        <rect x="20"  y="30" width="160" height="40" fill="#b79b6b"/>
+        <rect x="20"  y="140" width="160" height="40" fill="#9d9d9f"/>
+        <rect x="52"  y="70" width="30" height="70" fill="#6f9440"/>
+        <rect x="104" y="70" width="30" height="70" fill="#6f9440"/>
+      </g>
+      <g stroke="#fff" stroke-width=".5" opacity=".35">
+        <path d="M40 30v150M60 30v150M80 30v150M100 30v150M120 30v150M140 30v150M160 30v150
+                 M20 50h160M20 70h160M20 90h160M20 110h160M20 130h160M20 150h160M20 170h160"/>
+      </g>
+      <rect x="20" y="30" width="160" height="150" fill="none" stroke="#5d7076"/>
+    </g>
+    <text x="100" y="198" text-anchor="middle" font-size="11.5" fill="#5d7076">
+      a pixel knows only its colour</text>
+
+    <!-- arrow -->
+    <path d="M196 105h34" stroke="#00bde7" stroke-width="2.5" marker-end="url(#grot)"/>
+    <defs><marker id="grot" markerWidth="8" markerHeight="8" refX="7" refY="4"
+      orient="auto"><path d="M0 0l8 4-8 4z" fill="#00bde7"/></marker></defs>
+
+    <!-- 2: objects -->
+    <text x="330" y="18" text-anchor="middle" font-size="13" font-weight="600"
+          fill="#1a2628">2 · Objects</text>
+    <g>
+      <rect x="250" y="30" width="160" height="150" fill="#8aa557"/>
+      <rect x="250" y="30" width="160" height="40" fill="#b79b6b"/>
+      <rect x="250" y="140" width="160" height="40" fill="#9d9d9f"/>
+      <rect x="282" y="70" width="30" height="70" fill="#6f9440"/>
+      <rect x="334" y="70" width="30" height="70" fill="#6f9440"/>
+      <g fill="none" stroke="#ffe14d" stroke-width="1.6">
+        <path d="M250 70h160M250 140h160"/>
+        <path d="M282 70v70M312 70v70M334 70v70M364 70v70"/>
+        <path d="M250 48h160M282 48v-18M334 48v-18M250 160h160M300 160v20M360 160v20"/>
+        <path d="M250 105h32M364 105h46M312 105h22"/>
+      </g>
+      <rect x="250" y="30" width="160" height="150" fill="none" stroke="#5d7076"/>
+    </g>
+    <text x="330" y="198" text-anchor="middle" font-size="11.5" fill="#5d7076">
+      colour + texture + shape + height</text>
+
+    <path d="M426 105h34" stroke="#00bde7" stroke-width="2.5" marker-end="url(#grot)"/>
+
+    <!-- 3: map -->
+    <text x="560" y="18" text-anchor="middle" font-size="13" font-weight="600"
+          fill="#1a2628">3 · Map</text>
+    <g>
+      <rect x="480" y="30" width="160" height="150" fill="#c9d84a"/>
+      <rect x="480" y="30" width="160" height="40" fill="#8c6d4f"/>
+      <rect x="480" y="140" width="160" height="40" fill="#9e9e9e"/>
+      <rect x="282" y="70" width="0" height="0"/>
+      <rect x="512" y="70" width="30" height="70" fill="#2f8f3e"/>
+      <rect x="564" y="70" width="30" height="70" fill="#2f8f3e"/>
+      <rect x="480" y="30" width="160" height="150" fill="none" stroke="#5d7076"/>
+    </g>
+    <g font-size="10.5" fill="#1a2628">
+      <rect x="664" y="38" width="12" height="12" fill="#8c6d4f"/>
+      <text x="682" y="48">soil</text>
+      <rect x="664" y="60" width="12" height="12" fill="#2f8f3e"/>
+      <text x="682" y="70">crop</text>
+      <rect x="664" y="82" width="12" height="12" fill="#c9d84a"/>
+      <text x="682" y="92">grass</text>
+      <rect x="664" y="104" width="12" height="12" fill="#9e9e9e"/>
+      <text x="682" y="114">road</text>
+    </g>
+    <text x="560" y="198" text-anchor="middle" font-size="11.5" fill="#5d7076">
+      no single dots</text>
+  </svg>
+  <figcaption>From image to map. We classify objects, not pixels, so
+  the map is not "littered".</figcaption>
+  </figure>
+
+  <h3>What the program measures for each object</h3>
+  <p>Nineteen numbers from the image alone, twenty-four if you add an
+  elevation model. <em>These numbers</em>, not the picture, go into the
+  classifier.</p>
+
+  <div class="siatka trzy">
+    <div class="karta">
+      <svg class="ikona" aria-hidden="true" viewBox="0 0 40 40"><circle cx="15" cy="16" r="10" fill="#d1495b" opacity=".8"/><circle cx="25" cy="16" r="10" fill="#2f8f3e" opacity=".8"/><circle cx="20" cy="25" r="10" fill="#2f7fd1" opacity=".8"/></svg>
+      <h4>Colour: 7 numbers</h4>
+      <p>Mean and variability of red, green and blue, and brightness. A
+      ragged crown varies differently from a smooth roof.</p>
+    </div>
+    <div class="karta">
+      <svg class="ikona" aria-hidden="true" viewBox="0 0 40 40"><path d="M6 30c4-14 10-14 14 0s10 14 14 0" stroke="#2f8f3e" stroke-width="3.5" fill="none" stroke-linecap="round"/><path d="M6 20h28" stroke="#c9d84a" stroke-width="2.5" stroke-dasharray="4 3"/></svg>
+      <h4>Greenness: 3 numbers</h4>
+      <p>ExG (<a class="cyt" href="#ref-woebbecke">Woebbecke et al., 1995</a>), VARI (<a class="cyt" href="#ref-gitelson">Gitelson et al., 2002</a>), NGRDI (<a class="cyt" href="#ref-hunt">Hunt et al., 2005</a>). Computed on colour
+      proportions, so a leaf in shade and in sun look alike. They replace
+      NDVI, which drone cameras do not provide.</p>
+    </div>
+    <div class="karta">
+      <svg class="ikona" aria-hidden="true" viewBox="0 0 40 40"><g fill="#5d7076"><rect x="6" y="6" width="5" height="5"/><rect x="16" y="11" width="5" height="5"/><rect x="26" y="6" width="5" height="5"/><rect x="11" y="21" width="5" height="5"/><rect x="21" y="26" width="5" height="5"/><rect x="6" y="31" width="5" height="5"/><rect x="29" y="22" width="5" height="5"/></g></svg>
+      <h4>Texture: 4 numbers</h4>
+      <p>How much neighbouring pixels differ from each other. This tells
+      a tree crown from metal roofing of the same colour.</p>
+    </div>
+    <div class="karta">
+      <svg class="ikona" aria-hidden="true" viewBox="0 0 40 40"><path d="M8 28 L14 10 L30 14 L26 32 Z" fill="none" stroke="#00bde7" stroke-width="2.5" stroke-linejoin="round"/></svg>
+      <h4>Shape: 4 numbers</h4>
+      <p>Area, perimeter, circularity and convexity. A long, narrow plot
+      is something different from a compact square.</p>
+    </div>
+    <div class="karta">
+      <svg class="ikona" aria-hidden="true" viewBox="0 0 40 40"><rect x="6" y="20" width="28" height="4" fill="#b0bec5"/><rect x="14" y="20" width="12" height="4" fill="#102a32"/><path d="M20 20V8" stroke="#00bde7" stroke-width="2.5"/><circle cx="20" cy="8" r="3" fill="#00bde7"/></svg>
+      <h4>Context: 1 number</h4>
+      <p>The brightness of an object compared with those that touch it.
+      A ditch or a gap in a stand comes out darker than everything
+      around it.</p>
+    </div>
+    <div class="karta">
+      <svg class="ikona" aria-hidden="true" viewBox="0 0 40 40"><path d="M4 32h32" stroke="#8c6d4f" stroke-width="3"/><path d="M10 32V20l7-6 7 6v12" fill="none" stroke="#d1495b" stroke-width="2.5" stroke-linejoin="round"/><path d="M28 32V24" stroke="#2f8f3e" stroke-width="2.5"/><circle cx="28" cy="20" r="5" fill="#2f8f3e"/></svg>
+      <h4>Height: 5 numbers</h4>
+      <p>From the DSM: height, its variability, slope and, most
+      importantly, <strong>height above ground</strong>. Roof versus
+      asphalt, tree versus lawn.</p>
+    </div>
+  </div>
+
+  <div class="ramka">
+    <p><strong>Why there is no NDVI.</strong> Ordinary drone cameras
+    record only red, green and blue and do not see near infrared at all.
+    That is why we work with visible-band indices, texture, shape and
+    height. In practice they are enough.</p>
+  </div>
+</div></section>
+
+<section id="algorithm" class="tlo"><div class="owijka">
+  <h2>How the program learns</h2>
+  <p class="podtytul">The whole algorithm on one small picture. The
+  animation really computes; it is not a recording.</p>
+
+  <div class="anim">
+    <div class="anim-ekran">
+      <canvas id="anim-plotno" width="576" height="384"
+              aria-label="Algorithm animation: segmentation, features, examples, Random Forest and map"></canvas>
+      <div class="anim-legenda" id="anim-legenda"></div>
+    </div>
+    <div class="anim-panel">
+      <div class="anim-etapy" id="anim-etapy" role="tablist"></div>
+      <h3 id="anim-tytul">Image</h3>
+      <div id="anim-opis"></div>
+      <div id="anim-wykres" class="anim-wykres"></div>
+      <div class="anim-przyciski">
+        <button type="button" id="anim-wstecz" aria-label="Previous stage">◀</button>
+        <button type="button" id="anim-graj">⏸ Pause</button>
+        <button type="button" id="anim-dalej" aria-label="Next stage">▶</button>
+      </div>
+    </div>
+  </div>
+  <p class="anim-podpis">The picture is 96 by 64 pixels with five kinds of
+  land. The animation uses the same steps as the program, simplified: it
+  computes 10 of the 19 features (colour and greenness), and the
+  "operator" who picks examples is simulated by drawing objects of known
+  class. The numbers in the panel come from this picture, not from real
+  images.</p>
+
+  <details class="rozwin">
+  <summary>The algorithm step by step, with all settings</summary>
+  <ol class="kroki">
+    <li><strong>Reading and smoothing</strong>
+      The program reads the first three bands of the image as red,
+      green and blue and rescales brightness to the range 0 to 1. Before
+      segmentation it smooths the image with a Gaussian filter
+      (σ = 2.5) so that sensor noise and fine texture do not create
+      artificial objects.</li>
+    <li><strong>SLIC segmentation (<a class="cyt" href="#ref-achanta">Achanta et al., 2012</a>)</strong>
+      A regular grid of seeds is placed on the image. Each pixel goes to
+      the nearest seed, where the distance combines the colour
+      difference in CIELAB space with the distance on the ground. The
+      seeds move to the centre of their pixels and the whole process
+      repeats 10 times. Compactness (0.15 by default) decides whether the
+      boundaries follow colour or a regular grid. Finally, small
+      leftovers are merged into neighbours so that each object is a
+      single patch.</li>
+    <li><strong>Feature measurement</strong>
+      Each object gets a vector of numbers: 19 features of colour,
+      greenness (<a class="cyt" href="#ref-gitelson">Gitelson et al., 2002</a>; <a class="cyt" href="#ref-hunt">Hunt et al., 2005</a>; <a class="cyt" href="#ref-woebbecke">Woebbecke et al., 1995</a>), texture from the grey-level
+      co-occurrence matrix (<a class="cyt" href="#ref-haralick">Haralick et al., 1973</a>), shape and context, and 24 with an
+      elevation model. From this point on the classifier no longer looks
+      at the image, only at these numbers. The features are not scaled,
+      because Random Forest splits on thresholds, not on distances.</li>
+    <li><strong>Examples and the separability check</strong>
+      You pick examples of classes; the object containing an example
+      gets its class. Before Random Forest learns anything, the program
+      computes the Jeffries-Matusita distance on a scale from 0 to 2 for
+      each pair of classes, with five-fold cross-validation, and shows
+      which features separate them most. It also warns when the most
+      frequent class has more than five times as many examples as the
+      rarest one.</li>
+    <li><strong>Training the Random Forest classifier (<a class="cyt" href="#ref-belgiu">Belgiu and Drăguţ, 2016</a>; <a class="cyt" href="#ref-breiman">Breiman, 2001</a>)</strong>
+      100 decision trees are built. Each learns from a random bootstrap
+      sample of the examples, and at each node it chooses the best
+      question "is feature X smaller than a threshold?" among randomly
+      selected features, whose number is the integer part of √p (4 for
+      both 19 and 24 features). The thresholds are chosen by the
+      algorithm using the Gini criterion (<a class="cyt" href="#ref-cart">Breiman et al., 2017</a>), not by a person. The
+      random seed is fixed (42), so the same data always give the same
+      model.</li>
+    <li><strong>Voting and confidence</strong>
+      Each tree passes the object through its questions and returns the
+      class distribution of the leaf where the object landed. The
+      distributions from 100 trees are averaged. The object gets the
+      class with the largest share, and that share is stored as the
+      confidence of the decision. The program counts and reports objects
+      where the winning class got less than half of the votes.</li>
+    <li><strong>The correction loop</strong>
+      The first map is used to find the kinds of errors. You add a few
+      examples where Random Forest hesitates, train it again and
+      classify again. Two or three rounds usually bring the biggest
+      gain. In the command-line program and the Windows application the
+      trained model is saved to a <code>.geoai</code> file and can be
+      applied to further similar images.</li>
+  </ol>
+  </details>
+  <p>The formulas, all constants and the literature are described in
+  <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/blob/main/UWARUNKOWANIA_NAUKOWE.md"><code>UWARUNKOWANIA_NAUKOWE.md</code></a>
+  (in Polish), chapters 3, 5 and 6.</p>
+</div></section>
+
+<script>
+(function () {
+  "use strict";
+  var W = 96, H = 64, SKALA = 6;
+  var plotno = document.getElementById("anim-plotno");
+  if (!plotno || !plotno.getContext) { return; }
+  var ctx = plotno.getContext("2d");
+
+  // Losowanie z ziarnem, żeby animacja była za każdym razem taka sama.
+  function generator(ziarno) {
+    var a = ziarno >>> 0;
+    return function () {
+      a = (a + 0x6D2B79F5) >>> 0;
+      var t = a;
+      t = Math.imul(t ^ (t >>> 15), t | 1);
+      t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+
+  var KLASY = [
+    { nazwa: "grass",   kolor: "#8bc34a", rgb: [0.45, 0.63, 0.30], szum: 0.035 },
+    { nazwa: "soil",    kolor: "#b07a4a", rgb: [0.58, 0.45, 0.31], szum: 0.030 },
+    { nazwa: "roof",    kolor: "#d1495b", rgb: [0.72, 0.31, 0.26], szum: 0.025 },
+    { nazwa: "road",    kolor: "#6b7b80", rgb: [0.42, 0.42, 0.44], szum: 0.020 },
+    { nazwa: "trees",   kolor: "#1f6b35", rgb: [0.17, 0.35, 0.15], szum: 0.070 }
+  ];
+
+  // ── 1. Sztuczne zdjęcie ze znaną prawdą ──────────────────────────
+  var los = generator(7);
+  var prawda = new Int8Array(W * H);
+  var wariant = new Int8Array(W * H);   // 1: trawa przyschnięta, 2: dach szary
+  var rgb = new Float32Array(W * H * 3);
+  var SUCHA = [0.60, 0.50, 0.32], SZARY = [0.56, 0.56, 0.58];
+  var drzewa = [];
+  for (var d = 0; d < 9; d++) {
+    drzewa.push([62 + los() * 30, 4 + los() * 26, 3 + los() * 2.5]);
+  }
+  for (var y = 0; y < H; y++) {
+    for (var x = 0; x < W; x++) {
+      var k = 0, wr = 0;
+      if (((x - 70) * (x - 70)) / 81 + ((y - 50) * (y - 50)) / 25 < 1) { wr = 1; }
+      if (((x - 44) * (x - 44)) / 49 + ((y - 14) * (y - 14)) / 20 < 1) { wr = 1; }
+      if (x < 40 && y > 30) { k = 1; wr = 0; }
+      if (x >= 8 && x < 22 && y >= 6 && y < 18) { k = 2; wr = 0; }
+      if (x >= 27 && x < 36 && y >= 5 && y < 14) { k = 2; wr = 0; }
+      if (x >= 80 && x < 92 && y >= 44 && y < 56) { k = 2; wr = 2; }
+      if (Math.abs((y - 46) - (x - 48) * -0.55) < 3.2) { k = 3; }
+      for (var t = 0; t < drzewa.length; t++) {
+        var dx = x - drzewa[t][0], dy = y - drzewa[t][1];
+        if (dx * dx + dy * dy < drzewa[t][2] * drzewa[t][2]) { k = 4; wr = 0; }
+      }
+      if (k === 3) { wr = 0; }
+      prawda[y * W + x] = k; wariant[y * W + x] = wr;
+      var baza = wr === 1 ? SUCHA : (wr === 2 ? SZARY : KLASY[k].rgb), s = KLASY[k].szum;
+      var pas = (k === 1 && (y % 4) < 2) ? -0.04 : 0;
+      for (var c = 0; c < 3; c++) {
+        var v = baza[c] + pas + (los() - 0.5) * 2 * s;
+        rgb[(y * W + x) * 3 + c] = Math.min(1, Math.max(0, v));
+      }
+    }
+  }
+
+  // Lekkie wygładzenie (program: Gauss σ = 2,5 na pełnym zdjęciu).
+  function rozmyj(zrodlo) {
+    var wynik = new Float32Array(zrodlo.length), wag = [1, 2, 1];
+    for (var y = 0; y < H; y++) {
+      for (var x = 0; x < W; x++) {
+        for (var c = 0; c < 3; c++) {
+          var suma = 0, n = 0;
+          for (var j = -1; j <= 1; j++) {
+            for (var i = -1; i <= 1; i++) {
+              var xx = x + i, yy = y + j;
+              if (xx < 0 || yy < 0 || xx >= W || yy >= H) { continue; }
+              var w = wag[i + 1] * wag[j + 1];
+              suma += zrodlo[(yy * W + xx) * 3 + c] * w; n += w;
+            }
+          }
+          wynik[(y * W + x) * 3 + c] = suma / n;
+        }
+      }
+    }
+    return wynik;
+  }
+  var gladkie = rozmyj(rgb);
+
+  // RGB do CIELAB, te same stałe co w core/slic.py.
+  function doLab(r, g, b) {
+    function lin(u) { return u > 0.04045 ? Math.pow((u + 0.055) / 1.055, 2.4) : u / 12.92; }
+    r = lin(r); g = lin(g); b = lin(b);
+    var X = (0.412453 * r + 0.357580 * g + 0.180423 * b) / 0.950456;
+    var Y = (0.212671 * r + 0.715160 * g + 0.072169 * b);
+    var Z = (0.019334 * r + 0.119193 * g + 0.950227 * b) / 1.088754;
+    var eps = 216 / 24389, kap = 24389 / 27;
+    function f(u) { return u > eps ? Math.cbrt(u) : (kap * u + 16) / 116; }
+    var fx = f(X), fy = f(Y), fz = f(Z);
+    return [116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz)];
+  }
+  var lab = new Float32Array(W * H * 3);
+  for (var p = 0; p < W * H; p++) {
+    var l = doLab(gladkie[p * 3], gladkie[p * 3 + 1], gladkie[p * 3 + 2]);
+    lab[p * 3] = l[0]; lab[p * 3 + 1] = l[1]; lab[p * 3 + 2] = l[2];
+  }
+
+  // ── 2. SLIC: zapisujemy podział po każdej z 10 iteracji ──────────
+  var S = 8, ZWARTOSC = 10;
+  var srodki = [];
+  for (var sy = S / 2; sy < H; sy += S) {
+    for (var sx = S / 2; sx < W; sx += S) {
+      var q = (Math.floor(sy) * W + Math.floor(sx)) * 3;
+      srodki.push([lab[q], lab[q + 1], lab[q + 2], sx, sy]);
+    }
+  }
+  var historia = [];
+  var etykiety = new Int32Array(W * H);
+  for (var it = 0; it < 10; it++) {
+    var odl = new Float32Array(W * H).fill(Infinity);
+    for (var s2 = 0; s2 < srodki.length; s2++) {
+      var C = srodki[s2];
+      var x0 = Math.max(0, Math.floor(C[3] - 2 * S)), x1 = Math.min(W, Math.ceil(C[3] + 2 * S));
+      var y0 = Math.max(0, Math.floor(C[4] - 2 * S)), y1 = Math.min(H, Math.ceil(C[4] + 2 * S));
+      for (var yy = y0; yy < y1; yy++) {
+        for (var xx = x0; xx < x1; xx++) {
+          var pp = yy * W + xx;
+          var dl = lab[pp * 3] - C[0], da = lab[pp * 3 + 1] - C[1], db = lab[pp * 3 + 2] - C[2];
+          var ds = (xx - C[3]) * (xx - C[3]) + (yy - C[4]) * (yy - C[4]);
+          var D = dl * dl + da * da + db * db + ds / (S * S) * ZWARTOSC * ZWARTOSC;
+          if (D < odl[pp]) { odl[pp] = D; etykiety[pp] = s2; }
+        }
+      }
+    }
+    var sumy = srodki.map(function () { return [0, 0, 0, 0, 0, 0]; });
+    for (var p2 = 0; p2 < W * H; p2++) {
+      var e = sumy[etykiety[p2]];
+      e[0] += lab[p2 * 3]; e[1] += lab[p2 * 3 + 1]; e[2] += lab[p2 * 3 + 2];
+      e[3] += p2 % W; e[4] += Math.floor(p2 / W); e[5] += 1;
+    }
+    for (var s3 = 0; s3 < srodki.length; s3++) {
+      var u = sumy[s3];
+      if (u[5] > 0) { srodki[s3] = [u[0] / u[5], u[1] / u[5], u[2] / u[5], u[3] / u[5], u[4] / u[5]]; }
+    }
+    historia.push({ et: Int32Array.from(etykiety), sr: srodki.map(function (z) { return [z[3], z[4]]; }) });
+  }
+
+  // Spójność: każdy obiekt jednym płatem, drobne resztki do sąsiada.
+  function spojnosc(et) {
+    var nowe = new Int32Array(W * H).fill(-1), rozmiary = [], n = 0;
+    for (var p = 0; p < W * H; p++) {
+      if (nowe[p] >= 0) { continue; }
+      var kolejka = [p]; nowe[p] = n; var ile = 0;
+      while (kolejka.length) {
+        var a = kolejka.pop(); ile++;
+        var ax = a % W, ay = Math.floor(a / W);
+        var sas = [[ax - 1, ay], [ax + 1, ay], [ax, ay - 1], [ax, ay + 1]];
+        for (var i = 0; i < 4; i++) {
+          var bx = sas[i][0], by = sas[i][1];
+          if (bx < 0 || by < 0 || bx >= W || by >= H) { continue; }
+          var b = by * W + bx;
+          if (nowe[b] < 0 && et[b] === et[a]) { nowe[b] = n; kolejka.push(b); }
+        }
+      }
+      rozmiary.push(ile); n++;
+    }
+    var prog = 0.5 * (W * H) / srodki.length;
+    for (var p3 = 0; p3 < W * H; p3++) {
+      if (rozmiary[nowe[p3]] >= prog) { continue; }
+      var x = p3 % W, y = Math.floor(p3 / W);
+      var kand = [[x - 1, y], [x, y - 1], [x + 1, y], [x, y + 1]];
+      for (var j = 0; j < 4; j++) {
+        var cx = kand[j][0], cy = kand[j][1];
+        if (cx < 0 || cy < 0 || cx >= W || cy >= H) { continue; }
+        var c = cy * W + cx;
+        if (rozmiary[nowe[c]] >= prog) { rozmiary[nowe[p3]]--; nowe[p3] = nowe[c]; rozmiary[nowe[c]]++; break; }
+      }
+    }
+    // Ponumeruj od zera.
+    var mapa = {}, licz = 0, wynik = new Int32Array(W * H);
+    for (var p4 = 0; p4 < W * H; p4++) {
+      if (!(nowe[p4] in mapa)) { mapa[nowe[p4]] = licz++; }
+      wynik[p4] = mapa[nowe[p4]];
+    }
+    return { et: wynik, n: licz };
+  }
+  var podzial = spojnosc(historia[historia.length - 1].et);
+  var OB = podzial.et, NOB = podzial.n;
+
+  // ── 3. Cechy: 10 z 19, wzory jak w core/features.py ──────────────
+  var NAZWY = ["r_mean", "g_mean", "b_mean", "r_std", "g_std", "b_std",
+               "brightness_mean", "exg_mean", "vari_mean", "ngrdi_mean"];
+  var cechy = [], wiekszosc = [], czystosc = [], srodek = [], odmiana = [];
+  for (var o = 0; o < NOB; o++) { cechy.push(null); }
+  (function () {
+    var acc = [];
+    for (var o = 0; o < NOB; o++) { acc.push({ s: [0, 0, 0], s2: [0, 0, 0], br: 0, exg: 0, vari: 0, ngrdi: 0, n: 0, kl: [0, 0, 0, 0, 0], x: 0, y: 0, wr: 0 }); }
+    for (var p = 0; p < W * H; p++) {
+      var A = acc[OB[p]], R = rgb[p * 3], G = rgb[p * 3 + 1], B = rgb[p * 3 + 2];
+      A.s[0] += R; A.s[1] += G; A.s[2] += B;
+      A.s2[0] += R * R; A.s2[1] += G * G; A.s2[2] += B * B;
+      A.br += (R + G + B) / 3;
+      var tot = R + G + B, r = tot > 0 ? R / tot : 0, g = tot > 0 ? G / tot : 0, b = tot > 0 ? B / tot : 0;
+      A.exg += 2 * g - r - b;
+      var vd = g + r - b; A.vari += Math.abs(vd) < 1e-9 ? 0 : (g - r) / vd;
+      var nd = g + r; A.ngrdi += nd < 1e-9 ? 0 : (g - r) / nd;
+      A.n++; A.kl[prawda[p]]++; A.x += p % W; A.y += Math.floor(p / W); if (wariant[p]) { A.wr++; }
+    }
+    for (var o2 = 0; o2 < NOB; o2++) {
+      var Z = acc[o2], n = Z.n, m = [Z.s[0] / n, Z.s[1] / n, Z.s[2] / n];
+      cechy[o2] = [m[0], m[1], m[2],
+        Math.sqrt(Math.max(0, Z.s2[0] / n - m[0] * m[0])),
+        Math.sqrt(Math.max(0, Z.s2[1] / n - m[1] * m[1])),
+        Math.sqrt(Math.max(0, Z.s2[2] / n - m[2] * m[2])),
+        Z.br / n, Z.exg / n, Z.vari / n, Z.ngrdi / n];
+      var naj = 0;
+      for (var kk = 1; kk < 5; kk++) { if (Z.kl[kk] > Z.kl[naj]) { naj = kk; } }
+      wiekszosc.push(naj); czystosc.push(Z.kl[naj] / n); srodek.push([Z.x / n, Z.y / n]); odmiana.push(Z.wr / n);
+    }
+  })();
+
+  // ── 4. Przykłady: po trzy czyste obiekty na klasę, tylko typowe ──
+  // odmiany (bujna trawa, czerwony dach), jak u operatora, który nie
+  // pokazał jeszcze każdej odmiany klasy.
+  var losP = generator(11);
+  function wybierzPrzyklady(ile) {
+    var wynik = [];
+    for (var k = 0; k < 5; k++) {
+      var kand = [];
+      for (var o = 0; o < NOB; o++) { if (wiekszosc[o] === k && czystosc[o] > 0.8 && odmiana[o] < 0.1) { kand.push(o); } }
+      for (var i = 0; i < ile && kand.length; i++) {
+        wynik.push(kand.splice(Math.floor(losP() * kand.length), 1)[0]);
+      }
+    }
+    return wynik;
+  }
+  var przyklady1 = wybierzPrzyklady(3);
+
+  // ── 5. Random Forest: 100 drzew, bootstrap, √p cech, Gini ───────────
+  function gini(licz, n) {
+    var s = 1;
+    for (var k = 0; k < 5; k++) { var q = licz[k] / n; s -= q * q; }
+    return s;
+  }
+  function rosnij(idx, X, Y, rnd) {
+    var licz = [0, 0, 0, 0, 0];
+    idx.forEach(function (i) { licz[Y[i]]++; });
+    var czyste = licz.filter(function (v) { return v > 0; }).length <= 1;
+    if (czyste || idx.length < 2) {
+      return { lisc: licz.map(function (v) { return v / idx.length; }) };
+    }
+    var mtry = Math.floor(Math.sqrt(NAZWY.length)), cechyW = [];
+    var pula = NAZWY.map(function (_, i) { return i; });
+    for (var m = 0; m < mtry; m++) { cechyW.push(pula.splice(Math.floor(rnd() * pula.length), 1)[0]); }
+    var naj = null, rodzic = gini(licz, idx.length);
+    cechyW.forEach(function (f) {
+      var war = idx.map(function (i) { return X[i][f]; }).sort(function (a, b) { return a - b; });
+      for (var j = 1; j < war.length; j++) {
+        if (war[j] === war[j - 1]) { continue; }
+        var prog = (war[j] + war[j - 1]) / 2, L = [0, 0, 0, 0, 0], P = [0, 0, 0, 0, 0], nl = 0, np = 0;
+        idx.forEach(function (i) { if (X[i][f] <= prog) { L[Y[i]]++; nl++; } else { P[Y[i]]++; np++; } });
+        var zysk = rodzic - (nl * gini(L, nl) + np * gini(P, np)) / idx.length;
+        if (!naj || zysk > naj.zysk) { naj = { f: f, prog: prog, zysk: zysk }; }
+      }
+    });
+    if (!naj || naj.zysk <= 0) { return { lisc: licz.map(function (v) { return v / idx.length; }) }; }
+    var lewe = idx.filter(function (i) { return X[i][naj.f] <= naj.prog; });
+    var prawe = idx.filter(function (i) { return X[i][naj.f] > naj.prog; });
+    return { f: naj.f, prog: naj.prog, l: rosnij(lewe, X, Y, rnd), p: rosnij(prawe, X, Y, rnd) };
+  }
+  function naucz(przyk) {
+    var X = przyk.map(function (o) { return cechy[o]; });
+    var Y = przyk.map(function (o) { return wiekszosc[o]; });
+    var rnd = generator(42), las = [];
+    for (var t = 0; t < 100; t++) {
+      var idx = [];
+      for (var i = 0; i < X.length; i++) { idx.push(Math.floor(rnd() * X.length)); }
+      las.push(rosnij(idx, X, Y, rnd));
+    }
+    return las;
+  }
+  function zejdz(w, x) { while (!w.lisc) { w = x[w.f] <= w.prog ? w.l : w.p; } return w.lisc; }
+  function klasyfikuj(las) {
+    var wynik = [];
+    for (var o = 0; o < NOB; o++) {
+      var srednia = [0, 0, 0, 0, 0];
+      las.forEach(function (d) { var r = zejdz(d, cechy[o]); for (var k = 0; k < 5; k++) { srednia[k] += r[k] / las.length; } });
+      var naj = 0;
+      for (var k2 = 1; k2 < 5; k2++) { if (srednia[k2] > srednia[naj]) { naj = k2; } }
+      wynik.push({ klasa: naj, pewnosc: srednia[naj], rozklad: srednia });
+    }
+    return wynik;
+  }
+  function zgodnosc(mapa) {
+    var dobrze = 0;
+    for (var p = 0; p < W * H; p++) { if (mapa[OB[p]].klasa === prawda[p]) { dobrze++; } }
+    return dobrze / (W * H);
+  }
+  var las1 = naucz(przyklady1), mapa1 = klasyfikuj(las1);
+  var niepewne1 = [];
+  for (var o3 = 0; o3 < NOB; o3++) { if (mapa1[o3].pewnosc < 0.5) { niepewne1.push(o3); } }
+  // Runda poprawek: operator przegląda mapę i opisuje do 6 obiektów,
+  // najpierw te, które widzi jako pomylone, potem te najmniej pewne.
+  var kolejnosc = mapa1.map(function (m, i) { return i; })
+    .filter(function (i) { return przyklady1.indexOf(i) < 0 && czystosc[i] > 0.8; })
+    .sort(function (a, b) {
+      var ba = mapa1[a].klasa !== wiekszosc[a] ? 0 : 1, bb = mapa1[b].klasa !== wiekszosc[b] ? 0 : 1;
+      return ba - bb || mapa1[a].pewnosc - mapa1[b].pewnosc;
+    });
+  var dodane = kolejnosc.slice(0, 6);
+  var pomylone1 = mapa1.filter(function (m, i) { return m.klasa !== wiekszosc[i]; }).length;
+  var przyklady2 = przyklady1.concat(dodane);
+  var las2 = naucz(przyklady2), mapa2 = klasyfikuj(las2);
+  var niepewne2 = mapa2.filter(function (m) { return m.pewnosc < 0.5; }).length;
+  var pomylone2 = mapa2.filter(function (m, i) { return m.klasa !== wiekszosc[i]; }).length;
+  var zg1 = zgodnosc(mapa1), zg2 = zgodnosc(mapa2);
+
+  // Obiekt pokazowy do głosowania: najmniej pewny w pierwszej rundzie
+  // spośród tych, które nie są przykładami.
+  var pokazowy = mapa1.map(function (m, i) { return i; })
+    .filter(function (i) { return przyklady1.indexOf(i) < 0; })
+    .sort(function (a, b) { return mapa1[a].pewnosc - mapa1[b].pewnosc; })[0];
+  var wzorce = [];
+  for (var kw = 0; kw < 5; kw++) {
+    for (var iw = 0; iw < przyklady1.length; iw++) { if (wiekszosc[przyklady1[iw]] === kw) { wzorce.push(przyklady1[iw]); break; } }
+  }
+
+  // ── Rysowanie ─────────────────────────────────────────────────────
+  function rysujZdjecie(zrodlo) {
+    var img = ctx.createImageData(W, H);
+    for (var p = 0; p < W * H; p++) {
+      img.data[p * 4] = zrodlo[p * 3] * 255; img.data[p * 4 + 1] = zrodlo[p * 3 + 1] * 255;
+      img.data[p * 4 + 2] = zrodlo[p * 3 + 2] * 255; img.data[p * 4 + 3] = 255;
+    }
+    var tmp = document.createElement("canvas"); tmp.width = W; tmp.height = H;
+    tmp.getContext("2d").putImageData(img, 0, 0);
+    ctx.imageSmoothingEnabled = false;
+    ctx.drawImage(tmp, 0, 0, W * SKALA, H * SKALA);
+  }
+  function rysujGranice(et, kolor) {
+    ctx.fillStyle = kolor;
+    for (var y = 0; y < H; y++) {
+      for (var x = 0; x < W; x++) {
+        var p = y * W + x;
+        if (x + 1 < W && et[p] !== et[p + 1]) { ctx.fillRect((x + 1) * SKALA - 1, y * SKALA, 1.5, SKALA); }
+        if (y + 1 < H && et[p] !== et[p + W]) { ctx.fillRect(x * SKALA, (y + 1) * SKALA - 1, SKALA, 1.5); }
+      }
+    }
+  }
+  function wypelnij(obiekty, kolorDla, alfa) {
+    ctx.globalAlpha = alfa;
+    var zbior = {};
+    obiekty.forEach(function (o) { zbior[o] = true; });
+    for (var p = 0; p < W * H; p++) {
+      if (!zbior[OB[p]]) { continue; }
+      ctx.fillStyle = kolorDla(OB[p]);
+      ctx.fillRect((p % W) * SKALA, Math.floor(p / W) * SKALA, SKALA, SKALA);
+    }
+    ctx.globalAlpha = 1;
+  }
+  function wszystkie() { var a = []; for (var o = 0; o < NOB; o++) { a.push(o); } return a; }
+  function obrys(o, kolor, grubosc) {
+    ctx.fillStyle = kolor;
+    for (var y = 0; y < H; y++) {
+      for (var x = 0; x < W; x++) {
+        var p = y * W + x;
+        if (OB[p] !== o) { continue; }
+        if (x === 0 || OB[p - 1] !== o) { ctx.fillRect(x * SKALA, y * SKALA, grubosc, SKALA); }
+        if (x === W - 1 || OB[p + 1] !== o) { ctx.fillRect((x + 1) * SKALA - grubosc, y * SKALA, grubosc, SKALA); }
+        if (y === 0 || OB[p - W] !== o) { ctx.fillRect(x * SKALA, y * SKALA, SKALA, grubosc); }
+        if (y === H - 1 || OB[p + W] !== o) { ctx.fillRect(x * SKALA, (y + 1) * SKALA - grubosc, SKALA, grubosc); }
+      }
+    }
+  }
+  function kreskuj(obiekty) {
+    var zbior = {};
+    obiekty.forEach(function (o) { zbior[o] = true; });
+    ctx.fillStyle = "rgba(255,255,255,.85)";
+    for (var p = 0; p < W * H; p++) {
+      var x = p % W, y = Math.floor(p / W);
+      if (zbior[OB[p]] && (x + y) % 4 === 0) { ctx.fillRect(x * SKALA, y * SKALA, SKALA, SKALA); }
+    }
+  }
+  function liczba(v, miejsca) { return v.toFixed(miejsca); }
+  function procent(v) { return Math.round(v * 100) + "%"; }
+
+  var opis = document.getElementById("anim-opis");
+  var wykres = document.getElementById("anim-wykres");
+  var tytul = document.getElementById("anim-tytul");
+  var legenda = document.getElementById("anim-legenda");
+  function pokazLegende(widoczna) {
+    legenda.innerHTML = widoczna ? KLASY.map(function (k) {
+      return '<span><i style="background:' + k.kolor + '"></i>' + k.nazwa + "</span>";
+    }).join("") : "";
+  }
+  function slupki(wiersze, maks) {
+    return wiersze.map(function (w) {
+      var szer = Math.max(2, Math.min(100, Math.abs(w[1]) / maks * 100));
+      return '<div class="slupek"><span class="et">' + w[0] + '</span><span class="tor"><span style="width:' +
+        szer + "%;background:" + (w[2] || "var(--marka)") + '"></span></span><span class="war">' + w[3] + "</span></div>";
+    }).join("");
+  }
+
+  // ── Etapy ─────────────────────────────────────────────────────────
+  var ETAPY = [
+    { nazwa: "Image", klatki: 1, rysuj: function () {
+        rysujZdjecie(rgb); pokazLegende(false); wykres.innerHTML = "";
+        opis.innerHTML = "<p>A synthetic image: lush and dry grass, a field with furrows, red roofs and a grey one, a road and tree crowns. " +
+          "The program sees only three numbers in each pixel: red, green and blue on a scale from 0 to 1.</p>";
+      } },
+    { nazwa: "Segmentation", klatki: 11, rysuj: function (k) {
+        rysujZdjecie(gladkie); pokazLegende(false); wykres.innerHTML = "";
+        if (k < 10) {
+          var h = historia[k];
+          rysujGranice(h.et, "rgba(255,255,255,.9)");
+          ctx.fillStyle = "#ffeb3b";
+          h.sr.forEach(function (z) { ctx.beginPath(); ctx.arc((z[0] + 0.5) * SKALA, (z[1] + 0.5) * SKALA, 3, 0, 7); ctx.fill(); });
+          opis.innerHTML = "<p>SLIC, iteration <strong>" + (k + 1) + " of 10</strong>. The yellow dots are object centres. " +
+            "Each pixel goes to the nearest centre, counting both the colour difference (CIELAB) and the distance on the ground. " +
+            "Then the centres move to the middle of their pixels.</p>";
+        } else {
+          rysujGranice(OB, "rgba(255,255,255,.9)");
+          opis.innerHTML = "<p>After 10 iterations small leftovers were merged into neighbours. <strong>" + NOB +
+            " objects</strong> remain, each a single patch. From now on the unit of analysis is the object, not the pixel.</p>";
+        }
+      } },
+    { nazwa: "Features", klatki: 5, rysuj: function (k) {
+        rysujZdjecie(rgb); rysujGranice(OB, "rgba(255,255,255,.55)"); pokazLegende(false);
+        var o = wzorce[k % wzorce.length];
+        obrys(o, "#ffeb3b", 3);
+        opis.innerHTML = "<p>Each object turns into a vector of numbers. Here 10 of the 19 features: mean and variability of colour, brightness " +
+          "and three greenness indices. The yellow object has these values:</p>";
+        var w = cechy[o];
+        wykres.innerHTML = slupki(NAZWY.map(function (n, i) {
+          var maks = i >= 7 ? 1 : (i >= 3 && i < 6 ? 0.15 : 1);
+          return [n, w[i] / maks, w[i] < 0 ? "#d1495b" : null, liczba(w[i], 3)];
+        }), 1);
+      } },
+    { nazwa: "Examples", klatki: 1, rysuj: function () {
+        rysujZdjecie(rgb); rysujGranice(OB, "rgba(255,255,255,.55)"); pokazLegende(true);
+        wypelnij(przyklady1, function (o) { return KLASY[wiekszosc[o]].kolor; }, 0.85);
+        przyklady1.forEach(function (o) { obrys(o, "#fff", 2); });
+        wykres.innerHTML = "";
+        opis.innerHTML = "<p>The operator picks up to <strong>3 examples</strong> per class, " + przyklady1.length +
+          " objects in total. Only these objects have a class. Random Forest has to name the other " + (NOB - przyklady1.length) + ".</p>" +
+          "<p class=\"maly\">They showed only lush grass and red roofs. No dry grass and no grey roof yet.</p>";
+      } },
+    { nazwa: "Random Forest", klatki: 12, rysuj: function (k) {
+        rysujZdjecie(rgb); rysujGranice(OB, "rgba(255,255,255,.4)"); pokazLegende(true);
+        obrys(pokazowy, "#ffeb3b", 3);
+        var ile = Math.min(100, (k + 1) * 10), srednia = [0, 0, 0, 0, 0], kratki = "";
+        for (var t = 0; t < 100; t++) {
+          var r = zejdz(las1[t], cechy[pokazowy]), naj = 0;
+          for (var c = 1; c < 5; c++) { if (r[c] > r[naj]) { naj = c; } }
+          if (t < ile) { for (var c2 = 0; c2 < 5; c2++) { srednia[c2] += r[c2] / ile; } }
+          kratki += '<i style="background:' + (t < ile ? KLASY[naj].kolor : "#e3ecef") + '"></i>';
+        }
+        opis.innerHTML = "<p>Random Forest has <strong>100 trees</strong>. Each learned from a random sample of examples and at each node " +
+          "chose a question among 3 random features. The yellow object passes through the trees, and each returns a class distribution. " +
+          "Trees that have voted: <strong>" + ile + "</strong>.</p><div class=\"kratki\">" + kratki + "</div>";
+        wykres.innerHTML = "<p class=\"maly\">Mean distribution, that is, soft voting:</p>" + slupki(KLASY.map(function (kl, i) {
+          return [kl.nazwa, srednia[i], kl.kolor, procent(srednia[i])];
+        }), 1);
+      } },
+    { nazwa: "Map", klatki: 1, rysuj: function () {
+        rysujZdjecie(rgb); pokazLegende(true);
+        wypelnij(wszystkie(), function (o) { return KLASY[mapa1[o].klasa].kolor; }, 0.78);
+        kreskuj(niepewne1); rysujGranice(OB, "rgba(255,255,255,.35)");
+        wykres.innerHTML = "";
+        opis.innerHTML = "<p>Each object got the class with the largest share of votes. The hatched objects (" + niepewne1.length +
+          ") got less than half of the votes: this is where Random Forest hesitates. The program reports their number after every classification.</p>" +
+          "<p class=\"maly\">Agreement with the truth of this picture: <strong>" + procent(zg1) + "</strong> of pixels.</p>";
+      } },
+    { nazwa: "Correction", klatki: 2, rysuj: function (k) {
+        rysujZdjecie(rgb); pokazLegende(true);
+        if (k === 0) {
+          wypelnij(wszystkie(), function (o) { return KLASY[mapa1[o].klasa].kolor; }, 0.35);
+          wypelnij(dodane, function (o) { return KLASY[wiekszosc[o]].kolor; }, 0.95);
+          dodane.forEach(function (o) { obrys(o, "#ffeb3b", 3); });
+          rysujGranice(OB, "rgba(255,255,255,.35)");
+          wykres.innerHTML = "";
+          opis.innerHTML = "<p>The correction loop: the operator reviews the whole map and labels <strong>" + dodane.length +
+            " objects</strong> (yellow): first where they see an error, then where Random Forest hesitated. " +
+            "Random Forest learns again from " + przyklady2.length + " examples.</p>";
+        } else {
+          wypelnij(wszystkie(), function (o) { return KLASY[mapa2[o].klasa].kolor; }, 0.78);
+          kreskuj(mapa2.map(function (m, i) { return i; }).filter(function (i) { return mapa2[i].pewnosc < 0.5; }));
+          rysujGranice(OB, "rgba(255,255,255,.35)");
+          wykres.innerHTML = "";
+          opis.innerHTML = "<p>The second map. Objects with confidence below one half: <strong>" + niepewne1.length + " → " + niepewne2 +
+            "</strong>. Objects with a wrong class: <strong>" + pomylone1 + " → " + pomylone2 + "</strong>.</p><p class=\"maly\">Agreement with the truth of this picture: <strong>" + procent(zg1) + " → " + procent(zg2) +
+            "</strong> of pixels. On a real image this value comes only from an accuracy assessment on independent check points.</p>";
+        }
+      } }
+  ];
+
+  var etapyEl = document.getElementById("anim-etapy");
+  etapyEl.innerHTML = ETAPY.map(function (e, i) {
+    return '<button type="button" role="tab" data-i="' + i + '">' + (i + 1) + ". " + e.nazwa + "</button>";
+  }).join("");
+  var etap = 0, klatka = 0, gra = false, zegar = null;
+  var bezRuchu = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var graj = document.getElementById("anim-graj");
+
+  function pokaz() {
+    ETAPY[etap].rysuj(klatka);
+    tytul.textContent = (etap + 1) + ". " + ETAPY[etap].nazwa;
+    Array.prototype.forEach.call(etapyEl.children, function (b, i) {
+      b.setAttribute("aria-selected", i === etap ? "true" : "false");
+    });
+  }
+  function krok() {
+    klatka++;
+    if (klatka >= ETAPY[etap].klatki) { klatka = 0; etap = (etap + 1) % ETAPY.length; }
+    pokaz();
+  }
+  function tempo() {
+    var e = ETAPY[etap];
+    if (e.klatki > 1 && klatka < e.klatki - 1) { return etap === 2 ? 1600 : 450; }
+    return 3200;
+  }
+  function petla() { zegar = setTimeout(function () { krok(); if (gra) { petla(); } }, tempo()); }
+  function ustawGre(stan) {
+    gra = stan; clearTimeout(zegar);
+    graj.textContent = gra ? "⏸ Pause" : "▶ Play";
+    if (gra) { petla(); }
+  }
+  graj.addEventListener("click", function () { ustawGre(!gra); });
+  document.getElementById("anim-dalej").addEventListener("click", function () {
+    ustawGre(false); klatka = ETAPY[etap].klatki - 1; krok();
+  });
+  document.getElementById("anim-wstecz").addEventListener("click", function () {
+    ustawGre(false); etap = (etap + ETAPY.length - 1) % ETAPY.length; klatka = ETAPY[etap].klatki - 1; pokaz();
+  });
+  etapyEl.addEventListener("click", function (ev) {
+    var i = ev.target.getAttribute("data-i");
+    if (i === null) { return; }
+    ustawGre(false); etap = +i; klatka = ETAPY[etap].klatki - 1; pokaz();
+  });
+
+  pokaz();
+  ustawGre(false);
+  if (!bezRuchu && "IntersectionObserver" in window) {
+    var obs = new IntersectionObserver(function (wpisy) {
+      if (wpisy[0].isIntersecting) { ustawGre(true); obs.disconnect(); }
+    }, { threshold: 0.4 });
+    obs.observe(plotno);
+  }
+  window.__animDemo = { pomylone1: pomylone1, pomylone2: pomylone2, NOB: NOB, niepewne1: niepewne1.length, niepewne2: niepewne2, zg1: zg1, zg2: zg2, przyklady: przyklady1.length };
+})();
+</script>
+
+<div class="rozdzial" id="part-steps"><div class="owijka">
+  <p class="rozdzial-nr">Part 3 of 4</p>
+  <h2>Step by step</h2>
+  <p>From segmentation through training to the accuracy assessment of the map.</p>
+  <div class="rozdzial-spis" role="navigation" aria-label="Step by step"><a href="#step1">Segmentation</a><a href="#step2">Examples</a><a href="#step3">Training and correction</a><a href="#accuracy">Accuracy assessment</a><a href="#troubleshooting">When something goes wrong</a></div>
+</div></div>
+
+<section id="step1"><div class="owijka">
+  <h2><span class="numer">1</span>Segmentation</h2>
+  <p class="podtytul">One setting decides everything.</p>
+
+  <p><strong>Object size</strong> is the most important decision of the
+  whole job. There is one simple rule:</p>
+
+  <div class="ramka">
+    <p><strong>An object must be smaller than the narrowest thing you
+    want to show on the map.</strong></p>
+  </div>
+
+  <p>An object that is too large merges two kinds of land into one, and
+  no classifier can fix that. One that is too small means more clicking
+  for no gain and longer processing.</p>
+
+  <figure class="rysunek">
+  <svg viewBox="0 0 700 180" xmlns="http://www.w3.org/2000/svg" role="img"
+       aria-label="Three object sizes: too large, right, too small">
+    <g>
+      <text x="100" y="16" text-anchor="middle" font-size="12.5"
+            font-weight="600" fill="#d1495b">too large</text>
+      <rect x="20" y="26" width="160" height="110" fill="#b79b6b"/>
+      <rect x="20" y="26" width="160" height="40" fill="#8aa557"/>
+      <g stroke="#ffe14d" stroke-width="1.8" fill="none">
+        <path d="M20 81h160M100 26v110"/></g>
+      <rect x="20" y="26" width="160" height="110" fill="none" stroke="#5d7076"/>
+      <text x="100" y="152" text-anchor="middle" font-size="11" fill="#5d7076">
+        an object lies on two</text>
+      <text x="100" y="166" text-anchor="middle" font-size="11" fill="#5d7076">
+        kinds of land at once</text>
+    </g>
+    <g>
+      <text x="350" y="16" text-anchor="middle" font-size="12.5"
+            font-weight="600" fill="#2e9e4f">just right</text>
+      <rect x="270" y="26" width="160" height="110" fill="#b79b6b"/>
+      <rect x="270" y="26" width="160" height="40" fill="#8aa557"/>
+      <g stroke="#ffe14d" stroke-width="1.5" fill="none">
+        <path d="M270 66h160M270 101h160M310 26v110M350 26v110M390 26v110"/></g>
+      <rect x="270" y="26" width="160" height="110" fill="none" stroke="#5d7076"/>
+      <text x="350" y="152" text-anchor="middle" font-size="11" fill="#5d7076">
+        object boundaries match</text>
+      <text x="350" y="166" text-anchor="middle" font-size="11" fill="#5d7076">
+        boundaries on the ground</text>
+    </g>
+    <g>
+      <text x="600" y="16" text-anchor="middle" font-size="12.5"
+            font-weight="600" fill="#e0a030">too small</text>
+      <rect x="520" y="26" width="160" height="110" fill="#b79b6b"/>
+      <rect x="520" y="26" width="160" height="40" fill="#8aa557"/>
+      <g stroke="#ffe14d" stroke-width="1" fill="none" opacity=".9">
+        <path d="M520 46h160M520 66h160M520 86h160M520 106h160
+                 M540 26v110M560 26v110M580 26v110M600 26v110M620 26v110
+                 M640 26v110M660 26v110"/></g>
+      <rect x="520" y="26" width="160" height="110" fill="none" stroke="#5d7076"/>
+      <text x="600" y="152" text-anchor="middle" font-size="11" fill="#5d7076">
+        works, but takes longer</text>
+      <text x="600" y="166" text-anchor="middle" font-size="11" fill="#5d7076">
+        and more clicking</text>
+    </g>
+  </svg>
+  <figcaption>The yellow lines are object boundaries. Left: a problem;
+  middle: the goal; right: only a waste of time.</figcaption>
+  </figure>
+
+  <h3>Where to start</h3>
+  <div class="tabela-przewin"><table>
+    <thead><tr><th>What you map</th><th>Working resolution</th>
+      <th>Object size</th></tr></thead>
+    <tbody>
+      <tr><td>Fields, plots, roofs</td><td>5–10 cm</td><td>5–20 m²</td></tr>
+      <tr><td>Single trees, shrubs</td><td>3–5 cm</td><td>2–5 m²</td></tr>
+      <tr><td>Canopy gaps, crowns</td><td>10–25 cm</td><td>10–30 m²</td></tr>
+      <tr><td>Large flights, hundreds of hectares</td><td>20–25 cm</td><td>20–50 m²</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="ramka uwaga">
+    <p><strong>Before you process everything:</strong> in the plugin,
+    tick "Process only what is visible on screen", zoom to a typical
+    part of the image and choose the object size there. It will save
+    you a lot of waiting.</p>
+  </div>
+
+  <p>After segmentation, look at the result and check two things: that
+  no object lies on two different kinds of land at once (that is a
+  problem: make the objects smaller), and that a uniform meadow has not
+  broken into hundreds of specks (that is only an inconvenience you can
+  live with).</p>
+</div></section>
+
+<section id="step2"><div class="owijka">
+  <h2><span class="numer">2</span>Examples</h2>
+  <p class="podtytul">This, not the settings, decides the quality of the map.</p>
+
+  <p>You add classes and show the program what is what. In the plugin
+  you click objects on the map; in the other versions you draw polygons
+  in QGIS and save them to a file with a <code>klasa</code> (class)
+  column.</p>
+
+  <div class="siatka trzy">
+    <div class="karta">
+      <h4>Spread them over the whole image</h4>
+      <p>Not in one corner. Light, shadow and soil moisture change from
+      place to place, and the model learns what you show it.</p>
+    </div>
+    <div class="karta">
+      <h4>Show every variant</h4>
+      <p>"Bare soil" is freshly ploughed land, a trodden path and a dry
+      embankment. If you show only one, the program will take the rest
+      for something else.</p>
+    </div>
+    <div class="karta">
+      <h4>Only what is certain</h4>
+      <p>One wrong example teaches a wrong rule. Leave out an object on
+      the border of two classes; the program will reject it anyway and
+      tell you so.</p>
+    </div>
+  </div>
+
+  <div class="ramka">
+    <p><strong>How many examples?</strong> A dozen or so per class to
+    start. You will add more anyway, and that is the normal course of
+    work, not a sign that something went wrong.</p>
+    <p>How many classes? <strong>Four to six</strong> to begin with.
+    Each new class is another pair to tell apart, and pairs grow faster
+    than classes: with six classes there are already fifteen. Four
+    well-separated classes are better than ten mixed ones.</p>
+  </div>
+</div></section>
+
+<section id="step3"><div class="owijka">
+  <h2><span class="numer">3</span>Training and correction</h2>
+  <p class="podtytul">The first map is never good. That is not a bug, it is the method.</p>
+
+  <h3>First check whether the classes can be told apart</h3>
+  <p>Before you invest in clicking, the program computes how much your
+  examples differ, pair by pair. The scale runs from 0 to 2:</p>
+
+  <div class="tabela-przewin"><table>
+    <thead><tr><th>Score</th><th>What it means</th><th>What to do</th></tr></thead>
+    <tbody>
+      <tr><td><strong>above 1.9</strong></td><td>clearly different classes</td>
+        <td>nothing, carry on</td></tr>
+      <tr><td><strong>1.7 to 1.9</strong></td><td>fair, there will be errors</td>
+        <td>add examples for this pair</td></tr>
+      <tr><td><strong>below 1.7</strong></td><td>these classes will merge</td>
+        <td>add examples or merge them into one</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>The program also shows <em>which feature</em> separates each pair
+  most. If "grass" and "bare soil" differ mainly in greenness, that is a
+  good sign. If they differ in object area, that is chance, not a
+  pattern.</p>
+
+  <h3>The correction loop</h3>
+  <ol class="kroki">
+    <li><strong>Make a map</strong>
+      A first version with a dozen or so examples per class.</li>
+    <li><strong>Review all of it</strong>
+      Not just the most eye-catching patch. Scroll through the whole
+      image.</li>
+    <li><strong>Write down the kinds of errors</strong>
+      Not single places but <em>kinds</em>: "dry grass taken for soil",
+      "shadow under a tree taken for water".</li>
+    <li><strong>Add a few examples of each kind</strong>
+      In different parts of the image, not next to each other.</li>
+    <li><strong>Train and make the map again</strong>
+      Two or three rounds improve the most. After that each one gives
+      less and less.</li>
+  </ol>
+
+  <div class="ramka">
+    <p><strong>A hint from the program:</strong> after each map you are
+    told how many objects got less than half of the tree votes. That is
+    exactly where the program hesitates and where your examples will
+    make the biggest difference.</p>
+  </div>
+
+  <h3>Two final corrections</h3>
+  <div class="siatka dwa">
+    <div class="karta">
+      <h4>Greenness refinement</h4>
+      <p>A strip of grass between plots is often narrower than an object
+      and gets lost. This option hands the decision to single pixels,
+      but only for the two selected classes; the rest of the map stays
+      object-based.</p>
+      <p style="margin-top:8px"><em>Note:</em> recovered strips come out
+      slightly wider than in reality, so be careful when reporting their
+      area.</p>
+    </div>
+    <div class="karta">
+      <h4>Minimum patch</h4>
+      <p>Removes single specks by absorbing them into their
+      surroundings. Set it for how the map will be used, <strong>not</strong>
+      to raise the accuracy score: a sieve tuned to the check points is
+      no longer an independent test.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="accuracy"><div class="owijka">
+  <h2><span class="numer">4</span>How good is this map</h2>
+  <p class="podtytul">The part QGIS lacks, and the one that decides
+  whether the result can be published.</p>
+
+  <p>A map is worth as much as you know about its errors. Judging "by
+  eye" is not enough: you need to draw points, label them independently
+  and count how often the map was right.</p>
+
+  <ol class="kroki">
+    <li><strong>The program draws check points</strong>
+      Never on objects used for training; otherwise you would be
+      testing the model on its own crib sheet.</li>
+    <li><strong>You label them by looking at the image alone</strong>
+      With the classification layer <em>turned off</em>. The program
+      reminds you and tells you what to turn off.</li>
+    <li><strong>You get the error matrix and figures to cite</strong>
+      User's and producer's accuracy for each class, overall accuracy
+      and areas with confidence intervals.</li>
+  </ol>
+
+  <div class="ramka wazne">
+    <p><strong>Why blind.</strong> If you can see the program's answer
+    while labelling points, you will subconsciously agree with it. The
+    result will be inflated by several to over a dozen percentage
+    points, and a reviewer will notice.</p>
+  </div>
+
+  <h3>How to read the result</h3>
+  <figure class="rysunek">
+  <svg viewBox="0 0 640 250" xmlns="http://www.w3.org/2000/svg" role="img"
+       aria-label="Error matrix with the diagonal highlighted">
+    <text x="320" y="16" text-anchor="middle" font-size="12.5"
+          font-weight="600" fill="#1a2628">
+      rows: what the map says &nbsp;·&nbsp; columns: what the image shows</text>
+
+    <g font-size="12">
+      <text x="150" y="46" text-anchor="end" fill="#5d7076">map \ image</text>
+      <text x="200" y="46" text-anchor="middle" font-weight="600">grass</text>
+      <text x="280" y="46" text-anchor="middle" font-weight="600">soil</text>
+      <text x="360" y="46" text-anchor="middle" font-weight="600">road</text>
+      <text x="452" y="46" text-anchor="middle" fill="#5d7076">total</text>
+      <text x="548" y="46" text-anchor="middle" fill="#00799a"
+            font-weight="600">user's</text>
+    </g>
+
+    <g font-size="13">
+      <!-- row grass -->
+      <text x="150" y="74" text-anchor="end" font-weight="600">grass</text>
+      <rect x="170" y="60" width="60" height="22" fill="#d6f3fb"/>
+      <text x="200" y="76" text-anchor="middle" font-weight="700">46</text>
+      <text x="280" y="76" text-anchor="middle">3</text>
+      <text x="360" y="76" text-anchor="middle">1</text>
+      <text x="452" y="76" text-anchor="middle" fill="#5d7076">50</text>
+      <text x="548" y="76" text-anchor="middle" fill="#00799a">92%</text>
+      <!-- row soil -->
+      <text x="150" y="104" text-anchor="end" font-weight="600">soil</text>
+      <text x="200" y="106" text-anchor="middle">5</text>
+      <rect x="250" y="90" width="60" height="22" fill="#d6f3fb"/>
+      <text x="280" y="106" text-anchor="middle" font-weight="700">43</text>
+      <text x="360" y="106" text-anchor="middle">2</text>
+      <text x="452" y="106" text-anchor="middle" fill="#5d7076">50</text>
+      <text x="548" y="106" text-anchor="middle" fill="#00799a">86%</text>
+      <!-- row road -->
+      <text x="150" y="134" text-anchor="end" font-weight="600">road</text>
+      <text x="200" y="136" text-anchor="middle">0</text>
+      <text x="280" y="136" text-anchor="middle">2</text>
+      <rect x="330" y="120" width="60" height="22" fill="#d6f3fb"/>
+      <text x="360" y="136" text-anchor="middle" font-weight="700">48</text>
+      <text x="452" y="136" text-anchor="middle" fill="#5d7076">50</text>
+      <text x="548" y="136" text-anchor="middle" fill="#00799a">96%</text>
+      <!-- producer's -->
+      <text x="150" y="166" text-anchor="end" fill="#2e9e4f"
+            font-weight="600">producer's</text>
+      <text x="200" y="166" text-anchor="middle" fill="#2e9e4f">90%</text>
+      <text x="280" y="166" text-anchor="middle" fill="#2e9e4f">90%</text>
+      <text x="360" y="166" text-anchor="middle" fill="#2e9e4f">94%</text>
+    </g>
+    <path d="M160 52h420M160 148h420" stroke="#d7e3e8"/>
+    <path d="M414 36v126M500 36v126" stroke="#d7e3e8"/>
+
+    <g font-size="12">
+      <rect x="20" y="190" width="14" height="14" fill="#d6f3fb"/>
+      <text x="42" y="202" fill="#5d7076">on the diagonal: the map and
+        the image agree</text>
+      <text x="20" y="226" fill="#00799a" font-weight="600">User's accuracy:</text>
+      <text x="118" y="226" fill="#5d7076">when the map says "grass",
+        how often it really is grass</text>
+      <text x="20" y="244" fill="#2e9e4f" font-weight="600">Producer's accuracy:</text>
+      <text x="142" y="244" fill="#5d7076">how much of the real grass
+        the map found</text>
+    </g>
+  </svg>
+  <figcaption>The two figures say different things and both are needed.
+  In the literature they are called "user's accuracy" and "producer's
+  accuracy".</figcaption>
+  </figure>
+
+  <h3>Why the mapped area is not the true area</h3>
+  <p>With stratified sampling a small class gets proportionally many
+  points, so that something can be said about it at all. As a result
+  the share of points <strong>is not</strong> the share of area, and a
+  plain average over points distorts the result.</p>
+
+  <p>That is why the program computes everything <strong>weighting each
+  class by its area</strong> and reports separately:</p>
+
+  <div class="tabela-przewin"><table>
+    <thead><tr><th>Figure</th><th>What it is</th><th>Cite it?</th></tr></thead>
+    <tbody>
+      <tr><td>Mapped area</td>
+        <td>how many pixels the program assigned to the class</td>
+        <td>no, it contains classification errors</td></tr>
+      <tr><td><strong>Estimated area</strong></td>
+        <td>corrected for the errors found by the sample</td>
+        <td><strong>yes, together with the interval</strong></td></tr>
+      <tr><td>95% confidence interval</td>
+        <td>how precisely it was estimated</td>
+        <td>yes, always next to the area</td></tr>
+    </tbody>
+  </table></div>
+
+  <div class="ramka">
+    <p>The procedure follows the recommendations of Olofsson et al. (<a class="cyt" href="#ref-olofsson">2014</a>)
+    and Stehman (<a class="cyt" href="#ref-stehman">2014</a>), which is what reviewers in remote sensing
+    journals require today. The kappa coefficient is deliberately not
+    computed: current recommendations advise against it (<a class="cyt" href="#ref-pontius">Pontius and Millones, 2011</a>).</p>
+    <p style="margin-top:8px"><strong>One honest remark:</strong>
+    points labelled from the air are high-quality reference data, but
+    <em>not</em> the same as field measurements. They should be described
+    that way in a publication.</p>
+  </div>
+</div></section>
+
+<section id="troubleshooting"><div class="owijka">
+  <h2>When something goes wrong</h2>
+  <p class="podtytul">The most common problems and what to do about them.</p>
+
+  <div class="tabela-przewin"><table>
+    <thead><tr><th>Symptom</th><th>Cause</th><th>What to do</th></tr></thead>
+    <tbody>
+      <tr><td>The map is "noisy", full of specks</td>
+        <td>objects too small or too few examples</td>
+        <td>increase the object size; set a minimum patch; add
+            examples</td></tr>
+      <tr><td>Two classes keep getting confused</td>
+        <td>they are too similar in the measured features</td>
+        <td>check separability; if below 1.7, merge them or add an
+            elevation model</td></tr>
+      <tr><td>Thin strips of grass disappear</td>
+        <td>they are narrower than an object</td>
+        <td>turn on greenness refinement or make the objects
+            smaller</td></tr>
+      <tr><td>Roofs have zero height above ground</td>
+        <td>you are processing a small extent, narrower than 40 m</td>
+        <td>process the whole image, because the ground is estimated from
+            wide surroundings</td></tr>
+      <tr><td>Out-of-memory message</td>
+        <td>working grid too dense</td>
+        <td>use a coarser resolution (0.10 instead of 0.05) or process
+            only the visible part</td></tr>
+      <tr><td>A class ended up without a single training object</td>
+        <td>polygons smaller than objects</td>
+        <td>draw larger polygons or reduce the object size</td></tr>
+      <tr><td>Processing takes very long</td>
+        <td>acceleration libraries are missing</td>
+        <td><code>pip install scikit-image scikit-learn</code>; results
+            match the reference implementation, several times
+            faster</td></tr>
+      <tr><td>Accuracy suspiciously high (above 97%)</td>
+        <td>the classification layer was visible while labelling
+            points</td>
+        <td>turn it off and label the points again; otherwise the result
+            is worthless</td></tr>
+    </tbody>
+  </table></div>
+</div></section>
+
+<div class="rozdzial" id="part-science"><div class="owijka">
+  <p class="rozdzial-nr">Part 4 of 4</p>
+  <h2>For researchers</h2>
+  <p>The method with sources, how to cite the program, and references.</p>
+  <div class="rozdzial-spis" role="navigation" aria-label="For researchers"><a href="#methods">Methods</a><a href="#citation">How to cite</a><a href="#references">References</a></div>
+</div></div>
+
+<section id="methods" class="tlo"><div class="owijka">
+  <h2>Methods</h2>
+  <p class="podtytul">Everything the program does has a source in the
+  literature or in the documentation of the libraries used. Expand a
+  subsection.</p>
+
+  <details class="rozwin">
+  <summary>Unit of analysis</summary>
+  <p>The program performs geographic object-based image analysis
+  (GEOBIA) (<a class="cyt" href="#ref-blaschke">Blaschke, 2010</a>): the decision unit is not a pixel but an object, a
+  coherent group of neighbouring pixels of similar colour. An object
+  carries information unavailable to a single pixel, such as internal
+  variability, texture, shape and relation to its surroundings. The
+  output map contains no isolated misclassified pixels. Its thematic
+  resolution is, however, limited by the object size: a feature
+  narrower than an object will not be mapped.</p>
+  </details>
+
+  <details class="rozwin">
+  <summary>Input data</summary>
+  <p>The program interprets the first three bands of the image as red,
+  green and blue and requires a projected coordinate reference system
+  in metres. Brightness values are scaled to the range 0–1 according to
+  the data type of the file (8-bit data divided by 255, unsigned 16-bit
+  by 65,535, signed 16-bit by 32,767), not according to the value range
+  in the image, so images stored in the same format remain comparable.
+  The image is resampled to a working grid at a resolution chosen by the
+  user, with pixel values averaged when coarsening. A working grid
+  larger than 15 million pixels is rejected with a message. An optional
+  digital surface model (DSM) must use the same coordinate reference
+  system as the image. For Sentinel-2 scenes (<a class="cyt" href="#ref-drusch">Drusch et al., 2012</a>) a ready RGB
+  composite is required, because in a raw multiband product the first
+  three bands do not correspond to red, green and blue.</p>
+  </details>
+
+  <details class="rozwin">
+  <summary>Segmentation</summary>
+  <p>Segmentation is performed by the SLIC algorithm (<a class="cyt" href="#ref-achanta">Achanta et al., 2012</a>), that is,
+  local k-means clustering in a five-dimensional space made of three
+  colour components in CIELAB space and two pixel coordinates. The
+  distance of a pixel from a cluster centre combines the colour
+  difference <em>d</em><sub>c</sub> with the spatial distance
+  <em>d</em><sub>s</sub> normalised by the seed grid interval
+  <em>S</em> and weighted by compactness <em>m</em>:
+  <em>D</em> = √(<em>d</em><sub>c</sub>² + (<em>d</em><sub>s</sub>/<em>S</em>)²·<em>m</em>²).
+  The default compactness is 0.15. Before segmentation the image is
+  smoothed with a Gaussian filter (σ = 2.5), and clustering runs for
+  10 iterations. Objects smaller than half of the ratio of image area
+  to the number of objects are merged into a neighbour, so that every
+  object forms one connected patch. When the scikit-image library
+  (<a class="cyt" href="#ref-skimage">van der Walt et al., 2014</a>) is available, the program calls its SLIC implementation
+  with the same parameters; otherwise its own implementation of the
+  same algorithm is used. At low compactness the realised number of
+  objects can be two to three times smaller than requested, so the
+  program reports the actual number of objects and the median and
+  maximum of their areas.</p>
+  </details>
+
+  <details class="rozwin">
+  <summary>Feature space</summary>
+  <p>Each object is described by a vector of 19 features, or 24 when a
+  DSM is available. The colour group comprises the means and standard
+  deviations of the three bands and the mean brightness (7 features).
+  The visible-band vegetation indices ExG (<a class="cyt" href="#ref-woebbecke">Woebbecke et al., 1995</a>), VARI (<a class="cyt" href="#ref-gitelson">Gitelson et al., 2002</a>)
+  and NGRDI (<a class="cyt" href="#ref-hunt">Hunt et al., 2005</a>) are computed on chromatic coordinates
+  (<em>r</em> = <em>R</em>/(<em>R</em>+<em>G</em>+<em>B</em>), and
+  likewise <em>g</em> and <em>b</em>), which removes the brightness
+  component and reduces the effect of variable illumination
+  (3 features). Texture is described by four grey-level co-occurrence
+  matrix measures (<a class="cyt" href="#ref-haralick">Haralick et al., 1973</a>): contrast, homogeneity, energy and entropy.
+  They are computed for luminance quantised globally to 15 levels, at a
+  distance of 1 pixel and in four directions (0°, 45°, 90°, 135°);
+  objects smaller than 16 pixels receive neutral values. Shape is
+  described by area, perimeter estimated with the Crofton method,
+  circularity 4π<em>A</em>/<em>P</em>² and convexity relative to the
+  convex hull (4 features). Context is the difference between the
+  brightness of an object and the mean brightness of adjacent objects
+  in a 4-connected adjacency graph (1 feature). From the DSM the
+  program derives the mean and standard deviation of height, mean
+  slope, height relative to neighbours and height above ground
+  (5 features). The ground surface is estimated from the DSM alone:
+  minimum in blocks of about 1 m, morphological opening with a 40 m
+  window and smoothing with a moving average. Features are not
+  standardised, because Random Forest splits the feature space with
+  thresholds and is insensitive to monotonic transformations of a
+  single feature.</p>
+  </details>
+
+  <details class="rozwin">
+  <summary>Classification</summary>
+  <p>The decision rule is Random Forest (<a class="cyt" href="#ref-breiman">Breiman, 2001</a>), a classifier widely
+  used in remote sensing (<a class="cyt" href="#ref-belgiu">Belgiu and Drăguţ, 2016</a>). The model consists of 100 trees.
+  Each tree learns from a bootstrap sample, and at each node it chooses
+  a split among √<em>p</em> randomly selected features (the integer
+  part of √<em>p</em>, that is 4 for both 19 and 24 features) using the
+  Gini criterion (<a class="cyt" href="#ref-cart">Breiman et al., 2017</a>), without class weights and without a depth
+  limit (up to 40 levels in the built-in implementation). The seed of
+  the pseudo-random number generator is 42, which makes the result
+  repeatable. An object receives the class with the largest share in
+  the averaged class distribution from the leaves of all trees (soft
+  voting), and that share is stored as the confidence of the decision.
+  The program counts objects with confidence below 0.5 and warns when
+  the ratio between the most and least frequent training class exceeds
+  5:1. When the scikit-learn library (<a class="cyt" href="#ref-sklearn">Pedregosa et al., 2011</a>) is available, its
+  implementation is used with these parameters; otherwise the built-in
+  implementation is used.</p>
+  </details>
+
+  <details class="rozwin">
+  <summary>Class separability</summary>
+  <p>Before training, the program estimates the separability of each
+  pair of classes with the Jeffries-Matusita distance,
+  JM = 2(1 − e<sup>−<em>B</em></sup>), where <em>B</em> is the
+  Bhattacharyya distance. The classical JM computed in the full feature
+  space on the same samples from which the parameters were estimated
+  reaches values close to 2 for almost every pair of classes with 24
+  features and a few hundred samples. A variant with five-fold
+  cross-validation is therefore used. On the training part, the Fisher
+  discriminant direction (<a class="cyt" href="#ref-fisher">Fisher, 1936</a>) is determined with a covariance
+  matrix estimated with Ledoit-Wolf shrinkage (<a class="cyt" href="#ref-ledoit">Ledoit and Wolf, 2004</a>), and the
+  distance is computed on the projections of the test part. This
+  measure is a lower bound of the full multivariate distance. The
+  thresholds 1.9 and 1.7 are therefore indicative, and the most useful
+  outputs are the ranking of class pairs and the ranking of the
+  features that separate them.</p>
+  </details>
+
+  <details class="rozwin">
+  <summary>Post-classification corrections</summary>
+  <p>Two optional corrections break the purely object-based character
+  of the map and, if used, should be reported. The first decides the
+  membership of single pixels for two selected classes from ExG
+  averaged in a 3 × 3 pixel window. The threshold is set on the
+  training samples by maximising the mean accuracy of both classes. The
+  correction recovers features narrower than an object at the cost of
+  slightly widening the recovered strips. The second correction, the
+  minimum mapping unit, absorbs patches smaller than the threshold into
+  the surrounding class using the sieve filter of the GDAL library
+  (<a class="cyt" href="#ref-gdal">GDAL/OGR contributors, 2026</a>) with 4-connectivity. The sieve threshold should follow from
+  the purpose of the map, not from optimising the accuracy
+  assessment.</p>
+  </details>
+
+  <details class="rozwin">
+  <summary>Accuracy assessment and area estimation</summary>
+  <p>Accuracy assessment is based on stratified sampling by map class:
+  each class receives at least 50 points (default value), and the
+  remaining points are allocated in proportion to area. Check points do
+  not fall on objects used for training, so the target population is
+  the map outside those objects. The area weights of the strata are
+  stored at the moment of sampling, so that the strata remain attached
+  to the sample even if the map changes later (<a class="cyt" href="#ref-stehman">Stehman, 2014</a>). The
+  interpreter labels the points with the classification layer hidden,
+  which limits confirmation bias. From the error matrix (<a class="cyt" href="#ref-congalton">Congalton and Green, 2019</a>) the
+  program derives overall accuracy, user's and producer's accuracy, and
+  class proportions and areas using area-weighted estimators with
+  95 percent confidence intervals (<a class="cyt" href="#ref-olofsson">Olofsson et al., 2014</a>). The implementation
+  reproduces the worked example from that paper (Table 8): overall
+  accuracy is 0.9449 against the published value of 0.944. The kappa
+  coefficient is not computed (<a class="cyt" href="#ref-pontius">Pontius and Millones, 2011</a>).</p>
+  </details>
+
+  <details class="rozwin">
+  <summary>Implementation and reproducibility</summary>
+  <p>The program is written in Python and uses the NumPy (<a class="cyt" href="#ref-numpy">Harris et al., 2020</a>) and
+  SciPy (<a class="cyt" href="#ref-scipy">Virtanen et al., 2020</a>) libraries. Reading and writing spatial data is done by
+  GDAL (<a class="cyt" href="#ref-gdal">GDAL/OGR contributors, 2026</a>) in the QGIS plugin and by the rasterio and Fiona
+  libraries in the command-line program. The QGIS plugin, the
+  command-line program and the Windows desktop application share the
+  same computational engine; the English and Polish editions of the
+  plugin are generated from the same code. The Windows application is
+  built automatically in GitHub Actions from the code in the repository,
+  and each release is published with SHA-256 checksums. The source code
+  is available under the GPL-3.0-or-later licence. To reproduce a result,
+  report the program version, the versions of scikit-image and
+  scikit-learn (or that the built-in implementations were used), the
+  random seed and the values of all user-set parameters.</p>
+  </details>
+
+  <details class="rozwin">
+  <summary>Limitations</summary>
+  <p>The method uses only the visible range, so it does not use near
+  infrared or indices such as NDVI. A model does not transfer between
+  flights without retraining, because illumination, phenological stage
+  and camera settings shift the feature distributions. Features
+  narrower than an object are underestimated. Under continuous cover
+  wider than 40 m the estimated ground surface rises onto that cover,
+  which underestimates height above ground. Without class weights, rare
+  classes are systematically underestimated when the training set is
+  imbalanced. The program does not use features derived from deep
+  neural networks, so classes that differ only in spatial pattern, not
+  in material, may remain inseparable.</p>
+  </details>
+</div></section>
+
+<section id="citation" class="tlo"><div class="owijka">
+  <h2>How to cite</h2>
+  <p class="podtytul">The program is archived in Zenodo and has
+  persistent DOI identifiers.</p>
+
+  <div class="ramka">
+    <p>G. Górniak, "GeoAI Klasyfikator," version 1.0.2, Zenodo, 2026,
+    doi: <a href="https://doi.org/10.5281/zenodo.24005561">10.5281/zenodo.24005561</a>.</p>
+  </div>
+
+  <p>The archived software is GeoAI Klasyfikator; the English plugin,
+  GeoAI Classification, is built from the same code, so cite the same
+  record.</p>
+
+  <div class="tabela-przewin"><table>
+    <thead><tr><th>Identifier</th><th>DOI</th><th>When to use it</th></tr></thead>
+    <tbody>
+      <tr><td>All versions</td>
+        <td><a href="https://doi.org/10.5281/zenodo.24005560">10.5281/zenodo.24005560</a></td>
+        <td>referring to the program in general; always resolves to the latest version</td></tr>
+      <tr><td>Version 1.0.2</td>
+        <td><a href="https://doi.org/10.5281/zenodo.24005561">10.5281/zenodo.24005561</a></td>
+        <td>a result computed with exactly this version, for example in a paper</td></tr>
+    </tbody>
+  </table></div>
+
+  <p>Entry for BibTeX and Zotero:</p>
+  <pre><code>@software{gorniak_geoai_klasyfikator_2026,
+  author    = {Górniak, Grzegorz},
+  title     = {GeoAI Klasyfikator},
+  version   = {1.0.2},
+  year      = {2026},
+  publisher = {Zenodo},
+  doi       = {10.5281/zenodo.24005561},
+  url       = {https://doi.org/10.5281/zenodo.24005561}
+}</code></pre>
+  <p>The same data are in the
+  <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator/blob/main/CITATION.cff"><code>CITATION.cff</code></a>
+  file, and GitHub shows them under the <em>Cite this repository</em>
+  button. The methods the program implements are cited separately,
+  following the references below.</p>
+</div></section>
+
+<section id="references" class="tlo"><div class="owijka">
+  <h2>References</h2>
+  <p class="podtytul">Elsevier style (Harvard, with titles). All entries
+  ready to import into Zotero: <a href="../bibliografia.bib" download>bibliografia.bib</a>
+  (in Zotero: File, Import).</p>
+  <details class="rozwin">
+  <summary>Show all entries (21)</summary>
+  <ol class="bibliografia">
+    <li id="ref-achanta">Achanta, R., Shaji, A., Smith, K., Lucchi, A., Fua, P., Süsstrunk, S., 2012. SLIC Superpixels Compared to State-of-the-Art Superpixel Methods. IEEE Transactions on Pattern Analysis and Machine Intelligence 34, 2274–2282. <a href="https://doi.org/10.1109/TPAMI.2012.120">https://doi.org/10.1109/TPAMI.2012.120</a></li>
+    <li id="ref-belgiu">Belgiu, M., Drăguţ, L., 2016. Random forest in remote sensing: A review of applications and future directions. ISPRS Journal of Photogrammetry and Remote Sensing 114, 24–31. <a href="https://doi.org/10.1016/j.isprsjprs.2016.01.011">https://doi.org/10.1016/j.isprsjprs.2016.01.011</a></li>
+    <li id="ref-blaschke">Blaschke, T., 2010. Object based image analysis for remote sensing. ISPRS Journal of Photogrammetry and Remote Sensing 65, 2–16. <a href="https://doi.org/10.1016/j.isprsjprs.2009.06.004">https://doi.org/10.1016/j.isprsjprs.2009.06.004</a></li>
+    <li id="ref-breiman">Breiman, L., 2001. Random Forests. Machine Learning 45, 5–32. <a href="https://doi.org/10.1023/A:1010933404324">https://doi.org/10.1023/A:1010933404324</a></li>
+    <li id="ref-cart">Breiman, L., Friedman, J.H., Olshen, R.A., Stone, C.J., 2017. Classification and Regression Trees. Routledge, New York. <a href="https://doi.org/10.1201/9781315139470">https://doi.org/10.1201/9781315139470</a></li>
+    <li id="ref-congalton">Congalton, R.G., Green, K., 2019. Assessing the Accuracy of Remotely Sensed Data: Principles and Practices, 3rd ed. CRC Press, Boca Raton. <a href="https://doi.org/10.1201/9780429052729">https://doi.org/10.1201/9780429052729</a></li>
+    <li id="ref-drusch">Drusch, M., Del Bello, U., Carlier, S., Colin, O., Fernandez, V., Gascon, F., Hoersch, B., Isola, C., Laberinti, P., Martimort, P., Meygret, A., Spoto, F., Sy, O., Marchese, F., Bargellini, P., 2012. Sentinel-2: ESA’s Optical High-Resolution Mission for GMES Operational Services. Remote Sensing of Environment 120, 25–36. <a href="https://doi.org/10.1016/j.rse.2011.11.026">https://doi.org/10.1016/j.rse.2011.11.026</a></li>
+    <li id="ref-fisher">Fisher, R.A., 1936. The use of multiple measurements in taxonomic problems. Annals of Eugenics 7, 179–188. <a href="https://doi.org/10.1111/j.1469-1809.1936.tb02137.x">https://doi.org/10.1111/j.1469-1809.1936.tb02137.x</a></li>
+    <li id="ref-gdal">GDAL/OGR contributors, 2026. GDAL/OGR Geospatial Data Abstraction software Library. Open Source Geospatial Foundation. <a href="https://doi.org/10.5281/zenodo.5884351">https://doi.org/10.5281/zenodo.5884351</a></li>
+    <li id="ref-gitelson">Gitelson, A.A., Kaufman, Y.J., Stark, R., Rundquist, D., 2002. Novel algorithms for remote estimation of vegetation fraction. Remote Sensing of Environment 80, 76–87. <a href="https://doi.org/10.1016/S0034-4257(01)00289-9">https://doi.org/10.1016/S0034-4257(01)00289-9</a></li>
+    <li id="ref-haralick">Haralick, R.M., Shanmugam, K., Dinstein, I., 1973. Textural Features for Image Classification. IEEE Transactions on Systems, Man, and Cybernetics SMC-3, 610–621. <a href="https://doi.org/10.1109/TSMC.1973.4309314">https://doi.org/10.1109/TSMC.1973.4309314</a></li>
+    <li id="ref-numpy">Harris, C.R., Millman, K.J., van der Walt, S.J., Gommers, R., Virtanen, P., Cournapeau, D., Wieser, E., Taylor, J., Berg, S., Smith, N.J., Kern, R., Picus, M., Hoyer, S., van Kerkwijk, M.H., Brett, M., Haldane, A., del Río, J.F., Wiebe, M., Peterson, P., Gérard-Marchant, P., Sheppard, K., Reddy, T., Weckesser, W., Abbasi, H., Gohlke, C., Oliphant, T.E., 2020. Array programming with NumPy. Nature 585, 357–362. <a href="https://doi.org/10.1038/s41586-020-2649-2">https://doi.org/10.1038/s41586-020-2649-2</a></li>
+    <li id="ref-hunt">Hunt, E.R., Cavigelli, M., Daughtry, C.S.T., McMurtrey, J.E., Walthall, C.L., 2005. Evaluation of Digital Photography from Model Aircraft for Remote Sensing of Crop Biomass and Nitrogen Status. Precision Agriculture 6, 359–378. <a href="https://doi.org/10.1007/s11119-005-2324-5">https://doi.org/10.1007/s11119-005-2324-5</a></li>
+    <li id="ref-ledoit">Ledoit, O., Wolf, M., 2004. A well-conditioned estimator for large-dimensional covariance matrices. Journal of Multivariate Analysis 88, 365–411. <a href="https://doi.org/10.1016/S0047-259X(03)00096-4">https://doi.org/10.1016/S0047-259X(03)00096-4</a></li>
+    <li id="ref-olofsson">Olofsson, P., Foody, G.M., Herold, M., Stehman, S.V., Woodcock, C.E., Wulder, M.A., 2014. Good practices for estimating area and assessing accuracy of land change. Remote Sensing of Environment 148, 42–57. <a href="https://doi.org/10.1016/j.rse.2014.02.015">https://doi.org/10.1016/j.rse.2014.02.015</a></li>
+    <li id="ref-sklearn">Pedregosa, F., Varoquaux, G., Gramfort, A., Michel, V., Thirion, B., Grisel, O., Blondel, M., Prettenhofer, P., Weiss, R., Dubourg, V., Vanderplas, J., Passos, A., Cournapeau, D., Brucher, M., Perrot, M., Duchesnay, É., 2011. Scikit-learn: Machine Learning in Python. Journal of Machine Learning Research 12, 2825–2830. <a href="https://jmlr.org/papers/v12/pedregosa11a.html">https://jmlr.org/papers/v12/pedregosa11a.html</a></li>
+    <li id="ref-pontius">Pontius, R.G., Millones, M., 2011. Death to Kappa: birth of quantity disagreement and allocation disagreement for accuracy assessment. International Journal of Remote Sensing 32, 4407–4429. <a href="https://doi.org/10.1080/01431161.2011.552923">https://doi.org/10.1080/01431161.2011.552923</a></li>
+    <li id="ref-stehman">Stehman, S.V., 2014. Estimating area and map accuracy for stratified random sampling when the strata are different from the map classes. International Journal of Remote Sensing 35, 4923–4939. <a href="https://doi.org/10.1080/01431161.2014.930207">https://doi.org/10.1080/01431161.2014.930207</a></li>
+    <li id="ref-scipy">Virtanen, P., Gommers, R., Oliphant, T.E., Haberland, M., Reddy, T., Cournapeau, D., Burovski, E., Peterson, P., Weckesser, W., Bright, J., van der Walt, S.J., Brett, M., Wilson, J., Millman, K.J., Mayorov, N., Nelson, A.R.J., Jones, E., Kern, R., Larson, E., Carey, C.J., Polat, İ., Feng, Y., Moore, E.W., VanderPlas, J., Laxalde, D., Perktold, J., Cimrman, R., Henriksen, I., Quintero, E.A., Harris, C.R., Archibald, A.M., Ribeiro, A.H., Pedregosa, F., van Mulbregt, P., Vijaykumar, A., Bardelli, A.P., Rothberg, A., Hilboll, A., Kloeckner, A., Scopatz, A., Lee, A., Rokem, A., Woods, C.N., Fulton, C., Masson, C., Häggström, C., Fitzgerald, C., Nicholson, D.A., Hagen, D.R., Pasechnik, D.V., Olivetti, E., Martin, E., Wieser, E., Silva, F., Lenders, F., Wilhelm, F., Young, G., Price, G.A., Ingold, G.-L., Allen, G.E., Lee, G.R., Audren, H., Probst, I., Dietrich, J.P., Silterra, J., Webber, J.T., Slavič, J., Nothman, J., Buchner, J., Kulick, J., Schönberger, J.L., de Miranda Cardoso, J.V., Reimer, J., Harrington, J., Rodríguez, J.L.C., Nunez-Iglesias, J., Kuczynski, J., Tritz, K., Thoma, M., Newville, M., Kümmerer, M., Bolingbroke, M., Tartre, M., Pak, M., Smith, N.J., Nowaczyk, N., Shebanov, N., Pavlyk, O., Brodtkorb, P.A., Lee, P., McGibbon, R.T., Feldbauer, R., Lewis, S., Tygier, S., Sievert, S., Vigna, S., Peterson, S., More, S., Pudlik, T., Oshima, T., Pingel, T.J., Robitaille, T.P., Spura, T., Jones, T.R., Cera, T., Leslie, T., Zito, T., Krauss, T., Upadhyay, U., Halchenko, Y.O., Vázquez-Baeza, Y., 2020. SciPy 1.0: fundamental algorithms for scientific computing in Python. Nature Methods 17, 261–272. <a href="https://doi.org/10.1038/s41592-019-0686-2">https://doi.org/10.1038/s41592-019-0686-2</a></li>
+    <li id="ref-skimage">van der Walt, S., Schönberger, J.L., Nunez-Iglesias, J., Boulogne, F., Warner, J.D., Yager, N., Gouillart, E., Yu, T., 2014. scikit-image: image processing in Python. PeerJ 2, e453. <a href="https://doi.org/10.7717/peerj.453">https://doi.org/10.7717/peerj.453</a></li>
+    <li id="ref-woebbecke">Woebbecke, D.M., Meyer, G.E., Von Bargen, K., Mortensen, D.A., 1995. Color Indices for Weed Identification Under Various Soil, Residue, and Lighting Conditions. Transactions of the ASAE 38, 259–269. <a href="https://doi.org/10.13031/2013.27838">https://doi.org/10.13031/2013.27838</a></li>
+  </ol>
+  </details>
+</div></section>
+
+<a class="do-gory" href="#" aria-label="Back to top">↑</a>
+<script>
+(function () {
+  var g = document.querySelector(".do-gory");
+  function sprawdz() { g.classList.toggle("widoczny", window.scrollY > 800); }
+  window.addEventListener("scroll", sprawdz, { passive: true });
+  sprawdz();
+  document.querySelectorAll(".menu .lista a").forEach(function (a) {
+    a.addEventListener("click", function () { a.closest("details").removeAttribute("open"); });
+  });
+})();
+</script>
+<script>
+(function () {
+  "use strict";
+  // Rozwijane szczegóły: odnośnik do miejsca w środku (np. przypis)
+  // otwiera zwinięty fragment, żeby cel był widoczny.
+  function otworz() {
+    var id = decodeURIComponent(location.hash.slice(1));
+    var cel = id && document.getElementById(id);
+    for (var e = cel; e; e = e.parentElement) {
+      if (e.tagName === "DETAILS") { e.open = true; }
+    }
+    if (cel) { cel.scrollIntoView(); }
+  }
+  window.addEventListener("hashchange", otworz);
+  if (location.hash) { otworz(); }
+})();
+
+(function () {
+  "use strict";
+  // Animacja w nagłówku: zdjęcie, obiekty, mapa klas. Odgrywa się raz.
+  var c = document.getElementById("hero-mapa");
+  if (!c || !c.getContext) { return; }
+  var ctx = c.getContext("2d"), W = 180, H = 130, S = 4;
+  var a = 11;
+  function los() { a = (a * 16807) % 2147483647; return a / 2147483647; }
+  var FOTO = [[118, 158, 74], [150, 116, 78], [176, 82, 70], [108, 108, 112], [44, 92, 40]];
+  var KLASA = [[139, 195, 74], [176, 122, 74], [209, 73, 91], [107, 123, 128], [31, 107, 53]];
+  function scena(x, y) {
+    if (Math.abs((y - 98) + (x - 90) * 0.42) < 6) { return 3; }
+    if (x > 112 && y < 66 && Math.pow(x - 150, 2) / 1600 + Math.pow(y - 32, 2) / 900 < 1) { return 4; }
+    if ((x - 46) * (x - 46) + (y - 30) * (y - 30) < 180) { return 4; }
+    if (x > 20 && x < 52 && y > 64 && y < 90) { return 2; }
+    if (x < 96 && y > 100) { return 1; }
+    return 0;
+  }
+  var klasa = new Int8Array(W * H), foto = new Float32Array(W * H * 3);
+  for (var y = 0; y < H; y++) { for (var x = 0; x < W; x++) {
+    var k = scena(x, y), p = y * W + x; klasa[p] = k;
+    var szum = (los() - 0.5) * (k === 4 ? 46 : 22), pas = (k === 1 && y % 6 < 3) ? -12 : 0;
+    for (var b = 0; b < 3; b++) { foto[p * 3 + b] = FOTO[k][b] + szum + pas; }
+  } }
+  // Zarodki na siatce z odchyleniem; piksel trafia do najbliższego
+  // zarodka tej samej klasy, więc granice obiektów idą po granicach terenu.
+  var ziarna = [], KS = 15;
+  for (var gy = KS / 2; gy < H; gy += KS) { for (var gx = KS / 2; gx < W; gx += KS) {
+    var sx = gx + (los() - 0.5) * KS * 0.7, sy = gy + (los() - 0.5) * KS * 0.7;
+    ziarna.push([sx, sy, scena(Math.round(Math.min(W - 1, Math.max(0, sx))), Math.round(Math.min(H - 1, Math.max(0, sy))))]);
+  } }
+  var et = new Int32Array(W * H);
+  for (var p2 = 0; p2 < W * H; p2++) {
+    var px = p2 % W, py = Math.floor(p2 / W), naj = -1, d = 1e9, najO = -1, dO = 1e9;
+    for (var i = 0; i < ziarna.length; i++) {
+      var dx = px - ziarna[i][0], dy = py - ziarna[i][1], dd = dx * dx + dy * dy;
+      if (dd < dO) { dO = dd; najO = i; }
+      if (ziarna[i][2] === klasa[p2] && dd < d) { d = dd; naj = i; }
+    }
+    et[p2] = (naj >= 0 && d < 9 * KS * KS) ? naj : najO;
+  }
+  // Klasa obiektu: większość pikseli; opóźnienie zmiany barwy według x.
+  var licz = ziarna.map(function () { return [0, 0, 0, 0, 0]; });
+  for (var p3 = 0; p3 < W * H; p3++) { licz[et[p3]][klasa[p3]]++; }
+  var kl = licz.map(function (l) { var m = 0; for (var q = 1; q < 5; q++) { if (l[q] > l[m]) { m = q; } } return m; });
+  var granica = new Uint8Array(W * H);
+  for (var p4 = 0; p4 < W * H; p4++) {
+    var x4 = p4 % W, y4 = Math.floor(p4 / W);
+    if ((x4 + 1 < W && et[p4] !== et[p4 + 1]) || (y4 + 1 < H && et[p4] !== et[p4 + W])) { granica[p4] = 1; }
+  }
+  var img = ctx.createImageData(W * S, H * S);
+  function rysuj(t) {
+    // t w sekundach: 0-0.7 zdjęcie, 0.7-1.3 granice, 1.3-2.5 barwy klas falą od lewej
+    var g = Math.min(1, Math.max(0, (t - 0.7) / 0.6));
+    for (var y = 0; y < H; y++) { for (var x = 0; x < W; x++) {
+      var p = y * W + x, o = et[p];
+      var f = Math.min(1, Math.max(0, (t - 1.3 - ziarna[o][0] / W * 0.8) / 0.4));
+      var r = foto[p * 3] * (1 - f) + KLASA[kl[o]][0] * f;
+      var gg = foto[p * 3 + 1] * (1 - f) + KLASA[kl[o]][1] * f;
+      var bb = foto[p * 3 + 2] * (1 - f) + KLASA[kl[o]][2] * f;
+      if (granica[p]) { r = r + (255 - r) * g * 0.85; gg = gg + (255 - gg) * g * 0.85; bb = bb + (255 - bb) * g * 0.85; }
+      for (var j = 0; j < S; j++) { for (var i = 0; i < S; i++) {
+        var q = ((y * S + j) * W * S + (x * S + i)) * 4;
+        img.data[q] = r; img.data[q + 1] = gg; img.data[q + 2] = bb; img.data[q + 3] = 255;
+      } }
+    } }
+    ctx.putImageData(img, 0, 0);
+  }
+  var bezRuchu = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var start = null, KONIEC = 2.6;
+  function krok(ts) {
+    if (start === null) { start = ts; }
+    var t = (ts - start) / 1000;
+    rysuj(Math.min(t, KONIEC));
+    if (t < KONIEC) { requestAnimationFrame(krok); }
+  }
+  function odegraj() {
+    if (bezRuchu) { rysuj(KONIEC); return; }
+    start = null; requestAnimationFrame(krok);
+  }
+  rysuj(0);
+  setTimeout(odegraj, 350);
+  c.addEventListener("click", odegraj);
+})();
+</script>
+<footer><div class="owijka">
+  <p><strong>GeoAI Classification</strong> (English edition of GeoAI
+  Klasyfikator) · version 1.0.2 · GPL-3.0-or-later licence · DOI:
+  <a href="https://doi.org/10.5281/zenodo.24005560">10.5281/zenodo.24005560</a></p>
+  <p>© Grzegorz Górniak ·
+  <a href="mailto:gorniakgrzegorz@gmail.com">gorniakgrzegorz@gmail.com</a> ·
+  <a href="https://github.com/gorniakgrzegorz/geoai_klasyfikator">source code
+  on GitHub</a> · <a href="../" hreflang="pl" lang="pl">wersja polska</a></p>
+</div></footer>
+
+</body>
+</html>
