@@ -13,19 +13,19 @@
 <meta property="og:locale" content="pl_PL">
 <meta property="og:site_name" content="GeoAI Klasyfikator">
 <meta property="og:title" content="GeoAI Klasyfikator">
-<meta property="og:description" content="Obiektowa klasyfikacja pokrycia terenu ze zdjęć z drona lub satelity. Wtyczka QGIS, program dla Windows i wiersz poleceń. Instrukcja krok po kroku.">
+<meta property="og:description" content="Obiektowa klasyfikacja pokrycia terenu ze zdjęć z UAV i satelity. Wtyczka QGIS, program dla Windows i wiersz poleceń. Instrukcja krok po kroku.">
 <meta property="og:url" content="https://gorniakgrzegorz.github.io/geoai_klasyfikator/">
 <meta property="og:image" content="https://gorniakgrzegorz.github.io/geoai_klasyfikator/og.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="GeoAI Klasyfikator: obiektowa klasyfikacja pokrycia terenu ze zdjęć z drona i satelity">
+<meta property="og:image:alt" content="GeoAI Klasyfikator: obiektowa klasyfikacja pokrycia terenu ze zdjęć z UAV i satelity">
 <meta name="twitter:card" content="summary_large_image">
 <script type="application/ld+json">
 {
  "@context": "https://schema.org",
  "@type": "SoftwareApplication",
  "name": "GeoAI Klasyfikator",
- "description": "Otwarte oprogramowanie do obiektowej klasyfikacji pokrycia terenu (GEOBIA) ze zdjęć RGB z drona, zdjęć lotniczych i kompozycji Sentinel-2: segmentacja SLIC, Random Forest, ocena dokładności z estymacją powierzchni klas i przedziałami ufności 95%.",
+ "description": "Otwarte oprogramowanie do obiektowej klasyfikacji pokrycia terenu (GEOBIA) ze zdjęć RGB z UAV, zdjęć lotniczych i kompozycji Sentinel-2: segmentacja SLIC, Random Forest, ocena dokładności z estymacją powierzchni klas i przedziałami ufności 95%.",
  "url": "https://gorniakgrzegorz.github.io/geoai_klasyfikator/",
  "applicationCategory": "ScientificApplication",
  "operatingSystem": "Windows; QGIS 3.22 lub nowszy",
@@ -60,7 +60,7 @@
  "keywords": "GEOBIA, klasyfikacja obiektowa, pokrycie terenu, Random Forest, SLIC, dron, Sentinel-2, QGIS, ocena dokładności, teledetekcja"
 }
 </script>
-<meta name="description" content="Obiektowa klasyfikacja pokrycia terenu ze zdjęć z drona lub satelity. Wtyczka QGIS, program dla Windows i wiersz poleceń. Instrukcja krok po kroku.">
+<meta name="description" content="Obiektowa klasyfikacja pokrycia terenu ze zdjęć z UAV i satelity. Wtyczka QGIS, program dla Windows i wiersz poleceń. Instrukcja krok po kroku.">
 <style>
 :root{
   --marka:#00bde7; --marka-ciemna:#00749c; --marka-glebia:#005f80; --marka-jasna:#eafaff;
@@ -91,6 +91,7 @@ header{background:linear-gradient(160deg,var(--marka-ciemna) 0%,var(--marka-gleb
 header::after{content:"";position:absolute;inset:auto 0 -1px 0;height:40px;
   background:var(--tlo);clip-path:polygon(0 100%,100% 0,100% 100%)}
 header h1{margin:0 0 10px;font-size:2.7rem;letter-spacing:-.02em;line-height:1.1}
+header h1 .wiersz{display:block;white-space:nowrap}
 header p.lead{margin:0 0 26px;font-size:1.18rem;max-width:620px;color:#fff}
 .odznaki{display:flex;gap:9px;flex-wrap:wrap}
 .odznaka{background:rgba(255,255,255,.17);border:1px solid rgba(255,255,255,.3);
@@ -233,7 +234,7 @@ a.cyt:hover{text-decoration:underline}
   .anim-etapy button{min-height:44px;padding:8px 11px;font-size:13px}
   .anim-przyciski button{min-height:44px}}
 @media(max-width:640px){
-  header h1{font-size:2rem}
+  header h1{font-size:clamp(1.2rem,7.4vw,2rem)}
   nav .linki{display:none}
   .menu{display:block}
   h2 .numer{width:28px;height:28px;font-size:.9rem}
@@ -288,7 +289,7 @@ a.cyt:hover{text-decoration:underline}
 </div></nav>
 
 <header><div class="owijka">
-  <h1>Mapa pokrycia terenu<br>ze zdjęć z drona lub satelity</h1>
+  <h1><span class="wiersz">Mapa pokrycia terenu</span><span class="wiersz">ze zdjęć z UAV i satelity</span></h1>
   <p class="lead">Program dzieli zdjęcie na obiekty, uczy się Twoich klas
   z kilkunastu przykładów, a na końcu uczciwie mówi, ile ta mapa jest warta.</p>
   <div class="odznaki">
